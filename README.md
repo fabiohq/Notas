@@ -1,10 +1,1 @@
-http://questionnaire.evalart.com/person/recover/BEQIdSXSPkDdhuEF4kHCs8HxokS4hd
-
-
-
-
-https://teams.microsoft.com/meet/34137826704855?p=XPIPpwdmAaEWQGcGKB
-
-
-
-https://jobs.gft.com/job-invite/130825/
+https://app.hirint.io/test_process/welcome/eyJpdiI6IktkdGNLd05vQzB3Mzc3NHZOaDF5enc9PSIsInZhbHVlIjoibTZLQldFUmw5cHRaWXBtSWZ0RGFkbjZ2cVRjZG1CODZhNy91d055TFFUY2RKcks5WDJETE5xc2FzYnpqOFpVTmZsT3pqdnBPOVp1emFPYjJYSWRQT0E9PSIsIm1hYyI6IjJmNDg0ODU3ZTJlMmI5M2I2ZmY5M2ZjNDYwZjczZDdkNmVmZjNhNWZlMzJjNGZlMjFlNmM5ZjlkOWViZWJmMWIiLCJ0YWciOiIifQ==

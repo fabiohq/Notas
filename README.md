@@ -1,1 +1,30 @@
-https://app.hirint.io/test_process/welcome/eyJpdiI6IktkdGNLd05vQzB3Mzc3NHZOaDF5enc9PSIsInZhbHVlIjoibTZLQldFUmw5cHRaWXBtSWZ0RGFkbjZ2cVRjZG1CODZhNy91d055TFFUY2RKcks5WDJETE5xc2FzYnpqOFpVTmZsT3pqdnBPOVp1emFPYjJYSWRQT0E9PSIsIm1hYyI6IjJmNDg0ODU3ZTJlMmI5M2I2ZmY5M2ZjNDYwZjczZDdkNmVmZjNhNWZlMzJjNGZlMjFlNmM5ZjlkOWViZWJmMWIiLCJ0YWciOiIifQ==
+public final class JwtHeaderValidator {
+
+    private static final int MAX_LEN = 4096;
+
+    // JWT con 3 partes Base64URL
+    private static final Pattern JWT_PATTERN =
+            Pattern.compile("^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$");
+
+    private JwtHeaderValidator() {}
+
+    public static String validateForHeader(String token) {
+
+        if (token == null)
+            throw new IllegalArgumentException("JWT nulo");
+
+        String t = token.trim();
+
+        if (t.length() == 0 || t.length() > MAX_LEN)
+            throw new IllegalArgumentException("Longitud inválida");
+
+        // Prevención directa de HTTP header injection
+        if (t.contains("\r") || t.contains("\n"))
+            throw new IllegalArgumentException("JWT contiene caracteres inválidos");
+
+        if (!JWT_PATTERN.matcher(t).matches())
+            throw new IllegalArgumentException("Formato JWT inválido");
+
+        return t;
+    }
+}

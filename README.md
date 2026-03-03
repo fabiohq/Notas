@@ -1,16 +1,21 @@
-@Override
-public String toString() {
-    return "OneFccRequest{" +
-            "idDocument='" + idDocument + '\'' +
-            ", name='" + name + '\'' +
-            ", documentType='" + documentType + '\'' +
-            ", doBOrEntityCreationDate='" + doBOrEntityCreationDate + '\'' +
-            ", country='" + country + '\'' +
-            ", countryType='" + countryType + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", middleName='" + middleName + '\'' +
-            ", firstSurname='" + firstSurname + '\'' +
-            ", secondSurname='" + secondSurname + '\'' +
-            ", personType='" + personType + '\'' +
-            '}';
-}
+HttpHeaders headers = new HttpHeaders();
+headers.set("Authorization", "Bearer " + jwt);
+headers.setContentType(MediaType.APPLICATION_JSON);
+
+ObjectMapper mapper = new ObjectMapper();
+String jsonRequest = mapper.writerWithDefaultPrettyPrinter()
+                           .writeValueAsString(request);
+
+System.out.println("===== REQUEST COMPLETO =====");
+System.out.println("POST " + urlOneFcc + "/onboarding");
+System.out.println("Headers: " + headers);
+System.out.println("Body: " + jsonRequest);
+
+HttpEntity<OneFccRequest> entity = new HttpEntity<>(request, headers);
+
+response = restTemplate.exchange(
+        urlOneFcc + "/onboarding",
+        HttpMethod.POST,
+        entity,
+        OneFccResponse.class
+);

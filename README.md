@@ -1,21 +1,21 @@
-HttpHeaders headers = new HttpHeaders();
-headers.set("Authorization", "Bearer " + jwt);
-headers.setContentType(MediaType.APPLICATION_JSON);
+private static final int MAX_LEN = 4096;
+private static final Pattern JWT_PATTERN =
+        Pattern.compile("^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$");
 
-ObjectMapper mapper = new ObjectMapper();
-String jsonRequest = mapper.writerWithDefaultPrettyPrinter()
-                           .writeValueAsString(request);
+private static String sanitizeJwtForHeader(String token) {
+    if (token == null) {
+        throw new IllegalArgumentException("JWT nulo");
+    }
 
-System.out.println("===== REQUEST COMPLETO =====");
-System.out.println("POST " + urlOneFcc + "/onboarding");
-System.out.println("Headers: " + headers);
-System.out.println("Body: " + jsonRequest);
+    String t = token.trim();
 
-HttpEntity<OneFccRequest> entity = new HttpEntity<>(request, headers);
+    if (t.isEmpty() || t.length() > MAX_LEN) {
+        throw new IllegalArgumentException("JWT con longitud inválida");
+    }
 
-response = restTemplate.exchange(
-        urlOneFcc + "/onboarding",
-        HttpMethod.POST,
-        entity,
-        OneFccResponse.class
-);
+    if (!JWT_PATTERN.matcher(t).matches()) {
+        throw new IllegalArgumentException("JWT con formato inválido");
+    }
+
+    return t;
+}

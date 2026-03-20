@@ -1,5 +1,256 @@
-{"timestamp":"2026-03-20T15:52:52.348Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"'/v3/contracts/00650100000040726746/modify_associated_contract'  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":true,"platform": "Darwin","traceId":"6f17010aa34e2104","spanId":"6f17010aa34e2104","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscontracts","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"PostmanRuntime/7.30.0","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","contactPoint":"","threadId":"http-nio-8083-exec-1","clientId":"180947590","responseTime":"103"},"inputTimeStamp":"2026-03-20T15:52:52.227Z","method":"POST","url": "/v3/contracts/00650100000040726746/modify_associated_contract","returnCode":"500","logType":"activity"} 
-{"timestamp":"2026-03-20T15:52:52.357Z","environment":"LOCAL","userId":"","logLevel":"ERROR","log":"Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception java.lang.IllegalArgumentException: Illegal base64 character 5f\r\n\tat java.base/java.util.Base64$Decoder.decode0(Base64.java:848)\r\n\tat java.base/java.util.Base64$Decoder.decode(Base64.java:566)\r\n\tat java.base/java.util.Base64$Decoder.decode(Base64.java:589)\r\n\tat com.santander.darwin.security.authentication.token.DefaultTokenBuilder.createBks(DefaultTokenBuilder.java:196)\r\n\tat com.santander.darwin.security.authentication.servlet.DarwinAuthenticationManager.authenticate(DarwinAuthenticationManager.java:73)\r\n\tat org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.doFilterInternal(BearerTokenAuthenticationFilter.java:137)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)\r\n\tat org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n\tat org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)\r\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)\r\n\tat org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)\r\n\tat org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:227)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)\r\n\tat org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:240)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:224)\r\n\tat org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:137)\r\n\tat org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)\r\n\tat org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)\r\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\r\n\tat org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:243)\r\n\tat org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)\r\n\tat org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)\r\n\tat org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:238)\r\n\tat org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)\r\n\tat org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat com.santander.darwin.logging.filter.DistributedTracesFilter.doFilterInternal(DistributedTracesFilter.java:73)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:114)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat com.santander.darwin.core.filter.DarwinContextFilter.doFilterInternal(DarwinContextFilter.java:94)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:101)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)\r\n\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)\r\n\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)\r\n\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)\r\n\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)\r\n\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)\r\n\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)\r\n\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)\r\n\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)\r\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)\r\n\tat org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)\r\n\tat java.base/java.lang.Thread.run(Thread.java:842)\r\n ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"","spanId":"","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscontracts","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-8083-exec-1","component":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/].[dispatcherServlet]","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-20T15:52:52.422Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"Error type: org.springframework.security.authentication.AuthenticationCredentialsNotFoundException  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"","spanId":"","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscontracts","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-8083-exec-1","component":"com.santander.bnc.bsn049.bncbsn049mscontracts.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-20T15:52:52.422Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"Error: An Authentication object was not found in the SecurityContext  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"","spanId":"","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscontracts","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-8083-exec-1","component":"com.santander.bnc.bsn049.bncbsn049mscontracts.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-20T15:52:52.440Z","environment":"LOCAL","userId":"","logLevel":"ERROR","log":"Unhandled exception  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"","spanId":"","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscontracts","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-8083-exec-1","component":"com.santander.bnc.bsn049.bncbsn049mscontracts.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
+spring.profiles.active: local
+---
+darwin:
+  region: boae
+  suffix:
+  app-name: bsn049
+  logging:
+    format: GLUONLOG
+    gluon-log:
+      company: bnc
+      componentName: mswatchliscreen
+      componentId: CHANGEIT_CMPT_ID
+      componentType: microservice
+      appId: CHANGEIT_APP_ID
+    entity: ESP
+    paas-app-version: "6.1.0"
+  core:
+    exceptions:
+      error-format: GLUON
+  security:
+    white-list:
+      - /**
+    connectors:
+      pkm-connector:
+        pkm-endpoint:
+          - ${pkm-endpoint}
+    caffeine:
+      # disable null values in cache for performance reasons
+      allow-null-values: false
+
+spring:
+  application:
+    name: bnc-bsn049-mswatchliscreen
+  session:
+    store-type: none
+  cache:
+    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
+    caffeine:
+      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
+  lifecycle.timeout-per-shutdown-phase: 2m
+  datasource:
+    #url: ${spring.datasource.url}
+    #username: ${spring.datasource.username}
+    #password: ${spring.datasource.password}
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    # Configuration of connection pool. Please configure it according to the needs of the microservice.
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 2
+      idle-timeout: 36000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+      leak-detection-threshold: 3000
+  jpa:
+    hibernate:
+      ddl-auto: ${env.database.ddl-auto}
+  config:
+    import: message.properties, regex.properties
+logging:
+  level:
+    com.santander.bnc.bsn049.bncbsn049mswatchliscreen: INFO
+    root: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] [${spring.application.name:}] %logger{36} - %ms%n"
+management:
+  endpoint.health:
+    show-details: ALWAYS
+
+health:
+  config:
+    enabled: false
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+server:
+  max-http-request-header-size: 128KB
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+EXEMPT_RISK_SOURCES: "9"
+
+params:
+  appName: WATCHLIST_SCREENING
+  appVersion: api-service-v1
+  vigiaService:
+    url: "http://180.26.147.60:8070/WebServices/SOAP_VerificaTerceroV3.asmx"
+    urn: "http://tempuri.org/F_VERIFICATERCEROV3"
+    peOrigen: "TEST"
+    pePorcentaje: "100"
+    pePorcentajeCE: "100"
+    pePorcentajeCC: "85"
+
+
+# Servicio de Motor consulta datos basicos
+engine:
+  service-name: ${engine.service-name}
+  protocol: ${kyc.vigia.protocol}
+  host: ${engine.host}
+  context: ${engine.context}
+  trust-store: 
+  trust-store-property: 
+  mqRoute: ${engine.mqRoute}
+
+#OneFcc
+urlOneFcc: ${onefcc.url}
+userOneFcc: ${onefcc.user}     
+passOneFcc: ${onefcc.pass}        
+
+
+spring.profiles.active: local
+---
+darwin:
+  region: boae
+  suffix:
+  app-name: bsn049
+  logging:
+    format: GLUONLOG
+    gluon-log:
+      company: bnc
+      componentName: mscontracts
+      componentId: CHANGEIT_CMPT_ID
+      componentType: microservice
+      appId: CHANGEIT_APP_ID
+    entity: ESP
+    paas-app-version: "6.1.0"
+  core:
+    exceptions:
+      error-format: GLUON
+  security:
+    connectors:
+      pkm-connector:
+        pkm-endpoint:
+          - ${PKM_ENDPOINT:localhost://}
+    caffeine:
+      # disable null values in cache for performance reasons
+      allow-null-values: false
+spring:
+  application:
+    name: bnc-bsn049-mscontracts
+  session:
+    store-type: none
+  cache:
+    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
+    caffeine:
+      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
+  lifecycle.timeout-per-shutdown-phase: 2m
+  config:
+    import: classpath:messages.properties, classpath:regex.properties
+
+logging:
+  level:
+    com.santander.bnc.bsn049.bncbsn049mscontracts: INFO
+    root: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-}, %X{spanId:-}] [${spring.application.name:}] %logger{36} - %ms%n"
+
+management:
+  endpoint.health:
+    show-details: ALWAYS
+
+health:
+  config:
+    enabled: false
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+server:
+  max-http-request-header-size: 128KB
+  forward-headers-strategy: framework
+  shutdown: graceful
+  port: 8083
+
+params:
+  appName: CONTRACTS
+  appVersion: api-services-v3
+  commons:
+    productCode: "04"
+    subproductCode: "0250"
+    currency: "COP"
+    bankId: "0065"
+    centerId: "0060"
+  pepf:
+    user: "@NETE781"
+    numper: "03018043"
+  sanba:
+    mqRoute: "QCTFD"
+    user: "@NETE781"
+    channel: "60"
+
+  frequencies: "90,180,270,360,540"
+  settlements: "BGMF,RETF,ITEA"
+  condition-codes: TMVC
+
+bff-host: "backend-for-frontend-security-sanba-gui.apps.ocp4-preprod.cosanpre.corp"
+bff-port: 443
+bff-https: true
+
+product-directory-host: "ms-productdirectory-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp"
+product-directory-port: 443
+product-directory-https: true
+
+term-deposit-parameters-host: "ms-termdepositparameters-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp"
+term-deposit-parameters-port: 443
+term-deposit-parameters-https: true
+
+banks-host: "ms-banksandbranches-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp"
+banks-port: 443
+banks-https: true
+
+integration:
+  catalogue:
+    - integrationType: sanba
+      host: ${bff-host}
+      port: ${bff-port}
+      https: ${bff-https}
+      endpoint: "/service-engine/procesar/"
+      timeOutConn: 1000
+      timeOutRead: 1000
+    - integrationType: product-directory
+      host: ${product-directory-host}
+      port: ${product-directory-port}
+      https: ${product-directory-https}
+      endpoint: "/v3/products/"      
+      timeOutConn: 1000
+      timeOutRead: 1000
+    - integrationType: term-deposit-parameters
+      host: ${term-deposit-parameters-host}
+      port: ${term-deposit-parameters-port}
+      https: ${term-deposit-parameters-https}
+      endpoint: "/v1/term_deposit_parameters/"
+      timeOutConn: 1000
+      timeOutRead: 1000
+    - integrationType: banks
+      host: ${banks-host}
+      port: ${banks-port}
+      https: ${banks-https}
+      endpoint: "/v2/banks/"
+      timeOutConn: 1000
+      timeOutRead: 1000
+
+
+service-route-trx:
+  BP17: simulacionCDTBP17S171
+  PEPF: modificarMantencionPersonaNaturalInfAdicional
+  BP01: altaCuentaPlazoODS
+  BP02: altaIpfOdsCtaExterna
+  BP31: SBCDTTI01-ConsultaCDTDATTitular2654
+  BP13: consultaDatosIPF
+  BP49: SBCCG001ConsultaDetalladaMovimientos2652
+  BP21: modificacionDatosIPF

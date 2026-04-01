@@ -1,13 +1,16 @@
-// Clase interna simple
-public class SafeToken {
-    private final String value;
-    private SafeToken(String value) { this.value = value; }
-    
-    public static SafeToken of(String rawToken) {
-        // Aquí llamas a tu lógica de sanitización regex
-        String sanitized = safeHeaderSanetizacion(rawToken); 
-        return new SafeToken(sanitized);
+public String sanetizarHeader(String header) {
+    if (header == null) {
+        throw new IllegalArgumentException("Header nulo");
     }
     
-    public String getValue() { return value; }
+    // 1. Limpieza básica
+    String cleanHeader = header.trim().replace("\n", "").replace("\r", "");
+    
+    // 2. Validación de formato (Indispensable para Fortify)
+    // Suponiendo que es un JWT, validamos caracteres permitidos:
+    if (!cleanHeader.matches("^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+$")) {
+        throw new SecurityException("Formato de token inválido");
+    }
+    
+    return cleanHeader;
 }

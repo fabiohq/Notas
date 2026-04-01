@@ -1,4 +1,41 @@
-{"timestamp":"2026-03-31T19:33:11.818Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"Error type: org.springframework.web.HttpMediaTypeNotSupportedException  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"cd42f24612fe40ea","spanId":"cd42f24612fe40ea","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscustomer","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"PostmanRuntime/7.30.0","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-9152-exec-4","component":"com.santander.bnc.bsn049.bncbsn049mscustomer.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-31T19:33:11.819Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"Error: Content-Type 'text/plain;charset=UTF-8' is not supported  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"cd42f24612fe40ea","spanId":"cd42f24612fe40ea","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscustomer","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"PostmanRuntime/7.30.0","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-9152-exec-4","component":"com.santander.bnc.bsn049.bncbsn049mscustomer.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-31T19:33:11.819Z","environment":"LOCAL","userId":"","logLevel":"ERROR","log":"Unexpected error  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":false,"platform": "Darwin","traceId":"cd42f24612fe40ea","spanId":"cd42f24612fe40ea","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscustomer","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"PostmanRuntime/7.30.0","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","threadId":"http-nio-9152-exec-4","component":"com.santander.bnc.bsn049.bncbsn049mscustomer.exception.GlobalExceptionHandler","contactPoint":""},"logType":"technical"} 
-{"timestamp":"2026-03-31T19:33:11.823Z","environment":"LOCAL","userId":"","logLevel":"INFO","log":"'/v3/customers/03018462'  ","appKey":"bsn049","serviceName": "","region": "boae","entity": "ESP","error":true,"platform": "Darwin","traceId":"cd42f24612fe40ea","spanId":"cd42f24612fe40ea","parentSpanId":"","trace_id":"","span_id":"","parent_id":"","tracestate":"","company":"bnc","componentName":"mscustomer","componentId":"CHANGEIT_CMPT_ID","componentType":"microservice","appName":"bsn049","appId":"CHANGEIT_APP_ID","gluon":"Y","isGluon":true,"componentVersion":"6.1.0","logVersion":"1.0.0","customLog":{"userId":"","paasProject":"_","sessionId":"","platformLog":"PostmanRuntime/7.30.0","paasAppVersion": "6.1.0","appInit":"","serverId":"${env:HOSTNAME}","businessReference":"","sessionReference":"","channel":"","contactPoint":"","threadId":"http-nio-9152-exec-4","clientId":"asdasdasd","responseTime":"13"},"inputTimeStamp":"2026-03-31T19:33:11.809Z","method":"PATCH","url": "/v3/customers/03018462","returnCode":"400","logType":"activity"} 
+import java.util.stream.Collectors; // Necesario para la refactorización
+// ... otros imports ...
+
+public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
+    ErrorResponseDTO responseError = new ErrorResponseDTO();
+    
+    // --- ESTA ES LA CLAVE DE LA CORRECCIÓN ---
+    if (errors != null) {
+        // 1. REGISTRO SEGURO (Logging interno para diagnóstico de devs)
+        // Registramos todos los detalles originales ANTES de limpiarlos.
+        log.error("Se detectaron {} errores técnicos detallados:", errors.size());
+        errors.forEach(error -> 
+            log.error("Código de Error Técnico: {}, Descripción Técnica Detallada: {}", error.getCode(), error.getDescription())
+        );
+
+        // 2. SANITIZACIÓN EXTERNA (Crear errores seguros para el cliente)
+        // Creamos una NUEVA lista de ErrorDTOs "limpios" para la respuesta externa.
+        List<ErrorDTO> sanitizedErrors = errors.stream()
+            .map(originalError -> {
+                ErrorDTO safeError = new ErrorDTO();
+                // Opcional: Mantener el código técnico si no revela nada sensible,
+                // o usar un código de error más genérico para el exterior.
+                // Aquí aplicaremos la lógica de reemplazo original, pero con precaución.
+                safeError.setCode(originalError.getCode().replaceAll(ErrorCatalog.MS_NAME, ErrorCatalog.MS_NAME));
+                
+                // --- PUNTO CRÍTICO DE SANITIZACIÓN ---
+                // NO devolvemos la descripción técnica original.
+                // La reemplazamos por un mensaje genérico para el usuario externo.
+                safeError.setDescription("Ha ocurrido un error interno. Por favor, contacte al soporte con el código de error correspondiente.");
+                
+                return safeError;
+            })
+            .collect(Collectors.toList());
+
+        // Asignamos la lista SANITIZADA a la respuesta externa.
+        responseError.setErrors(sanitizedErrors);
+    }
+    // --- FIN DE LA CORRECCIÓN ---
+
+    return new ResponseEntity<>(responseError, status != null ? status : HttpStatus.BAD_REQUEST);
+}

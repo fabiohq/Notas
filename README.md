@@ -1,6 +1,12 @@
-private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
-    if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
-        return api.getAcceptedStatuses().contains(status);
+
     }
-    return status >= 200 && status < 300;
-}
+    
+}spring:
+  profiles:
+    active: local
+  application:
+    name: bnc-bsn049-mstermdepoprmtrs
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration

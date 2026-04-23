@@ -1,1 +1,1 @@
-spring.autoconfigure.exclude: org.springframework.boot.data.autoconfigure.metrics.DataRepositoryMetricsAutoConfiguration
+

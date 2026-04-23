@@ -1,22 +1,32 @@
 @Test
-void shouldThrowWhenBankIsNotFound() {
+void shouldFormat15DigitNumberWhenInputIsBlank() {
+    assertEquals("0,00", ContractsUtils.format15DigitNumber("   "));
+}
+
+@Test
+void shouldFormat15DigitNumberWhenInputHasOneDigit() {
+    assertEquals("0,09", ContractsUtils.format15DigitNumber("9"));
+}
+
+@Test
+void shouldThrowWhenFoundBankChangesAndDoesNotMatchInput() {
     BanksParametersRequest request = new BanksParametersRequest();
 
-    BanksParametersDTO dto = new BanksParametersDTO();
-    dto.setGetBankId("9999");
+    BanksParametersDTO dto = mock(BanksParametersDTO.class);
+    when(dto.getBankId()).thenReturn("0065", "9999");
 
     BanksResponse response = new BanksResponse();
-    response.setBanks(java.util.List.of(dto));
+    response.setBanks(List.of(dto));
 
     String message = "bankId not found";
 
-    java.util.HashMap<String, String> general = new java.util.HashMap<>();
+    HashMap<String, String> general = new HashMap<>();
     general.put("bankId_not_found", message);
 
     ServiceException expected = new ServiceException(
             HttpStatus.NOT_FOUND,
             ErrorDTO.builder()
-                    .code("COD-004")
+                    .code("COD-005")
                     .message(message)
                     .level("ERROR")
                     .description("desc")

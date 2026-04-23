@@ -1,129 +1,238 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.config;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.integration.ApiEntry;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-@Data
-@Component
-@ConfigurationProperties(prefix = "integration")
-public class IntegrationDataConfiguration {
-    @Getter
-    private List<ApiEntry> catalogue;
-    private Map<String, ApiEntry> catalogueMap;
+import org.junit.jupiter.api.Test;
 
-    private void loadCatalogueMap() {
-        catalogueMap = catalogue.stream().collect(
-                Collectors.toMap(ApiEntry::getIntegrationType, Function.identity()));
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.integration.ApiEntry;
+
+class IntegrationDataConfigurationTest {
+
+    @Test
+    void shouldReturnApiEntryByIntegrationType() {
+        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
+
+        ApiEntry sanba = new ApiEntry();
+        sanba.setIntegrationType("sanba");
+        sanba.setHost("localhost");
+        sanba.setPort(8080);
+        sanba.setEndpoint("/service-engine/procesar/");
+        sanba.setHttps(false);
+        sanba.setTimeOutConn(10);
+        sanba.setTimeOutRead(20);
+
+        ApiEntry banks = new ApiEntry();
+        banks.setIntegrationType("banks");
+        banks.setHost("localhost");
+        banks.setPort(8081);
+        banks.setEndpoint("/v2/banks/");
+        banks.setHttps(true);
+        banks.setTimeOutConn(11);
+        banks.setTimeOutRead(21);
+
+        configuration.setCatalogue(List.of(sanba, banks));
+
+        ApiEntry result = configuration.getByApi("sanba");
+
+        assertEquals("sanba", result.getIntegrationType());
+        assertEquals("localhost", result.getHost());
+        assertEquals(8080, result.getPort());
+        assertEquals("/service-engine/procesar/", result.getEndpoint());
+        assertEquals(false, result.isHttps());
+        assertEquals(10, result.getTimeOutConn());
+        assertEquals(20, result.getTimeOutRead());
     }
-    public ApiEntry getByApi(String integrationType){
-        if(catalogueMap == null){
-            loadCatalogueMap();
-        }
-        return catalogueMap.get(integrationType);
+
+    @Test
+    void shouldReturnNullWhenIntegrationTypeDoesNotExist() {
+        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
+
+        ApiEntry sanba = new ApiEntry();
+        sanba.setIntegrationType("sanba");
+
+        configuration.setCatalogue(List.of(sanba));
+
+        ApiEntry result = configuration.getByApi("unknown");
+
+        assertNull(result);
+    }
+
+    @Test
+    void shouldReuseLoadedCatalogueMap() {
+        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
+
+        ApiEntry banks = new ApiEntry();
+        banks.setIntegrationType("banks");
+        banks.setHost("host");
+        banks.setPort(8080);
+        banks.setEndpoint("/endpoint");
+        banks.setHttps(false);
+
+        configuration.setCatalogue(List.of(banks));
+
+        ApiEntry first = configuration.getByApi("banks");
+        ApiEntry second = configuration.getByApi("banks");
+
+        assertEquals("banks", first.getIntegrationType());
+        assertEquals("banks", second.getIntegrationType());
+        assertEquals(first, second);
     }
 }
-****************************
 
+
+
+*****?**?*******
 package com.santander.bnc.bsn049.bncbsn049mscontracts.config;
 
-import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import java.lang.reflect.Method;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.client.api.BanksApi;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.client.api.TrxSanbaAPI;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.integration.ApiEntry;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
-@Configuration
-@RequiredArgsConstructor
-@Slf4j
-public class RestClientConfig {
+class RestClientConfigTest {
 
-    private final IntegrationDataConfiguration properties;
+    private IntegrationDataConfiguration configuration;
+    private RestClientConfig restClientConfig;
 
-    @Bean
-    TrxSanbaAPI txrTransactionApi(){
-        return getRetrofitConfig(properties.getByApi("sanba"))
-                .addConverterFactory(JacksonConverterFactory.create(getObjectMapper(new ObjectMapper()))).build()
-                .create(TrxSanbaAPI.class);
+    @BeforeEach
+    void setUp() {
+        configuration = new IntegrationDataConfiguration();
+
+        ApiEntry sanba = new ApiEntry();
+        sanba.setIntegrationType("sanba");
+        sanba.setHost("localhost");
+        sanba.setPort(8080);
+        sanba.setEndpoint("/service-engine/procesar/");
+        sanba.setHttps(false);
+        sanba.setTimeOutConn(10);
+        sanba.setTimeOutRead(20);
+
+        ApiEntry banks = new ApiEntry();
+        banks.setIntegrationType("banks");
+        banks.setHost("localhost");
+        banks.setPort(8081);
+        banks.setEndpoint("/v2/banks/");
+        banks.setHttps(true);
+        banks.setTimeOutConn(11);
+        banks.setTimeOutRead(21);
+
+        configuration.setCatalogue(List.of(sanba, banks));
+        restClientConfig = new RestClientConfig(configuration);
     }
 
-    
-    @Bean
-    BanksApi banksAPI (){
-        return getRetrofitConfig(properties.getByApi("banks"))
-                .addConverterFactory(JacksonConverterFactory.create(getObjectMapper(new ObjectMapper()))).build()
-                .create(BanksApi.class);
+    @Test
+    void shouldCreateTrxSanbaApiBean() {
+        TrxSanbaAPI api = restClientConfig.txrTransactionApi();
+        assertNotNull(api);
     }
 
-
-
-    private Retrofit.Builder getRetrofitConfig(ApiEntry apiEntry) {
-
-        return new Retrofit.Builder()
-                .baseUrl(buildURL(apiEntry))
-                .client(getHttpClient(HttpLoggingInterceptor.Level.BODY,
-                        apiEntry.getTimeOutRead(),
-                        apiEntry.getTimeOutConn()));
+    @Test
+    void shouldCreateBanksApiBean() {
+        BanksApi api = restClientConfig.banksAPI();
+        assertNotNull(api);
     }
 
-    private OkHttpClient getHttpClient(HttpLoggingInterceptor.Level level, long readTimeout, long connectTimeout)  {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(msg ->
-		log.info("--> OKHTTP {}",msg)
-		);
-        interceptor.setLevel(level);
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+    @Test
+    void shouldBuildHttpUrlWithHttpWhenHttpsIsFalse() throws Exception {
+        ApiEntry apiEntry = new ApiEntry();
+        apiEntry.setHost("localhost");
+        apiEntry.setPort(8080);
+        apiEntry.setEndpoint("/service-engine/procesar/");
+        apiEntry.setHttps(false);
 
-        builder.readTimeout(readTimeout, TimeUnit.SECONDS);
-        builder.connectTimeout(connectTimeout, TimeUnit.SECONDS);
-        builder.addInterceptor(interceptor);
+        Method method = RestClientConfig.class.getDeclaredMethod("buildURL", ApiEntry.class);
+        method.setAccessible(true);
 
-        return builder
-                .build();
+        String url = (String) method.invoke(restClientConfig, apiEntry);
+
+        assertEquals("http://localhost:8080/service-engine/procesar/", url);
     }
 
-    private ObjectMapper getObjectMapper(ObjectMapper objectMapper) {
-        return objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .setDateFormat(new StdDateFormat())
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-                .enable(JsonGenerator.Feature.IGNORE_UNKNOWN)
-                .enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS)
-                .registerModule(new JavaTimeModule());
+    @Test
+    void shouldBuildHttpUrlWithHttpsWhenHttpsIsTrue() throws Exception {
+        ApiEntry apiEntry = new ApiEntry();
+        apiEntry.setHost("example.com");
+        apiEntry.setPort(443);
+        apiEntry.setEndpoint("/v2/banks/");
+        apiEntry.setHttps(true);
+
+        Method method = RestClientConfig.class.getDeclaredMethod("buildURL", ApiEntry.class);
+        method.setAccessible(true);
+
+        String url = (String) method.invoke(restClientConfig, apiEntry);
+
+        assertEquals("https://example.com:443/v2/banks/", url);
     }
 
+    @Test
+    void shouldBuildRetrofitConfig() throws Exception {
+        ApiEntry apiEntry = new ApiEntry();
+        apiEntry.setHost("localhost");
+        apiEntry.setPort(8080);
+        apiEntry.setEndpoint("/service-engine/procesar/");
+        apiEntry.setHttps(false);
+        apiEntry.setTimeOutConn(5);
+        apiEntry.setTimeOutRead(7);
 
-    private String buildURL(ApiEntry apiEntry){
-        String schema = "https://";
-        if(!apiEntry.isHttps()){
-            schema = schema.replace("s","");
-        }
-        return schema + apiEntry.getHost() + ":" + apiEntry.getPort() + apiEntry.getEndpoint();
+        Method method = RestClientConfig.class.getDeclaredMethod("getRetrofitConfig", ApiEntry.class);
+        method.setAccessible(true);
+
+        Retrofit.Builder builder = (Retrofit.Builder) method.invoke(restClientConfig, apiEntry);
+
+        assertNotNull(builder);
     }
 
+    @Test
+    void shouldBuildHttpClient() throws Exception {
+        Method method = RestClientConfig.class.getDeclaredMethod(
+                "getHttpClient",
+                HttpLoggingInterceptor.Level.class,
+                long.class,
+                long.class
+        );
+        method.setAccessible(true);
+
+        OkHttpClient client = (OkHttpClient) method.invoke(
+                restClientConfig,
+                HttpLoggingInterceptor.Level.BODY,
+                5L,
+                7L
+        );
+
+        assertNotNull(client);
+        assertEquals(7_000, client.readTimeoutMillis());
+        assertEquals(5_000, client.connectTimeoutMillis());
+        assertTrue(client.interceptors().stream()
+                .anyMatch(HttpLoggingInterceptor.class::isInstance));
+    }
+
+    @Test
+    void shouldConfigureObjectMapper() throws Exception {
+        Method method = RestClientConfig.class.getDeclaredMethod("getObjectMapper", ObjectMapper.class);
+        method.setAccessible(true);
+
+        ObjectMapper mapper = (ObjectMapper) method.invoke(restClientConfig, new ObjectMapper());
+
+        assertNotNull(mapper);
+        assertTrue(mapper.isEnabled(com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        assertTrue(mapper.getRegisteredModuleIds().stream()
+                .anyMatch(id -> id.toString().contains("jackson-datatype-jsr310")
+                        || id.toString().contains("JavaTimeModule")));
+    }
 }

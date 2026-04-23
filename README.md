@@ -1,269 +1,162 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.observability;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.client.service.TrxSanbaService;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks.BanksParametersRequest;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request.ContractRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request.ContractsServiceRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request.OldAssociatedContractRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.request.TrxBP21DataRequest;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.request.TrxBP21Request;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.response.TrxBP21Response;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.exception.error.ErrorService;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.service.ContractsService;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.utils.RegexUtils;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.utils.ContractsUtils;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.utils.ClientUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
-class ExternalApisHealthPropertiesTest {
+import org.springframework.stereotype.Service;
 
-    @Test
-    void shouldHandlePropertiesGettersAndSetters() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+@Service
+@RequiredArgsConstructor
 
-        properties.setTimeoutMs(5000);
+public class ContractsImpl implements ContractsService {
 
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-        apiCheck.setName("banks");
-        apiCheck.setUrl("http://localhost:8080/actuator/health");
-        apiCheck.setCritical(false);
-        apiCheck.setAcceptedStatuses(List.of(200, 404));
+    final TrxSanbaService trxSanbaService;
+    final ContractsUtils termDepositUtils;
+    final RegexUtils regexUtils;
+    final ErrorService errorService;
+    final ContractsUtils contractsUtils;
+    private static final String CONTRACTID = "contract Id";
+    private static final String INTERNALIDENTIFICATION = "InternalIdentification";
+    private static final String RELATIONSHIP = "relationshipTypeCode";
+    private static final String NATIONALIDENT = "NationalIdentification";
+    @Value("${service-route-trx.BP21}")
+    private String BP21_SERVICE_ROUTE;
 
-        properties.setChecks(new ArrayList<>(List.of(apiCheck)));
+    @Override
+    public void modifyAssociatedContract(String contractId, ContractsServiceRequestDTO updateRequest) {
 
-        assertEquals(5000, properties.getTimeoutMs());
-        assertEquals(1, properties.getChecks().size());
-        assertEquals("banks", properties.getChecks().get(0).getName());
-        assertEquals("http://localhost:8080/actuator/health", properties.getChecks().get(0).getUrl());
-        assertFalse(properties.getChecks().get(0).isCritical());
-        assertEquals(List.of(200, 404), properties.getChecks().get(0).getAcceptedStatuses());
+        validateUpdateContractA(contractId, updateRequest);
+        trxBP21Call(contractId, updateRequest);
+
     }
 
-    @Test
-    void shouldUseDefaultValuesInApiCheck() {
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
+    private void validateUpdateContractA(String contractId, ContractsServiceRequestDTO updateRequest) {
+        // Validación para
+        errorService.isNull(contractId, CONTRACTID);
+        errorService.isBlank(contractId, CONTRACTID);
+        regexUtils.validateRegex("only_numbers", contractId, CONTRACTID);
+        regexUtils.validateRegex("strict_length_20", contractId, "contract_ Id");
 
-        assertTrue(apiCheck.isCritical());
-        assertEquals(null, apiCheck.getAcceptedStatuses());
-    }
-}
+        //nationalIdentification
+        errorService.isNull(updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getNationalIdentification(),
+                NATIONALIDENT);
+        errorService.isBlank(updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getNationalIdentification(),
+                NATIONALIDENT);
+        regexUtils.validateRegex("national_length",
+                updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getNationalIdentification(),
+                NATIONALIDENT);
+        regexUtils.validateRegex("national_format",
+                updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getNationalIdentification(),
+                NATIONALIDENT);
+
+
+        //InternalIdentification
+        errorService.isNull(updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getInternalIdentification(),
+                INTERNALIDENTIFICATION);
+        errorService.isBlank(updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getInternalIdentification(),
+                INTERNALIDENTIFICATION);
+        regexUtils.validateRegex("internal_identification_length",
+                updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getInternalIdentification(),
+                INTERNALIDENTIFICATION);
+        regexUtils.validateRegex("internal_identification_format",
+                updateRequest.getNewAssociatedContract().getContract().getContractIdentification().getInternalIdentification(),
+                INTERNALIDENTIFICATION);
 
 
 
-
-_____________________________
-
-
-package com.santander.bnc.bsn049.bncbsn049mscontracts.observability;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
-class ExternalApisHealthIndicatorTest {
-
-    private static HttpServer server;
-    private static String baseUrl;
-
-    @BeforeAll
-    static void setUpServer() throws IOException {
-        server = HttpServer.create(new InetSocketAddress(0), 0);
-
-        server.createContext("/ok", new FixedStatusHandler(200));
-        server.createContext("/not-found", new FixedStatusHandler(404));
-        server.createContext("/error", new FixedStatusHandler(500));
-
-        server.start();
-        baseUrl = "http://localhost:" + server.getAddress().getPort();
-    }
-
-    @AfterAll
-    static void tearDownServer() {
-        if (server != null) {
-            server.stop(0);
+        //relationshipTypeCode
+        errorService.isNull(updateRequest.getOldAssociatedContract().getRelationshipTypeCode(),
+                RELATIONSHIP);
+        errorService.isBlank(updateRequest.getOldAssociatedContract().getRelationshipTypeCode(),
+                RELATIONSHIP);
+        regexUtils.validateRegex("relationship_length",
+                updateRequest.getOldAssociatedContract().getRelationshipTypeCode(),
+                RELATIONSHIP);
+        regexUtils.validateRegex("relationship_format",
+                updateRequest.getOldAssociatedContract().getRelationshipTypeCode(),
+                RELATIONSHIP);
+        OldAssociatedContractRequestDTO oldContract = updateRequest.getOldAssociatedContract();
+        String relationshipTypeCode = oldContract.getRelationshipTypeCode();
+        if (!isValidRelationshipTypeCode(relationshipTypeCode)) {
+            throw new IllegalArgumentException("'relationshipTypeCode': Invalid value");
         }
     }
 
-    @Test
-    void shouldReturnUpWhenAllCriticalApisAreUp() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(2000);
-
-        ExternalApisHealthProperties.ApiCheck criticalOk = buildApiCheck(
-                "critical-ok",
-                baseUrl + "/ok",
-                true,
-                null
-        );
-
-        ExternalApisHealthProperties.ApiCheck nonCritical404Accepted = buildApiCheck(
-                "non-critical-404",
-                baseUrl + "/not-found",
-                false,
-                List.of(200, 404)
-        );
-
-        properties.setChecks(List.of(criticalOk, nonCritical404Accepted));
-
-        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
-
-        Health health = indicator.health();
-
-        assertEquals(Status.UP, health.getStatus());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> criticalDetails =
-                (Map<String, Object>) health.getDetails().get("critical-ok");
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> nonCriticalDetails =
-                (Map<String, Object>) health.getDetails().get("non-critical-404");
-
-        assertNotNull(criticalDetails);
-        assertNotNull(nonCriticalDetails);
-
-        assertEquals("UP", criticalDetails.get("status"));
-        assertEquals(baseUrl + "/ok", criticalDetails.get("url"));
-        assertEquals(true, criticalDetails.get("critical"));
-        assertEquals(200, criticalDetails.get("httpStatus"));
-
-        assertEquals("UP", nonCriticalDetails.get("status"));
-        assertEquals(baseUrl + "/not-found", nonCriticalDetails.get("url"));
-        assertEquals(false, nonCriticalDetails.get("critical"));
-        assertEquals(404, nonCriticalDetails.get("httpStatus"));
+    private boolean isValidRelationshipTypeCode(String relationshipTypeCode) {
+        return "CC".equals(relationshipTypeCode) || "CA".equals(relationshipTypeCode);
     }
 
-    @Test
-    void shouldReturnDownWhenCriticalApiFailsWithDefaultStatusValidation() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(2000);
+    private String buildObservation(ContractsServiceRequestDTO updateRequest) {
+        StringBuilder observation = new StringBuilder();
 
-        ExternalApisHealthProperties.ApiCheck criticalError = buildApiCheck(
-                "critical-error",
-                baseUrl + "/error",
-                true,
-                null
-        );
+        ContractRequestDTO newContract = updateRequest.getNewAssociatedContract().getContract();
+        String nationalIdentification = newContract.getContractIdentification().getNationalIdentification();
+        String internationalIdentifiaction = newContract.getContractIdentification().getInternalIdentification();
 
-        properties.setChecks(List.of(criticalError));
+        BanksParametersRequest banksParametersRequest = BanksParametersRequest.builder()
+                .authorization("authorization")
+                .xSantanderClientId("xSantanderClientId")
+                .build();
 
-        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
+        contractsUtils.bankValidation(banksParametersRequest, nationalIdentification);
 
-        Health health = indicator.health();
+        OldAssociatedContractRequestDTO oldContract = updateRequest.getOldAssociatedContract();
+        String relationshipTypeCode = oldContract.getRelationshipTypeCode();
 
-        assertEquals(Status.DOWN, health.getStatus());
+        // Concatenar los valores en una sola cadena
+        observation.append(nationalIdentification).append(relationshipTypeCode).append(internationalIdentifiaction);
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> details =
-                (Map<String, Object>) health.getDetails().get("critical-error");
-
-        assertNotNull(details);
-        assertEquals("DOWN", details.get("status"));
-        assertEquals(baseUrl + "/error", details.get("url"));
-        assertEquals(true, details.get("critical"));
-        assertEquals(500, details.get("httpStatus"));
+        return observation.toString();
     }
 
-    @Test
-    void shouldReturnUpWhenAcceptedStatusesContains404ForCriticalApi() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(2000);
 
-        ExternalApisHealthProperties.ApiCheck critical404Accepted = buildApiCheck(
-                "critical-404-accepted",
-                baseUrl + "/not-found",
-                true,
-                List.of(200, 404)
-        );
+    public TrxBP21Response trxBP21Call(String contractId, ContractsServiceRequestDTO updateRequest) {
+        String observation = buildObservation(updateRequest);
+        String zero = "0000000000000.00";
+        TrxBP21Request trxBP21Request = new TrxBP21Request(ClientUtils.buildHeader(BP21_SERVICE_ROUTE));
 
-        properties.setChecks(List.of(critical404Accepted));
+        var trxBP21Data = new TrxBP21DataRequest();
 
-        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
+        // Otras configuraciones de trxBP21Data
+        trxBP21Data.setCertificado("ECP");
+        trxBP21Data.setCcc(contractId);
+        trxBP21Data.setSecuenciaImposicion("00001");
+        trxBP21Data.setTarifaVigente("4250");
+        trxBP21Data.setPlazo("090");
+        trxBP21Data.setPeriodoLiquidacion("M");
+        trxBP21Data.setDivisa("COP");
+        trxBP21Data.setSaldoDeLaIpf(zero);
+        trxBP21Data.setSpread("000.00000");
+        trxBP21Data.setRenovacionAutomatic("N");
+        trxBP21Data.setCapitalizaIntereses("N");
+        trxBP21Data.setCapitalizaReajustes("N");
+        trxBP21Data.setEjecutivoComercial("0001");
+        trxBP21Data.setRentaProgramada(zero);
+        trxBP21Data.setIndBloqueo("N");
+        trxBP21Data.setCentroGestor("0001");
+        trxBP21Data.setIndicadorGarantia("N");
+        trxBP21Data.setIndicadorFraccionab("N");
+        trxBP21Data.setSpreadRenovacion("000.00000");
+        trxBP21Data.setSaldoEnajenacion("0000000000000.00");
+        trxBP21Data.setObservaciones(observation);
+        trxBP21Data.setTipoDeTasa("N");
 
-        Health health = indicator.health();
-
-        assertEquals(Status.UP, health.getStatus());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> details =
-                (Map<String, Object>) health.getDetails().get("critical-404-accepted");
-
-        assertNotNull(details);
-        assertEquals("UP", details.get("status"));
-        assertEquals(404, details.get("httpStatus"));
-    }
-
-    @Test
-    void shouldIncludeErrorWhenRequestFails() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(200);
-
-        ExternalApisHealthProperties.ApiCheck unreachableCritical = buildApiCheck(
-                "unreachable-api",
-                "http://localhost:1/health",
-                true,
-                null
-        );
-
-        properties.setChecks(List.of(unreachableCritical));
-
-        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
-
-        Health health = indicator.health();
-
-        assertEquals(Status.DOWN, health.getStatus());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> details =
-                (Map<String, Object>) health.getDetails().get("unreachable-api");
-
-        assertNotNull(details);
-        assertEquals("DOWN", details.get("status"));
-        assertEquals("http://localhost:1/health", details.get("url"));
-        assertEquals(true, details.get("critical"));
-        assertNotNull(details.get("error"));
-    }
-
-    private static ExternalApisHealthProperties.ApiCheck buildApiCheck(
-            String name,
-            String url,
-            boolean critical,
-            List<Integer> acceptedStatuses
-    ) {
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-        apiCheck.setName(name);
-        apiCheck.setUrl(url);
-        apiCheck.setCritical(critical);
-        apiCheck.setAcceptedStatuses(acceptedStatuses);
-        return apiCheck;
-    }
-
-    private static class FixedStatusHandler implements HttpHandler {
-
-        private final int status;
-
-        private FixedStatusHandler(int status) {
-            this.status = status;
-        }
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            exchange.sendResponseHeaders(status, -1);
-            try (OutputStream os = exchange.getResponseBody()) {
-                // no body
-            }
-        }
+        trxBP21Request.setData(trxBP21Data);
+        return trxSanbaService.trxBP21(trxBP21Request);
     }
 }

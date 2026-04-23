@@ -1,4 +1,4 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.exception.error;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,128 +9,66 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
-class ErrorServiceTest {
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
 
-    private ErrorService errorService;
+class RegexUtilsTest {
+
+    private RegexUtils regexUtils;
 
     @BeforeEach
     void setUp() {
-        errorService = new ErrorService();
+        regexUtils = new RegexUtils();
 
-        ReflectionTestUtils.setField(errorService, "msName", "MSCONTRACTS");
-        ReflectionTestUtils.setField(errorService, "msVersion", "v1");
-        ReflectionTestUtils.setField(errorService, "level", "ERROR");
-        ReflectionTestUtils.setField(errorService, "functional", "FNC");
-        ReflectionTestUtils.setField(errorService, "technical", "TECH");
-        ReflectionTestUtils.setField(errorService, "BLANK_DATA", "Cannot be blank");
+        ReflectionTestUtils.setField(regexUtils, "MS_NAME", "CONTRACTS");
+        ReflectionTestUtils.setField(regexUtils, "MS_VERSION", "api-services-v3");
+        ReflectionTestUtils.setField(regexUtils, "LEVEL", "error");
+        ReflectionTestUtils.setField(regexUtils, "CODE", "P-F-9400");
 
-        HashMap<String, String> general = new HashMap<>();
-        general.put("null", "Cannot be null");
+        HashMap<String, String> type = new HashMap<>();
+        type.put("onlyNumbers", "^[0-9]+$");
+        type.put("onlyNumbers_error", "Only numbers allowed");
+        type.put("onlyLetters", "^[a-zA-Z]+$");
+        // sin onlyLetters_error a propósito para cubrir el default "Invalid format"
 
-        ReflectionTestUtils.setField(errorService, "general", general);
+        ReflectionTestUtils.setField(regexUtils, "type", type);
     }
 
     @Test
-    void shouldBuildServiceExceptionFunctional() {
-        ServiceException ex = errorService.serviceExceptionBuilder(
-                HttpStatus.BAD_REQUEST,
-                "campo inválido",
-                ErrorType.FUNCTIONAL
+    void shouldNotThrowWhenRegexMatches() {
+        assertDoesNotThrow(() ->
+                regexUtils.validateRegex("onlyNumbers", "123456", "account")
         );
-
-        assertNotNull(ex);
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
-        assertNotNull(ex.getError());
-        assertEquals("MSCONTRACTS-FNC-9400", ex.getError().getCode());
-        assertEquals("ERROR", ex.getError().getLevel());
-        assertEquals("campo inválido", ex.getError().getMessage());
-        assertEquals("mscontracts-v1: campo inválido", ex.getError().getDescription());
     }
 
     @Test
-    void shouldBuildServiceExceptionTechnical() {
-        ServiceException ex = errorService.serviceExceptionBuilder(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "error técnico",
-                ErrorType.TECHNICAL
-        );
-
-        assertNotNull(ex);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatus());
-        assertNotNull(ex.getError());
-        assertEquals("MSCONTRACTS-TECH-9500", ex.getError().getCode());
-        assertEquals("ERROR", ex.getError().getLevel());
-        assertEquals("error técnico", ex.getError().getMessage());
-        assertEquals("mscontracts-v1: error técnico", ex.getError().getDescription());
-    }
-
-    @Test
-    void shouldBuildErrorDtoFunctional() {
-        ErrorDTO dto = errorService.errorBuilder(
-                HttpStatus.BAD_REQUEST,
-                "mensaje funcional",
-                ErrorType.FUNCTIONAL
-        );
-
-        assertNotNull(dto);
-        assertEquals("MSCONTRACTS-FNC-9400", dto.getCode());
-        assertEquals("ERROR", dto.getLevel());
-        assertEquals("mensaje funcional", dto.getMessage());
-        assertEquals("mscontracts-v1: mensaje funcional", dto.getDescription());
-    }
-
-    @Test
-    void shouldBuildErrorDtoTechnical() {
-        ErrorDTO dto = errorService.errorBuilder(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "mensaje técnico",
-                ErrorType.TECHNICAL
-        );
-
-        assertNotNull(dto);
-        assertEquals("MSCONTRACTS-TECH-9500", dto.getCode());
-        assertEquals("ERROR", dto.getLevel());
-        assertEquals("mensaje técnico", dto.getMessage());
-        assertEquals("mscontracts-v1: mensaje técnico", dto.getDescription());
-    }
-
-    @Test
-    void shouldThrowWhenValueIsBlank() {
+    void shouldThrowServiceExceptionWhenRegexDoesNotMatchAndCustomErrorExists() {
         ServiceException ex = assertThrows(
                 ServiceException.class,
-                () -> errorService.isBlank("", "name")
+                () -> regexUtils.validateRegex("onlyNumbers", "ABC123", "account")
         );
 
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getCode());
         assertNotNull(ex.getError());
-        assertEquals("MSCONTRACTS-FNC-9400", ex.getError().getCode());
-        assertEquals("ERROR", ex.getError().getLevel());
-        assertEquals("\"name\": Cannot be blank", ex.getError().getMessage());
-        assertEquals("mscontracts-v1: \"name\": Cannot be blank", ex.getError().getDescription());
+        assertEquals("CONTRACTS-P-F-9400", ex.getError().getCode());
+        assertEquals("error", ex.getError().getLevel());
+        assertEquals("'account': Only numbers allowed", ex.getError().getMessage());
+        assertEquals("contracts-api-services-v3: 'account': Only numbers allowed",
+                ex.getError().getDescription());
     }
 
     @Test
-    void shouldNotThrowWhenValueIsNotBlank() {
-        assertDoesNotThrow(() -> errorService.isBlank("valor", "name"));
-    }
-
-    @Test
-    void shouldThrowWhenValueIsNull() {
+    void shouldThrowServiceExceptionWhenRegexDoesNotMatchAndDefaultMessageIsUsed() {
         ServiceException ex = assertThrows(
                 ServiceException.class,
-                () -> errorService.isNull(null, "name")
+                () -> regexUtils.validateRegex("onlyLetters", "12345", "name")
         );
 
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getCode());
         assertNotNull(ex.getError());
-        assertEquals("MSCONTRACTS-FNC-9400", ex.getError().getCode());
-        assertEquals("ERROR", ex.getError().getLevel());
-        assertEquals("\"name\": Cannot be null", ex.getError().getMessage());
-        assertEquals("mscontracts-v1: \"name\": Cannot be null", ex.getError().getDescription());
-    }
-
-    @Test
-    void shouldNotThrowWhenValueIsNotNull() {
-        assertDoesNotThrow(() -> errorService.isNull("valor", "name"));
+        assertEquals("CONTRACTS-P-F-9400", ex.getError().getCode());
+        assertEquals("error", ex.getError().getLevel());
+        assertEquals("'name': Invalid format", ex.getError().getMessage());
+        assertEquals("contracts-api-services-v3: 'name': Invalid format",
+                ex.getError().getDescription());
     }
 }

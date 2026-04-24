@@ -1,31 +1,42 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class BanksParametersDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BanksParametersDTO {
-    private String bankId;
-    private String bankName;
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        BanksParametersDTO dto = new BanksParametersDTO();
 
-    public String getBankId() {
-        return bankId;
+        dto.setBankId("0065");
+        dto.setBankName("Santander");
+
+        assertEquals("0065", dto.getBankId());
+        assertEquals("Santander", dto.getBankName());
     }
 
-    public void setBankId(String bankId) {
-        this.bankId = bankId;
+    @Test
+    void shouldCoverBuilder() {
+        BanksParametersDTO dto = BanksParametersDTO.builder()
+                .bankId("1234")
+                .bankName("Banco Test")
+                .build();
+
+        assertNotNull(dto);
+        assertEquals("1234", dto.getBankId());
+        assertEquals("Banco Test", dto.getBankName());
     }
 
-    public String getBankName() {
-        return bankName;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        BanksParametersDTO dto =
+                new BanksParametersDTO("9999", "Banco Demo");
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
+        assertNotNull(dto);
+        assertEquals("9999", dto.getBankId());
+        assertEquals("Banco Demo", dto.getBankName());
     }
 }

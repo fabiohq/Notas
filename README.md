@@ -5,33 +5,43 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class ValidityPeriodRequestDTOTest {
+class NewAssociatedContractRequestDTOTest {
 
     @Test
     void shouldCoverPojo() {
-        ValidityPeriodRequestDTO dto = new ValidityPeriodRequestDTO();
+        NewAssociatedContractRequestDTO dto =
+                new NewAssociatedContractRequestDTO();
 
-        dto.setStartDate("2024-01-01");
-        dto.setEndDate("2024-12-31");
+        ContractRequestDTO contract = new ContractRequestDTO();
+        ValidityPeriodRequestDTO validity =
+                new ValidityPeriodRequestDTO();
 
-        assertEquals("2024-01-01", dto.getStartDate());
-        assertEquals("2024-12-31", dto.getEndDate());
+        dto.setContract(contract);
+        dto.setValidityPeriod(validity);
+
+        assertEquals(contract, dto.getContract());
+        assertEquals(validity, dto.getValidityPeriod());
     }
 
     @Test
     void shouldCoverBuilderAndAllArgs() {
-        ValidityPeriodRequestDTO dto =
-                ValidityPeriodRequestDTO.builder()
-                        .startDate("2024-01-01")
-                        .endDate("2024-12-31")
+        ContractRequestDTO contract = new ContractRequestDTO();
+        ValidityPeriodRequestDTO validity =
+                new ValidityPeriodRequestDTO();
+
+        NewAssociatedContractRequestDTO dto =
+                NewAssociatedContractRequestDTO.builder()
+                        .contract(contract)
+                        .validityPeriod(validity)
                         .build();
 
         assertNotNull(dto);
 
-        ValidityPeriodRequestDTO dto2 =
-                new ValidityPeriodRequestDTO("2025-01-01", "2025-12-31");
+        NewAssociatedContractRequestDTO dto2 =
+                new NewAssociatedContractRequestDTO(
+                        contract, validity);
 
-        assertEquals("2025-01-01", dto2.getStartDate());
-        assertEquals("2025-12-31", dto2.getEndDate());
+        assertEquals(contract, dto2.getContract());
+        assertEquals(validity, dto2.getValidityPeriod());
     }
 }

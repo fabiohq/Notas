@@ -1,91 +1,99 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp01.response;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp02.response.dto.Bp01DataResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto.PepfHeaderResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto.PepfNoticeResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import lombok.NoArgsConstructor;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxBp01Response {
-    private Bp01DataResponseDTO data;
-    private PepfHeaderResponseDTO cabecera;
-    private Object autorizacion;
-    private Map<String, Object> paginacion;
-    private List<PepfNoticeResponseDTO> avisos;
-    private List<ErrorTrxDTO> errores;
-    private Object conexion;
-    private boolean ok;
+import org.junit.jupiter.api.Test;
 
-    public Bp01DataResponseDTO getData() {
-        return data;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp02.response.dto.Bp01DataResponseDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto.PepfHeaderResponseDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto.PepfNoticeResponseDTO;
+
+class TrxBp01ResponseTest {
+
+    @Test
+    void shouldCoverSettersAndGetters() {
+        TrxBp01Response dto = new TrxBp01Response();
+
+        Bp01DataResponseDTO data = new Bp01DataResponseDTO();
+        PepfHeaderResponseDTO header = new PepfHeaderResponseDTO();
+        Object auth = new Object();
+
+        Map<String, Object> pag = new HashMap<>();
+        pag.put("page", 1);
+
+        List<PepfNoticeResponseDTO> avisos =
+                List.of(new PepfNoticeResponseDTO());
+
+        List<ErrorTrxDTO> errores =
+                List.of(new ErrorTrxDTO());
+
+        Object conexion = new Object();
+
+        dto.setData(data);
+        dto.setCabecera(header);
+        dto.setAutorizacion(auth);
+        dto.setPaginacion(pag);
+        dto.setAvisos(avisos);
+        dto.setErrores(errores);
+        dto.setConexion(conexion);
+        dto.setOk(true);
+
+        assertEquals(data, dto.getData());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(auth, dto.getAutorizacion());
+        assertEquals(pag, dto.getPaginacion());
+        assertEquals(avisos, dto.getAvisos());
+        assertEquals(errores, dto.getErrores());
+        assertEquals(conexion, dto.getConexion());
+        assertTrue(dto.isOk());
     }
 
-    public void setData(Bp01DataResponseDTO data) {
-        this.data = data;
+    @Test
+    void shouldCoverBuilder() {
+        TrxBp01Response dto = TrxBp01Response.builder()
+                .data(new Bp01DataResponseDTO())
+                .cabecera(new PepfHeaderResponseDTO())
+                .autorizacion("AUTH")
+                .paginacion(Map.of("page", 1))
+                .avisos(List.of(new PepfNoticeResponseDTO()))
+                .errores(List.of(new ErrorTrxDTO()))
+                .conexion("CONN")
+                .ok(false)
+                .build();
+
+        assertNotNull(dto);
+        assertEquals("AUTH", dto.getAutorizacion());
+        assertEquals("CONN", dto.getConexion());
+        assertFalse(dto.isOk());
     }
 
-    public PepfHeaderResponseDTO getCabecera() {
-        return cabecera;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        Bp01DataResponseDTO data = new Bp01DataResponseDTO();
+        PepfHeaderResponseDTO header = new PepfHeaderResponseDTO();
 
-    public void setCabecera(PepfHeaderResponseDTO cabecera) {
-        this.cabecera = cabecera;
-    }
+        TrxBp01Response dto = new TrxBp01Response(
+                data,
+                header,
+                "AUTH",
+                Map.of("page", 2),
+                List.of(),
+                List.of(),
+                "CONN",
+                true
+        );
 
-    public Object getAutorizacion() {
-        return autorizacion;
-    }
-
-    public void setAutorizacion(Object autorizacion) {
-        this.autorizacion = autorizacion;
-    }
-
-    public Map<String, Object> getPaginacion() {
-        return paginacion;
-    }
-
-    public void setPaginacion(Map<String, Object> paginacion) {
-        this.paginacion = paginacion;
-    }
-
-    public List<PepfNoticeResponseDTO> getAvisos() {
-        return avisos;
-    }
-
-    public void setAvisos(List<PepfNoticeResponseDTO> avisos) {
-        this.avisos = avisos;
-    }
-
-    public List<ErrorTrxDTO> getErrores() {
-        return errores;
-    }
-
-    public void setErrores(List<ErrorTrxDTO> errores) {
-        this.errores = errores;
-    }
-
-    public Object getConexion() {
-        return conexion;
-    }
-
-    public void setConexion(Object conexion) {
-        this.conexion = conexion;
-    }
-
-    public boolean isOk() {
-        return ok;
-    }
-
-    public void setOk(boolean ok) {
-        this.ok = ok;
+        assertNotNull(dto);
+        assertEquals(data, dto.getData());
+        assertEquals(header, dto.getCabecera());
+        assertTrue(dto.isOk());
     }
 }

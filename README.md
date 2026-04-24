@@ -1,41 +1,65 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class OldAssociatedContractRequestDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class OldAssociatedContractRequestDTO {
+    @Test
+    void shouldCoverSettersAndGetters() {
+        OldAssociatedContractRequestDTO dto =
+                new OldAssociatedContractRequestDTO();
 
-    private ContractRequestDTO contract;
-    private String relationshipTypeCode;
-    private ValidityPeriodRequestDTO validityPeriod;
+        ContractRequestDTO contract = new ContractRequestDTO();
+        ValidityPeriodRequestDTO validity =
+                new ValidityPeriodRequestDTO();
 
-    public ContractRequestDTO getContract() {
-        return contract;
+        dto.setContract(contract);
+        dto.setRelationshipTypeCode("REL01");
+        dto.setValidityPeriod(validity);
+
+        assertEquals(contract, dto.getContract());
+        assertEquals("REL01", dto.getRelationshipTypeCode());
+        assertEquals(validity, dto.getValidityPeriod());
     }
 
-    public void setContract(ContractRequestDTO contract) {
-        this.contract = contract;
+    @Test
+    void shouldCoverBuilder() {
+        ContractRequestDTO contract = new ContractRequestDTO();
+        ValidityPeriodRequestDTO validity =
+                new ValidityPeriodRequestDTO();
+
+        OldAssociatedContractRequestDTO dto =
+                OldAssociatedContractRequestDTO.builder()
+                        .contract(contract)
+                        .relationshipTypeCode("REL02")
+                        .validityPeriod(validity)
+                        .build();
+
+        assertNotNull(dto);
+        assertEquals(contract, dto.getContract());
+        assertEquals("REL02", dto.getRelationshipTypeCode());
+        assertEquals(validity, dto.getValidityPeriod());
     }
 
-    public String getRelationshipTypeCode() {
-        return relationshipTypeCode;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        ContractRequestDTO contract = new ContractRequestDTO();
+        ValidityPeriodRequestDTO validity =
+                new ValidityPeriodRequestDTO();
 
-    public void setRelationshipTypeCode(String relationshipTypeCode) {
-        this.relationshipTypeCode = relationshipTypeCode;
-    }
+        OldAssociatedContractRequestDTO dto =
+                new OldAssociatedContractRequestDTO(
+                        contract,
+                        "REL03",
+                        validity
+                );
 
-    public ValidityPeriodRequestDTO getValidityPeriod() {
-        return validityPeriod;
-    }
-
-    public void setValidityPeriod(ValidityPeriodRequestDTO validityPeriod) {
-        this.validityPeriod = validityPeriod;
+        assertNotNull(dto);
+        assertEquals(contract, dto.getContract());
+        assertEquals("REL03", dto.getRelationshipTypeCode());
+        assertEquals(validity, dto.getValidityPeriod());
     }
 }

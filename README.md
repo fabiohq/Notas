@@ -1,57 +1,98 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request.dto.PepfDataDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 
-import lombok.NoArgsConstructor;
+class TrxPEPFDataRequestTest {
 
+    @Test
+    void shouldCoverSettersAndGetters() {
+        TrxPEPFDataRequest dto = new TrxPEPFDataRequest();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxPEPFDataRequest {
-    private TrxHeader cabecera;
-    private PepfDataDTO data;
+        TrxHeader header = new TrxHeader();
+        PepfDataDTO data = new PepfDataDTO();
 
-    public TrxPEPFDataRequest(TrxPersonHeader header){
-        var session= new Session();
-        this.cabecera = new TrxHeader();
+        dto.setCabecera(header);
+        dto.setData(data);
 
-        session.setEntidad("0065");
-        session.setEntorno(header.sesion.entorno);
-        session.setFechaContable(header.sesion.fechaContable);
-        session.setHoraConexion(header.sesion.horaConexion);
-        session.setPerfil(header.sesion.perfil);
-        session.setSucursal(header.sesion.sucursal);
-        session.setTerminal(header.sesion.terminal);
-        session.setTurno(header.sesion.turno);
-        session.setUsuario(header.sesion.usuario);
-
-        this.cabecera.setCanal(header.canal);
-        this.cabecera.setFuncion(header.getFuncion());
-        this.cabecera.setResultado(header.getResultado());
-        this.cabecera.setRutaServicio(header.rutaServicio);
-        this.cabecera.setSecuencia(header.getSecuencia());
-        this.cabecera.setSesion(session);
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
-    public TrxHeader getCabecera() {
-        return cabecera;
+    @Test
+    void shouldCoverBuilder() {
+        TrxHeader header = new TrxHeader();
+        PepfDataDTO data = new PepfDataDTO();
+
+        TrxPEPFDataRequest dto = TrxPEPFDataRequest.builder()
+                .cabecera(header)
+                .data(data)
+                .build();
+
+        assertNotNull(dto);
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
-    public void setCabecera(TrxHeader cabecera) {
-        this.cabecera = cabecera;
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        TrxHeader header = new TrxHeader();
+        PepfDataDTO data = new PepfDataDTO();
+
+        TrxPEPFDataRequest dto = new TrxPEPFDataRequest(header, data);
+
+        assertNotNull(dto);
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
-    public PepfDataDTO getData() {
-        return data;
-    }
+    @Test
+    void shouldCoverConstructorWithTrxPersonHeader() {
+        TrxPersonHeader personHeader = new TrxPersonHeader();
 
-    public void setData(PepfDataDTO data) {
-        this.data = data;
+        personHeader.canal = "WEB";
+        personHeader.rutaServicio = "ROUTE01";
+        personHeader.setFuncion("FUNC01");
+        personHeader.setResultado("OK");
+        personHeader.setSecuencia("999");
+
+        personHeader.sesion = new Session();
+        personHeader.sesion.setEntorno("DEV");
+        personHeader.sesion.setFechaContable("20240101");
+        personHeader.sesion.setHoraConexion("101010");
+        personHeader.sesion.setPerfil("ADMIN");
+        personHeader.sesion.setSucursal("001");
+        personHeader.sesion.setTerminal("TERM01");
+        personHeader.sesion.setTurno("A");
+        personHeader.sesion.setUsuario("USER01");
+
+        TrxPEPFDataRequest dto = new TrxPEPFDataRequest(personHeader);
+
+        assertNotNull(dto);
+        assertNotNull(dto.getCabecera());
+        assertNotNull(dto.getCabecera().getSesion());
+
+        assertEquals("WEB", dto.getCabecera().getCanal());
+        assertEquals("FUNC01", dto.getCabecera().getFuncion());
+        assertEquals("OK", dto.getCabecera().getResultado());
+        assertEquals("ROUTE01", dto.getCabecera().getRutaServicio());
+        assertEquals("999", dto.getCabecera().getSecuencia());
+
+        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
+        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
+        assertEquals("20240101", dto.getCabecera().getSesion().getFechaContable());
+        assertEquals("101010", dto.getCabecera().getSesion().getHoraConexion());
+        assertEquals("ADMIN", dto.getCabecera().getSesion().getPerfil());
+        assertEquals("001", dto.getCabecera().getSesion().getSucursal());
+        assertEquals("TERM01", dto.getCabecera().getSesion().getTerminal());
+        assertEquals("A", dto.getCabecera().getSesion().getTurno());
+        assertEquals("USER01", dto.getCabecera().getSesion().getUsuario());
     }
 }

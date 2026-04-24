@@ -5,64 +5,85 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class TrxBP17DataRequestTest {
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+
+class TrxBP17RequestTest {
 
     @Test
     void shouldCoverSettersAndGetters() {
-        TrxBP17DataRequest dto = new TrxBP17DataRequest();
+        TrxBP17Request dto = new TrxBP17Request();
 
-        dto.setProducto("01");
-        dto.setSubProducto("02");
-        dto.setTarifa("03");
-        dto.setPlazo("30");
-        dto.setPeriodoLiquidacion("M");
-        dto.setValor("1000");
-        dto.setMoneda("USD");
-        dto.setPuntosAdicionales("5");
+        TrxHeader header = new TrxHeader();
+        TrxBP17DataRequest data = new TrxBP17DataRequest();
 
-        assertEquals("01", dto.getProducto());
-        assertEquals("02", dto.getSubProducto());
-        assertEquals("03", dto.getTarifa());
-        assertEquals("30", dto.getPlazo());
-        assertEquals("M", dto.getPeriodoLiquidacion());
-        assertEquals("1000", dto.getValor());
-        assertEquals("USD", dto.getMoneda());
-        assertEquals("5", dto.getPuntosAdicionales());
+        dto.setCabecera(header);
+        dto.setData(data);
+
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
     @Test
     void shouldCoverBuilder() {
-        TrxBP17DataRequest dto = TrxBP17DataRequest.builder()
-                .producto("01")
-                .subProducto("02")
-                .tarifa("03")
-                .plazo("30")
-                .periodoLiquidacion("M")
-                .valor("1000")
-                .moneda("USD")
-                .puntosAdicionales("5")
+        TrxHeader header = new TrxHeader();
+        TrxBP17DataRequest data = new TrxBP17DataRequest();
+
+        TrxBP17Request dto = TrxBP17Request.builder()
+                .cabecera(header)
+                .data(data)
                 .build();
 
         assertNotNull(dto);
-        assertEquals("01", dto.getProducto());
-        assertEquals("USD", dto.getMoneda());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
     @Test
     void shouldCoverAllArgsConstructor() {
-        TrxBP17DataRequest dto = new TrxBP17DataRequest(
-                "01",
-                "02",
-                "03",
-                "30",
-                "M",
-                "1000",
-                "USD",
-                "5"
-        );
+        TrxHeader header = new TrxHeader();
+        TrxBP17DataRequest data = new TrxBP17DataRequest();
+
+        TrxBP17Request dto = new TrxBP17Request(header, data);
 
         assertNotNull(dto);
-        assertEquals("02", dto.getSubProducto());
-        assertEquals("1000", dto.getValor());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
+    }
+
+    @Test
+    void shouldCoverConstructorWithTrxPersonHeader() {
+        TrxPersonHeader personHeader = new TrxPersonHeader();
+        personHeader.canal = "WEB";
+        personHeader.rutaServicio = "ROUTE";
+
+        personHeader.setSecuencia("123");
+        personHeader.setFuncion("FUNC");
+        personHeader.setResultado("OK");
+
+        personHeader.sesion = new Session();
+        personHeader.sesion.setEntorno("DEV");
+        personHeader.sesion.setFechaContable("20240101");
+        personHeader.sesion.setHoraConexion("120000");
+        personHeader.sesion.setPerfil("ADMIN");
+        personHeader.sesion.setSucursal("001");
+        personHeader.sesion.setTerminal("TERM");
+        personHeader.sesion.setTurno("A");
+        personHeader.sesion.setUsuario("USER");
+
+        TrxBP17Request dto = new TrxBP17Request(personHeader);
+
+        assertNotNull(dto);
+        assertNotNull(dto.getCabecera());
+        assertEquals("123", dto.getCabecera().getSecuencia());
+        assertEquals("ROUTE", dto.getCabecera().getRutaServicio());
+        assertEquals("FUNC", dto.getCabecera().getFuncion());
+        assertEquals("WEB", dto.getCabecera().getCanal());
+        assertEquals("OK", dto.getCabecera().getResultado());
+
+        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
+        assertEquals("USER", dto.getCabecera().getSesion().getUsuario());
+        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
     }
 }

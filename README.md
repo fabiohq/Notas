@@ -1,12 +1,24 @@
 @Test
-void shouldThrowConflictWhenBp13CallThrowsGenericException() throws Exception {
+void shouldContinueWhenBp13RequestSerializationFails() throws Exception {
     TrxBP13Request request = mock(TrxBP13Request.class);
 
-    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
-    when(trxSanbaAPI.callBP13TRX(request, "consultaDatosIPF", "consultaDatosIPF", "QCTFD"))
-            .thenThrow(new Exception("generic error"));
+    Call<TrxBP13Response> call = mock(Call.class);
+    TrxBP13Response responseBody = new TrxBP13Response();
 
-    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP13(request));
+    when(objectMapper.writeValueAsString(any()))
+            .thenThrow(new RuntimeException("serialization error"))
+            .thenReturn("{}");
 
-    assertEquals(HttpStatus.CONFLICT, ex.getCode());
+    when(trxSanbaAPI.callBP13TRX(
+            eq(request),
+            eq("consultaDatosIPF"),
+            eq("consultaDatosIPF"),
+            eq("QCTFD")
+    )).thenReturn(call);
+
+    when(call.execute()).thenReturn(Response.success(responseBody));
+
+    TrxBP13Response result = service.trxBP13(request);
+
+    assertSame(responseBody, result);
 }

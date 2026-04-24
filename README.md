@@ -1,13 +1,15 @@
 @Test
-void shouldThrowConflictWhenBp31CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp31CallThrowsSQLException() throws Exception {
     TrxBP31Request request = mock(TrxBP31Request.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP31TRX(eq(request), eq("SBCDTTI01-ConsultaCDTDATTitular2654"),
-                    eq("SBCDTTI01-ConsultaCDTDATTitular2654"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP31TRX(
+            eq(request),
+            eq("SBCDTTI01-ConsultaCDTDATTitular2654"),
+            eq("SBCDTTI01-ConsultaCDTDATTitular2654"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP31(request));
 
@@ -15,15 +17,17 @@ void shouldThrowConflictWhenBp31CallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenPepfCallThrowsError() throws Exception {
+void shouldThrowConflictWhenPepfCallThrowsSQLException() throws Exception {
     TrxPEPFDataRequest request = mock(TrxPEPFDataRequest.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callPEPF(eq(request), eq("modificarMantencionPersonaNaturalInfAdicional"),
-                    eq("modificarMantencionPersonaNaturalInfAdicional"), eq("QCTFD"));
+    when(trxSanbaAPI.callPEPF(
+            eq(request),
+            eq("modificarMantencionPersonaNaturalInfAdicional"),
+            eq("modificarMantencionPersonaNaturalInfAdicional"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxPEPF(request));
 
@@ -31,15 +35,17 @@ void shouldThrowConflictWhenPepfCallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenBp13CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp13CallThrowsSQLException() throws Exception {
     TrxBP13Request request = mock(TrxBP13Request.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP13TRX(eq(request), eq("consultaDatosIPF"),
-                    eq("consultaDatosIPF"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP13TRX(
+            eq(request),
+            eq("consultaDatosIPF"),
+            eq("consultaDatosIPF"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP13(request));
 
@@ -47,15 +53,17 @@ void shouldThrowConflictWhenBp13CallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenBp01CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp01CallThrowsSQLException() throws Exception {
     TrxBp01Request request = mock(TrxBp01Request.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP01(eq(request), eq("altaCuentaPlazoODS"),
-                    eq("altaCuentaPlazoODS"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP01(
+            eq(request),
+            eq("altaCuentaPlazoODS"),
+            eq("altaCuentaPlazoODS"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP01(request));
 
@@ -63,15 +71,17 @@ void shouldThrowConflictWhenBp01CallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenBp02CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp02CallThrowsSQLException() throws Exception {
     TrxBp02Request request = mock(TrxBp02Request.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP02(eq(request), eq("altaIpfOdsCtaExterna"),
-                    eq("altaIpfOdsCtaExterna"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP02(
+            eq(request),
+            eq("altaIpfOdsCtaExterna"),
+            eq("altaIpfOdsCtaExterna"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP02(request));
 
@@ -79,15 +89,17 @@ void shouldThrowConflictWhenBp02CallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenBp49CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp49CallThrowsSQLException() throws Exception {
     TrxBP49Request request = mock(TrxBP49Request.class);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP49(eq(request), eq("SBCCG001ConsultaDetalladaMovimientos2652"),
-                    eq("SBCCG001ConsultaDetalladaMovimientos2652"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP49(
+            eq(request),
+            eq("SBCCG001ConsultaDetalladaMovimientos2652"),
+            eq("SBCCG001ConsultaDetalladaMovimientos2652"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP49(request));
 
@@ -95,15 +107,17 @@ void shouldThrowConflictWhenBp49CallThrowsError() throws Exception {
 }
 
 @Test
-void shouldThrowConflictWhenBp21CallThrowsError() throws Exception {
+void shouldThrowConflictWhenBp21CallThrowsSQLException() throws Exception {
     TrxBP21Request request = mock(TrxBP21Request.class, RETURNS_DEEP_STUBS);
 
     when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-    doThrow(new Error("generic error"))
-            .when(trxSanbaAPI)
-            .callBP21TRX(eq(request), eq("modificacionDatosIPF"),
-                    eq("modificacionDatosIPF"), eq("QCTFD"));
+    when(trxSanbaAPI.callBP21TRX(
+            eq(request),
+            eq("modificacionDatosIPF"),
+            eq("modificacionDatosIPF"),
+            eq("QCTFD")
+    )).thenThrow(new SQLException("generic error"));
 
     ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP21(request));
 

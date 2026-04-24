@@ -1,31 +1,42 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class BanksParametersRequestTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BanksParametersRequest {
-    private String authorization;
-    private String xSantanderClientId;
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        BanksParametersRequest dto = new BanksParametersRequest();
 
-    public String getAuthorization() {
-        return authorization;
+        dto.setAuthorization("Bearer token");
+        dto.setxSantanderClientId("client-id");
+
+        assertEquals("Bearer token", dto.getAuthorization());
+        assertEquals("client-id", dto.getxSantanderClientId());
     }
 
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
+    @Test
+    void shouldCoverBuilder() {
+        BanksParametersRequest dto = BanksParametersRequest.builder()
+                .authorization("auth")
+                .xSantanderClientId("client123")
+                .build();
+
+        assertNotNull(dto);
+        assertEquals("auth", dto.getAuthorization());
+        assertEquals("client123", dto.getxSantanderClientId());
     }
 
-    public String getxSantanderClientId() {
-        return xSantanderClientId;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        BanksParametersRequest dto =
+                new BanksParametersRequest("token", "client-001");
 
-    public void setxSantanderClientId(String xSantanderClientId) {
-        this.xSantanderClientId = xSantanderClientId;
+        assertNotNull(dto);
+        assertEquals("token", dto.getAuthorization());
+        assertEquals("client-001", dto.getxSantanderClientId());
     }
 }

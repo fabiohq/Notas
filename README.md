@@ -1,65 +1,187 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-import org.junit.jupiter.api.Test;
+import lombok.NoArgsConstructor;
 
-class OldAssociatedContractRequestDTOTest {
 
-    @Test
-    void shouldCoverSettersAndGetters() {
-        OldAssociatedContractRequestDTO dto =
-                new OldAssociatedContractRequestDTO();
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContractsServiceRequestDTO {
 
-        ContractRequestDTO contract = new ContractRequestDTO();
-        ValidityPeriodRequestDTO validity =
-                new ValidityPeriodRequestDTO();
+    private NewAssociatedContractRequestDTO newAssociatedContract;
+    private OldAssociatedContractRequestDTO oldAssociatedContract;
 
-        dto.setContract(contract);
-        dto.setRelationshipTypeCode("REL01");
-        dto.setValidityPeriod(validity);
-
-        assertEquals(contract, dto.getContract());
-        assertEquals("REL01", dto.getRelationshipTypeCode());
-        assertEquals(validity, dto.getValidityPeriod());
+    public NewAssociatedContractRequestDTO getNewAssociatedContract() {
+        return newAssociatedContract;
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        ContractRequestDTO contract = new ContractRequestDTO();
-        ValidityPeriodRequestDTO validity =
-                new ValidityPeriodRequestDTO();
-
-        OldAssociatedContractRequestDTO dto =
-                OldAssociatedContractRequestDTO.builder()
-                        .contract(contract)
-                        .relationshipTypeCode("REL02")
-                        .validityPeriod(validity)
-                        .build();
-
-        assertNotNull(dto);
-        assertEquals(contract, dto.getContract());
-        assertEquals("REL02", dto.getRelationshipTypeCode());
-        assertEquals(validity, dto.getValidityPeriod());
+    public void setNewAssociatedContract(NewAssociatedContractRequestDTO newAssociatedContract) {
+        this.newAssociatedContract = newAssociatedContract;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        ContractRequestDTO contract = new ContractRequestDTO();
-        ValidityPeriodRequestDTO validity =
-                new ValidityPeriodRequestDTO();
+    public OldAssociatedContractRequestDTO getOldAssociatedContract() {
+        return oldAssociatedContract;
+    }
 
-        OldAssociatedContractRequestDTO dto =
-                new OldAssociatedContractRequestDTO(
-                        contract,
-                        "REL03",
-                        validity
-                );
-
-        assertNotNull(dto);
-        assertEquals(contract, dto.getContract());
-        assertEquals("REL03", dto.getRelationshipTypeCode());
-        assertEquals(validity, dto.getValidityPeriod());
+    public void setOldAssociatedContract(OldAssociatedContractRequestDTO oldAssociatedContract) {
+        this.oldAssociatedContract = oldAssociatedContract;
     }
 }
+
+
+
+
+======================
+
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContractIdentificationRequestDTO {
+
+    private String nationalIdentification;
+    private String internalIdentification;
+
+    public String getNationalIdentification() {
+        return nationalIdentification;
+    }
+
+    public void setNationalIdentification(String nationalIdentification) {
+        this.nationalIdentification = nationalIdentification;
+    }
+
+    public String getInternalIdentification() {
+        return internalIdentification;
+    }
+
+    public void setInternalIdentification(String internalIdentification) {
+        this.internalIdentification = internalIdentification;
+    }
+}
+
+
+
+
+
+============================
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContractRequestDTO {
+    private Boolean isExternalContract;
+    private ContractIdentificationRequestDTO contractIdentification;
+
+    public Boolean getExternalContract() {
+        return isExternalContract;
+    }
+
+    public void setExternalContract(Boolean externalContract) {
+        isExternalContract = externalContract;
+    }
+
+    public ContractIdentificationRequestDTO getContractIdentification() {
+        return contractIdentification;
+    }
+
+    public void setContractIdentification(ContractIdentificationRequestDTO contractIdentification) {
+        this.contractIdentification = contractIdentification;
+    }
+}
+
+
+
+
+=========================================
+
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ValidityPeriodRequestDTO {
+
+    private String startDate;
+    private String endDate;
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+}
+======================================================
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class NewAssociatedContractRequestDTO {
+    private ContractRequestDTO contract;
+    private ValidityPeriodRequestDTO validityPeriod;
+
+    public ContractRequestDTO getContract() {
+        return contract;
+    }
+
+    public void setContract(ContractRequestDTO contract) {
+        this.contract = contract;
+    }
+
+    public ValidityPeriodRequestDTO getValidityPeriod() {
+        return validityPeriod;
+    }
+
+    public void setValidityPeriod(ValidityPeriodRequestDTO validityPeriod) {
+        this.validityPeriod = validityPeriod;
+    }
+}
+
+
+

@@ -1,213 +1,217 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.exception;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceExceptionClient;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorResponseDTO;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.BindingResult;
-
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceExceptionClient;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorResponseDTO;
 
-/**
- * @author Freddy Paredes
- * This class handle all Exceptions
- */
+class GlobalExceptionHandlerTest {
 
-@Slf4j
-@ControllerAdvice
-public class GlobalExceptionHandler {
+    private GlobalExceptionHandler handler;
 
-    @Value("${params.app-name}")
-    private String MS_NAME;
-
-    private static final String LEVEL = "error";
-
-    private static final String PF9400 = "-P-F-9400";
-    private static final  String NOTSPECIFIED = " not specified";
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
-
-        log.info("Error type: {}", e.getClass().getName());
-        log.info("Error: {}", e.getMessage());
-
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-T-9409")
-                .message("Unhandled exception")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Unhandled exception")
-                .build());
-        return buildResponseEntity(errors, HttpStatus.CONFLICT);
-    }//method closure
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<ErrorDTO> errors = new ArrayList<>();
-
-
-        result.getAllErrors().forEach(error -> {
-            String field = ((FieldError) error).getField();
-            log.info(error.toString());
-
-            String errorMessage = "'" + field + "' " + error.getDefaultMessage();
-
-            errors.add(ErrorDTO.builder()
-                    .code(MS_NAME + PF9400)
-                    .level(LEVEL)
-                    .message(errorMessage)
-                    .description(MS_NAME.toLowerCase() + "-api-services-v3: " + errorMessage).build());
-        });
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    @BeforeEach
+    void setUp() {
+        handler = new GlobalExceptionHandler();
+        ReflectionTestUtils.setField(handler, "MS_NAME", "CONTRACTS");
     }
 
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(NoResourceFoundException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-F-9404")
-                .message("Not Found")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Not Found")
-                .build());
+    @Test
+    void shouldHandleGenericException() {
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleException(new RuntimeException("boom"));
 
-        return buildResponseEntity(errors, HttpStatus.NOT_FOUND);
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("CONTRACTS-P-T-9409", response.getBody().getErrors().get(0).getCode());
+        assertEquals("Unhandled exception", response.getBody().getErrors().get(0).getMessage());
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingServletRequestParameterException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF9400)
-                .message("Required query parameter " + ex.getParameterName() + NOTSPECIFIED)
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Required query parameter " + ex.getParameterName() + NOTSPECIFIED)
-                .build());
+    @Test
+    void shouldHandleMethodArgumentNotValidException() {
+        Object target = new Object();
+        BeanPropertyBindingResult bindingResult =
+                new BeanPropertyBindingResult(target, "target");
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        bindingResult.addError(new FieldError(
+                "target",
+                "fieldName",
+                "must not be blank"
+        ));
+
+        MethodArgumentNotValidException ex =
+                new MethodArgumentNotValidException(null, bindingResult);
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("CONTRACTS-P-F-9400", response.getBody().getErrors().get(0).getCode());
+        assertEquals("'fieldName' must not be blank", response.getBody().getErrors().get(0).getMessage());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(IllegalArgumentException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF9400)
-                .message(ex.getMessage())
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: 'relationshipTypeCode': Invalid value")
-                .build());
+    @Test
+    void shouldHandleNoResourceFoundException() {
+        NoResourceFoundException ex =
+                new NoResourceFoundException("GET", "/not-found");
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("CONTRACTS-P-F-9404", response.getBody().getErrors().get(0).getCode());
+        assertEquals("Not Found", response.getBody().getErrors().get(0).getMessage());
     }
 
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingRequestHeaderException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF9400)
-                .message("Required header " + ex.getHeaderName() + NOTSPECIFIED)
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Required header " + ex.getHeaderName() + NOTSPECIFIED)
-                .build());
+    @Test
+    void shouldHandleMissingServletRequestParameterException() {
+        MissingServletRequestParameterException ex =
+                new MissingServletRequestParameterException("id", "String");
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Required query parameter id not specified",
+                response.getBody().getErrors().get(0).getMessage());
     }
 
-    /**
-     * Main exception hanlder
-     * @param ex Exception
-     * @param request Web Request
-     * @return Structured Santander Exception format
-     */
-    @ExceptionHandler({ ServiceException.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceException ex, WebRequest request) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ex.getError());
+    @Test
+    void shouldHandleIllegalArgumentException() {
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(
+                        new IllegalArgumentException("'relationshipTypeCode': Invalid value")
+                );
 
-        return buildResponseEntity(errors, ex.getCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("'relationshipTypeCode': Invalid value",
+                response.getBody().getErrors().get(0).getMessage());
     }
 
-    @ExceptionHandler({ ServiceExceptionClient.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceExceptionClient ex, WebRequest request) {
-        log.error("ERRORRS {}", ex.getErrorResponseDTO());
-        return buildResponseEntity2(ex.getErrorResponseDTO(), HttpStatus.BAD_REQUEST);
+    @Test
+    void shouldHandleMissingRequestHeaderException() {
+        MissingRequestHeaderException ex =
+                new MissingRequestHeaderException(
+                        "Authorization",
+                        null,
+                        true
+                );
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Required header Authorization not specified",
+                response.getBody().getErrors().get(0).getMessage());
     }
 
+    @Test
+    void shouldHandleServiceException() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CONTRACTS-P-F-9400")
+                .message("service error")
+                .level("error")
+                .description("contracts-api-services-v3: service error")
+                .build();
 
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity2(ErrorResponseDTO newErrorDTO, HttpStatus status) {
+        ServiceException ex = new ServiceException(HttpStatus.NOT_FOUND, error);
 
-        newErrorDTO.getErrors().forEach( error-> {
-                    error.setCode(error.getCode().replaceAll(ErrorCatalog.MS_NAME,MS_NAME));
-                    error.setDescription(error.getDescription().replaceAll(ErrorCatalog.MS_NAME,MS_NAME.toLowerCase()));
-                    log.error(error.getMessage());
-                }
-        );
-        return new ResponseEntity<>(newErrorDTO, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleSchemaException(ex, mock(WebRequest.class));
 
-
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
-
-        ErrorResponseDTO responseError = new ErrorResponseDTO();
-        responseError.setErrors(errors);
-        if(errors != null){
-            errors.forEach( error-> {
-                        error.setCode(error.getCode().replaceAll(ErrorCatalog.MS_NAME,MS_NAME));
-                        error.setDescription(error.getDescription().replaceAll(ErrorCatalog.MS_NAME,MS_NAME.toLowerCase()));
-                        log.error(error.getMessage());
-                    }
-            );
-        }
-        return new ResponseEntity<>(responseError, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(HttpMessageNotReadableException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF9400)
-                .message("Invalid body structure")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Invalid body structure")
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("service error", response.getBody().getErrors().get(0).getMessage());
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponseDTO> handleMethodNotAllowedExceptions(HttpRequestMethodNotSupportedException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-F-9405")
-                .message("Method not allowed")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v3: Method not allowed")
-                .build());
+    @Test
+    void shouldHandleServiceExceptionClient() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CONTRACTS-P-F-9400")
+                .message("client error")
+                .level("error")
+                .description("contracts-api-services-v3: client error")
+                .build();
 
-        return buildResponseEntity(errors, HttpStatus.METHOD_NOT_ALLOWED);
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
+        errorResponseDTO.setErrors(List.of(error));
+
+        ServiceExceptionClient ex = mock(ServiceExceptionClient.class);
+        when(ex.getErrorResponseDTO()).thenReturn(errorResponseDTO);
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleSchemaException(ex, mock(WebRequest.class));
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("client error", response.getBody().getErrors().get(0).getMessage());
     }
-}//class closure
 
+    @Test
+    void shouldBuildResponseEntityWithDefaultStatusWhenStatusIsNull() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CONTRACTS-P-F-9400")
+                .message("default status")
+                .level("error")
+                .description("contracts-api-services-v3: default status")
+                .build();
 
-*****************
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.buildResponseEntity(List.of(error), null);
 
-params.app-name: CONTRACTS
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void shouldBuildResponseEntityWhenErrorsAreNull() {
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.buildResponseEntity(null, HttpStatus.CONFLICT);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    void shouldHandleHttpMessageNotReadableException() {
+        HttpMessageNotReadableException ex =
+                new HttpMessageNotReadableException("bad body");
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Invalid body structure", response.getBody().getErrors().get(0).getMessage());
+    }
+
+    @Test
+    void shouldHandleMethodNotAllowedException() {
+        HttpRequestMethodNotSupportedException ex =
+                new HttpRequestMethodNotSupportedException("POST");
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleMethodNotAllowedExceptions(ex);
+
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+        assertEquals("CONTRACTS-P-F-9405", response.getBody().getErrors().get(0).getCode());
+        assertEquals("Method not allowed", response.getBody().getErrors().get(0).getMessage());
+    }
+}

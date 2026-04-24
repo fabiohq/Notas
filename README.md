@@ -3,96 +3,72 @@ package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp17.response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-class TrxBP17DataResponseTest {
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+
+class TrxBP17ResponseTest {
 
     @Test
     void shouldCoverSettersAndGetters() {
-        TrxBP17DataResponse dto = new TrxBP17DataResponse();
+        TrxBP17Response response = new TrxBP17Response();
 
-        dto.setIntPendAbonar("1");
-        dto.setTasaInteresNominal("2");
-        dto.setTasaInteresEA("3");
-        dto.setFechaProximoReajuste("4");
-        dto.setFecVencimiento("5");
-        dto.setCodigoDeProducto("6");
-        dto.setCodigoDeSubproduct("7");
-        dto.setDescripcionProdu("8");
-        dto.setImporteBaseInvers("9");
-        dto.setCodigoDeDivisa("10");
-        dto.setCodigoDeTarifa("11");
-        dto.setPlazoEnDias("12");
-        dto.setDescripPlazo("13");
-        dto.setPlazoEnDiasDispon("14");
-        dto.setPeriodoLiquidacion("15");
-        dto.setDescrPeriodoLiq("16");
-        dto.setPeriodosDisponibles("17");
-        dto.setMontoFijoBonGmf("18");
-        dto.setPorcentajeFijoBonGmf("19");
-        dto.setImporteGmfMaximo("20");
-        dto.setImporteGmfBonific("21");
-        dto.setTipoBonifGmfCalc("22");
-        dto.setImporteTotalInvers("23");
-        dto.setImporteBrutoIntere("24");
-        dto.setPorcentajeDeRetencionFuent("25");
-        dto.setImporteRetencFuent("26");
-        dto.setImporteNetoInteres("27");
-        dto.setImporteTotalCobrar("28");
-        dto.setFechaDeAlta("29");
-        dto.setFechaDeVencimiento("30");
-        dto.setFechaProxLiquidac("31");
-        dto.setPorcentajeDeInteresNominal("32");
-        dto.setPorcentajeDeSpread("33");
-        dto.setPorcentajeDeTasaEfectiva("34");
+        TrxBP17DataResponse data = new TrxBP17DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        Object autorizacion = new Object();
+        Object paginacion = new Object();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+        Object conexion = new Object();
 
-        assertEquals("1", dto.getIntPendAbonar());
-        assertEquals("2", dto.getTasaInteresNominal());
-        assertEquals("3", dto.getTasaInteresEA());
-        assertEquals("4", dto.getFechaProximoReajuste());
-        assertEquals("5", dto.getFecVencimiento());
-        assertEquals("6", dto.getCodigoDeProducto());
-        assertEquals("7", dto.getCodigoDeSubproduct());
-        assertEquals("8", dto.getDescripcionProdu());
-        assertEquals("9", dto.getImporteBaseInvers());
-        assertEquals("10", dto.getCodigoDeDivisa());
-        assertEquals("11", dto.getCodigoDeTarifa());
-        assertEquals("12", dto.getPlazoEnDias());
-        assertEquals("13", dto.getDescripPlazo());
-        assertEquals("14", dto.getPlazoEnDiasDispon());
-        assertEquals("15", dto.getPeriodoLiquidacion());
-        assertEquals("16", dto.getDescrPeriodoLiq());
-        assertEquals("17", dto.getPeriodosDisponibles());
-        assertEquals("18", dto.getMontoFijoBonGmf());
-        assertEquals("19", dto.getPorcentajeFijoBonGmf());
-        assertEquals("20", dto.getImporteGmfMaximo());
-        assertEquals("21", dto.getImporteGmfBonific());
-        assertEquals("22", dto.getTipoBonifGmfCalc());
-        assertEquals("23", dto.getImporteTotalInvers());
-        assertEquals("24", dto.getImporteBrutoIntere());
-        assertEquals("25", dto.getPorcentajeDeRetencionFuent());
-        assertEquals("26", dto.getImporteRetencFuent());
-        assertEquals("27", dto.getImporteNetoInteres());
-        assertEquals("28", dto.getImporteTotalCobrar());
-        assertEquals("29", dto.getFechaDeAlta());
-        assertEquals("30", dto.getFechaDeVencimiento());
-        assertEquals("31", dto.getFechaProxLiquidac());
-        assertEquals("32", dto.getPorcentajeDeInteresNominal());
-        assertEquals("33", dto.getPorcentajeDeSpread());
-        assertEquals("34", dto.getPorcentajeDeTasaEfectiva());
+        response.setData(data);
+        response.setCabecera(cabecera);
+        response.setAutorizacion(autorizacion);
+        response.setPaginacion(paginacion);
+        response.setAvisos(avisos);
+        response.setErrores(errores);
+        response.setConexion(conexion);
+        response.setOk(Boolean.TRUE);
+
+        assertEquals(data, response.getData());
+        assertEquals(cabecera, response.getCabecera());
+        assertEquals(autorizacion, response.getAutorizacion());
+        assertEquals(paginacion, response.getPaginacion());
+        assertEquals(avisos, response.getAvisos());
+        assertEquals(errores, response.getErrores());
+        assertEquals(conexion, response.getConexion());
+        assertEquals(Boolean.TRUE, response.getOk());
     }
 
     @Test
     void shouldCoverBuilder() {
-        TrxBP17DataResponse dto = TrxBP17DataResponse.builder()
-                .intPendAbonar("1")
-                .codigoDeProducto("04")
-                .porcentajeDeTasaEfectiva("34")
+        TrxBP17DataResponse data = new TrxBP17DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+
+        TrxBP17Response response = TrxBP17Response.builder()
+                .data(data)
+                .cabecera(cabecera)
+                .autorizacion("auth")
+                .paginacion("page")
+                .avisos(avisos)
+                .errores(errores)
+                .conexion("conexion")
+                .ok(Boolean.FALSE)
                 .build();
 
-        assertNotNull(dto);
-        assertEquals("1", dto.getIntPendAbonar());
-        assertEquals("04", dto.getCodigoDeProducto());
-        assertEquals("34", dto.getPorcentajeDeTasaEfectiva());
+        assertNotNull(response);
+        assertEquals(data, response.getData());
+        assertEquals(cabecera, response.getCabecera());
+        assertEquals("auth", response.getAutorizacion());
+        assertEquals("page", response.getPaginacion());
+        assertEquals(avisos, response.getAvisos());
+        assertEquals(errores, response.getErrores());
+        assertEquals("conexion", response.getConexion());
+        assertEquals(Boolean.FALSE, response.getOk());
     }
 }

@@ -1,166 +1,89 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.response;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
-import lombok.NoArgsConstructor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxBP21Response {
-    private TrxBP21DataResponse data;
-    private TrxHeader cabecera;
-    private Object autorizacion;
-    private Object paginacion;
-    private List<Object> avisos;
-    private List<ErrorTrxDTO> errores;
-    private Object conexion;
-    private Boolean ok;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
 
-    public TrxBP21DataResponse getData() {
-        return data;
+class TrxBP21ResponseTest {
+
+    @Test
+    void shouldCoverSettersAndGetters() {
+        TrxBP21Response dto = new TrxBP21Response();
+
+        TrxBP21DataResponse data = new TrxBP21DataResponse();
+        TrxHeader header = new TrxHeader();
+        Object auth = new Object();
+        Object pag = new Object();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+        Object conexion = new Object();
+
+        dto.setData(data);
+        dto.setCabecera(header);
+        dto.setAutorizacion(auth);
+        dto.setPaginacion(pag);
+        dto.setAvisos(avisos);
+        dto.setErrores(errores);
+        dto.setConexion(conexion);
+        dto.setOk(Boolean.TRUE);
+
+        assertEquals(data, dto.getData());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(auth, dto.getAutorizacion());
+        assertEquals(pag, dto.getPaginacion());
+        assertEquals(avisos, dto.getAvisos());
+        assertEquals(errores, dto.getErrores());
+        assertEquals(conexion, dto.getConexion());
+        assertEquals(Boolean.TRUE, dto.getOk());
     }
 
-    public void setData(TrxBP21DataResponse data) {
-        this.data = data;
+    @Test
+    void shouldCoverBuilder() {
+        TrxBP21DataResponse data = new TrxBP21DataResponse();
+        TrxHeader header = new TrxHeader();
+
+        TrxBP21Response dto = TrxBP21Response.builder()
+                .data(data)
+                .cabecera(header)
+                .autorizacion("auth")
+                .paginacion("pag")
+                .avisos(List.of("aviso"))
+                .errores(List.of(new ErrorTrxDTO()))
+                .conexion("conexion")
+                .ok(Boolean.FALSE)
+                .build();
+
+        assertNotNull(dto);
+        assertEquals(data, dto.getData());
+        assertEquals(header, dto.getCabecera());
+        assertEquals("auth", dto.getAutorizacion());
+        assertEquals("pag", dto.getPaginacion());
+        assertEquals(Boolean.FALSE, dto.getOk());
     }
 
-    public TrxHeader getCabecera() {
-        return cabecera;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        TrxBP21DataResponse data = new TrxBP21DataResponse();
 
-    public void setCabecera(TrxHeader cabecera) {
-        this.cabecera = cabecera;
-    }
+        TrxBP21Response dto = new TrxBP21Response(
+                data,
+                new TrxHeader(),
+                "auth",
+                "pag",
+                List.of(),
+                List.of(),
+                "conexion",
+                true
+        );
 
-    public Object getAutorizacion() {
-        return autorizacion;
-    }
-
-    public void setAutorizacion(Object autorizacion) {
-        this.autorizacion = autorizacion;
-    }
-
-    public Object getPaginacion() {
-        return paginacion;
-    }
-
-    public void setPaginacion(Object paginacion) {
-        this.paginacion = paginacion;
-    }
-
-    public List<Object> getAvisos() {
-        return avisos;
-    }
-
-    public void setAvisos(List<Object> avisos) {
-        this.avisos = avisos;
-    }
-
-    public List<ErrorTrxDTO> getErrores() {
-        return errores;
-    }
-
-    public void setErrores(List<ErrorTrxDTO> errores) {
-        this.errores = errores;
-    }
-
-    public Object getConexion() {
-        return conexion;
-    }
-
-    public void setConexion(Object conexion) {
-        this.conexion = conexion;
-    }
-
-    public Boolean getOk() {
-        return ok;
-    }
-
-    public void setOk(Boolean ok) {
-        this.ok = ok;
-    }
-}
-
-
-
-
-
-
-=====================================
-
-
-
-
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxBP21DataResponse {
-
-    private String saldoDesde;
-    private String saldoHasta;
-    private String diasDesde;
-    private String diasHasta;
-    private String tasaEfectiva;
-    private String tasaNominal;
-
-    public String getSaldoDesde() {
-        return saldoDesde;
-    }
-
-    public void setSaldoDesde(String saldoDesde) {
-        this.saldoDesde = saldoDesde;
-    }
-
-    public String getSaldoHasta() {
-        return saldoHasta;
-    }
-
-    public void setSaldoHasta(String saldoHasta) {
-        this.saldoHasta = saldoHasta;
-    }
-
-    public String getDiasDesde() {
-        return diasDesde;
-    }
-
-    public void setDiasDesde(String diasDesde) {
-        this.diasDesde = diasDesde;
-    }
-
-    public String getDiasHasta() {
-        return diasHasta;
-    }
-
-    public void setDiasHasta(String diasHasta) {
-        this.diasHasta = diasHasta;
-    }
-
-    public String getTasaEfectiva() {
-        return tasaEfectiva;
-    }
-
-    public void setTasaEfectiva(String tasaEfectiva) {
-        this.tasaEfectiva = tasaEfectiva;
-    }
-
-    public String getTasaNominal() {
-        return tasaNominal;
-    }
-
-    public void setTasaNominal(String tasaNominal) {
-        this.tasaNominal = tasaNominal;
+        assertNotNull(dto);
+        assertEquals(data, dto.getData());
+        assertEquals(Boolean.TRUE, dto.getOk());
     }
 }

@@ -157,3 +157,87 @@ void shouldThrowTechnicalExceptionWhenBp49ErrorBodyCannotBeParsed() throws Excep
 
     assertSame(expected, ex);
 }
+
+
+
+@@@@@@@@@
+
+
+@Test
+void shouldThrowNotFoundWhenBp21ReturnsErrorBody() throws Exception {
+    TrxBP21Request request = mock(TrxBP21Request.class, RETURNS_DEEP_STUBS);
+    Call<TrxBP21Response> call = mock(Call.class);
+
+    ErrorDTO error = errorDto("BP21 error");
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP21TRX(
+            request,
+            "modificacionDatosIPF",
+            "modificacionDatosIPF",
+            "QCTFD"))
+            .thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, errorBody("BP21 error")));
+
+    when(errorService.errorBuilder(
+            eq(HttpStatus.NOT_FOUND),
+            eq("BP21 error"),
+            eq(ErrorType.FUNCTIONAL)))
+            .thenReturn(error);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP21(request));
+
+    assertEquals(HttpStatus.NOT_FOUND, ex.getCode());
+}
+
+
+
+
+@@@@@@@@
+
+@Test
+void shouldThrowServiceUnavailableWhenBp31IOException() throws Exception {
+    TrxBP31Request request = mock(TrxBP31Request.class);
+    Call<TrxBP31Response> call = mock(Call.class);
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP31TRX(
+            request,
+            "SBCDTTI01-ConsultaCDTDATTitular2654",
+            "SBCDTTI01-ConsultaCDTDATTitular2654",
+            "QCTFD"))
+            .thenReturn(call);
+    when(call.execute()).thenThrow(new IOException("network"));
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP31(request));
+
+    assertEquals(HttpStatus.SERVICE_UNAVAILABLE, ex.getCode());
+}
+
+
+@@@@@@@@@@@@
+
+@Test
+void shouldThrowServiceUnavailableWhenBp21IOException() throws Exception {
+    TrxBP21Request request = mock(TrxBP21Request.class, RETURNS_DEEP_STUBS);
+    Call<TrxBP21Response> call = mock(Call.class);
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP21TRX(
+            request,
+            "modificacionDatosIPF",
+            "modificacionDatosIPF",
+            "QCTFD"))
+            .thenReturn(call);
+    when(call.execute()).thenThrow(new IOException("network"));
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP21(request));
+
+    assertEquals(HttpStatus.SERVICE_UNAVAILABLE, ex.getCode());
+}
+
+
+
+@@@@@@@@@@
+
+

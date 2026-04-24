@@ -22,3 +22,6 @@ void shouldContinueWhenBp13RequestSerializationFails() throws Exception {
 
     assertSame(responseBody, result);
 }
+
+==========================
+ when(call.execute()).thenThrow(new Exception("generic error"));

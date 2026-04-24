@@ -5,78 +5,84 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class TrxBP31DataRequestTest {
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxSessionHeader;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+
+class TrxBP31RequestTest {
 
     @Test
     void shouldCoverSettersAndGetters() {
-        TrxBP31DataRequest dto = new TrxBP31DataRequest();
+        TrxBP31Request request = new TrxBP31Request();
 
-        dto.setTipoDocumento("tipoDocumento");
-        dto.setNumDocumento("numDocumento");
-        dto.setOficina("oficina");
-        dto.setCodigoInversor("codigoInversor");
-        dto.setNroCliente("nroCliente");
-        dto.setEjecutivoComercial("ejecutivoComercial");
-        dto.setIndicadorEstado("indicadorEstado");
-        dto.setTipoCustodia("tipoCustodia");
-        dto.setTipoFecha("tipoFecha");
-        dto.setFechaDesde("fechaDesde");
-        dto.setFechaHasta("fechaHasta");
-        dto.setCccReposicionam("cccReposicionam");
-        dto.setSecuenciaReposicion("secuenciaReposicion");
-        dto.setSecRenovReposic("secRenovReposic");
+        TrxHeader header = new TrxHeader();
+        TrxBP31DataRequest data = new TrxBP31DataRequest();
 
-        assertEquals("tipoDocumento", dto.getTipoDocumento());
-        assertEquals("numDocumento", dto.getNumDocumento());
-        assertEquals("oficina", dto.getOficina());
-        assertEquals("codigoInversor", dto.getCodigoInversor());
-        assertEquals("nroCliente", dto.getNroCliente());
-        assertEquals("ejecutivoComercial", dto.getEjecutivoComercial());
-        assertEquals("indicadorEstado", dto.getIndicadorEstado());
-        assertEquals("tipoCustodia", dto.getTipoCustodia());
-        assertEquals("tipoFecha", dto.getTipoFecha());
-        assertEquals("fechaDesde", dto.getFechaDesde());
-        assertEquals("fechaHasta", dto.getFechaHasta());
-        assertEquals("cccReposicionam", dto.getCccReposicionam());
-        assertEquals("secuenciaReposicion", dto.getSecuenciaReposicion());
-        assertEquals("secRenovReposic", dto.getSecRenovReposic());
+        request.setCabecera(header);
+        request.setData(data);
+
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
     }
 
     @Test
     void shouldCoverBuilder() {
-        TrxBP31DataRequest dto = TrxBP31DataRequest.builder()
-                .tipoDocumento("CC")
-                .numDocumento("123")
-                .nroCliente("456")
+        TrxHeader header = new TrxHeader();
+        TrxBP31DataRequest data = new TrxBP31DataRequest();
+
+        TrxBP31Request request = TrxBP31Request.builder()
+                .cabecera(header)
+                .data(data)
                 .build();
 
-        assertNotNull(dto);
-        assertEquals("CC", dto.getTipoDocumento());
-        assertEquals("123", dto.getNumDocumento());
-        assertEquals("456", dto.getNroCliente());
+        assertNotNull(request);
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
     }
 
     @Test
     void shouldCoverAllArgsConstructor() {
-        TrxBP31DataRequest dto = new TrxBP31DataRequest(
-                "tipoDocumento",
-                "numDocumento",
-                "oficina",
-                "codigoInversor",
-                "nroCliente",
-                "ejecutivoComercial",
-                "indicadorEstado",
-                "tipoCustodia",
-                "tipoFecha",
-                "fechaDesde",
-                "fechaHasta",
-                "cccReposicionam",
-                "secuenciaReposicion",
-                "secRenovReposic"
-        );
+        TrxHeader header = new TrxHeader();
+        TrxBP31DataRequest data = new TrxBP31DataRequest();
 
-        assertNotNull(dto);
-        assertEquals("tipoDocumento", dto.getTipoDocumento());
-        assertEquals("secRenovReposic", dto.getSecRenovReposic());
+        TrxBP31Request request = new TrxBP31Request(header, data);
+
+        assertNotNull(request);
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
+    }
+
+    @Test
+    void shouldCoverConstructorWithTrxPersonHeader() {
+        TrxPersonHeader personHeader = new TrxPersonHeader();
+        personHeader.canal = "60";
+        personHeader.rutaServicio = "ruta";
+        personHeader.setFuncion("funcion");
+        personHeader.setResultado("OK");
+        personHeader.setSecuencia(10);
+
+        TrxSessionHeader session = new TrxSessionHeader();
+        session.usuario = "user";
+        session.terminal = "terminal";
+        session.horaConexion = "10:00";
+        session.entorno = "DEV";
+        session.perfil = "perfil";
+        session.sucursal = "0001";
+        session.turno = "A";
+        session.fechaContable = "20240101";
+
+        personHeader.sesion = session;
+
+        TrxBP31Request request = new TrxBP31Request(personHeader);
+
+        assertNotNull(request);
+        assertNotNull(request.getCabecera());
+        assertEquals("60", request.getCabecera().getCanal());
+        assertEquals("funcion", request.getCabecera().getFuncion());
+        assertEquals("OK", request.getCabecera().getResultado());
+        assertEquals("ruta", request.getCabecera().getRutaServicio());
+        assertEquals(10, request.getCabecera().getSecuencia());
+        assertEquals("0065", request.getCabecera().getSesion().getEntidad());
+        assertEquals("user", request.getCabecera().getSesion().getUsuario());
     }
 }

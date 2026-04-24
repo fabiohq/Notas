@@ -1,46 +1,37 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class ContractRequestDTOTest {
+class ValidityPeriodRequestDTOTest {
 
     @Test
     void shouldCoverPojo() {
-        ContractRequestDTO dto = new ContractRequestDTO();
+        ValidityPeriodRequestDTO dto = new ValidityPeriodRequestDTO();
 
-        ContractIdentificationRequestDTO id =
-                new ContractIdentificationRequestDTO();
+        dto.setStartDate("2024-01-01");
+        dto.setEndDate("2024-12-31");
 
-        dto.setExternalContract(true);
-        dto.setContractIdentification(id);
-
-        assertTrue(dto.getExternalContract());
-        assertEquals(id, dto.getContractIdentification());
+        assertEquals("2024-01-01", dto.getStartDate());
+        assertEquals("2024-12-31", dto.getEndDate());
     }
 
     @Test
     void shouldCoverBuilderAndAllArgs() {
-        ContractIdentificationRequestDTO id =
-                new ContractIdentificationRequestDTO();
-
-        ContractRequestDTO dto =
-                ContractRequestDTO.builder()
-                        .isExternalContract(false)
-                        .contractIdentification(id)
+        ValidityPeriodRequestDTO dto =
+                ValidityPeriodRequestDTO.builder()
+                        .startDate("2024-01-01")
+                        .endDate("2024-12-31")
                         .build();
 
         assertNotNull(dto);
-        assertFalse(dto.getExternalContract());
 
-        ContractRequestDTO dto2 =
-                new ContractRequestDTO(true, id);
+        ValidityPeriodRequestDTO dto2 =
+                new ValidityPeriodRequestDTO("2025-01-01", "2025-12-31");
 
-        assertTrue(dto2.getExternalContract());
-        assertEquals(id, dto2.getContractIdentification());
+        assertEquals("2025-01-01", dto2.getStartDate());
+        assertEquals("2025-12-31", dto2.getEndDate());
     }
 }

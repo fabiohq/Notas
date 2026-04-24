@@ -1,98 +1,129 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp13.request;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-import org.junit.jupiter.api.Test;
+import lombok.NoArgsConstructor;
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request.dto.PepfDataDTO;
 
-class TrxPEPFDataRequestTest {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP13DataRequest {
+    private String entidad;
+    private String oficina;
+    private String cuenta;
+    private String numSecuencia;
+    private String numCertificado;
 
-    @Test
-    void shouldCoverSettersAndGetters() {
-        TrxPEPFDataRequest dto = new TrxPEPFDataRequest();
-
-        TrxHeader header = new TrxHeader();
-        PepfDataDTO data = new PepfDataDTO();
-
-        dto.setCabecera(header);
-        dto.setData(data);
-
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public String getEntidad() {
+        return entidad;
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        TrxHeader header = new TrxHeader();
-        PepfDataDTO data = new PepfDataDTO();
-
-        TrxPEPFDataRequest dto = TrxPEPFDataRequest.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public void setEntidad(String entidad) {
+        this.entidad = entidad;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        TrxHeader header = new TrxHeader();
-        PepfDataDTO data = new PepfDataDTO();
-
-        TrxPEPFDataRequest dto = new TrxPEPFDataRequest(header, data);
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public String getOficina() {
+        return oficina;
     }
 
-    @Test
-    void shouldCoverConstructorWithTrxPersonHeader() {
-        TrxPersonHeader personHeader = new TrxPersonHeader();
+    public void setOficina(String oficina) {
+        this.oficina = oficina;
+    }
 
-        personHeader.canal = "WEB";
-        personHeader.rutaServicio = "ROUTE01";
-        personHeader.setFuncion("FUNC01");
-        personHeader.setResultado("OK");
-        personHeader.setSecuencia("999");
+    public String getCuenta() {
+        return cuenta;
+    }
 
-        personHeader.sesion = new Session();
-        personHeader.sesion.setEntorno("DEV");
-        personHeader.sesion.setFechaContable("20240101");
-        personHeader.sesion.setHoraConexion("101010");
-        personHeader.sesion.setPerfil("ADMIN");
-        personHeader.sesion.setSucursal("001");
-        personHeader.sesion.setTerminal("TERM01");
-        personHeader.sesion.setTurno("A");
-        personHeader.sesion.setUsuario("USER01");
+    public void setCuenta(String cuenta) {
+        this.cuenta = cuenta;
+    }
 
-        TrxPEPFDataRequest dto = new TrxPEPFDataRequest(personHeader);
+    public String getNumSecuencia() {
+        return numSecuencia;
+    }
 
-        assertNotNull(dto);
-        assertNotNull(dto.getCabecera());
-        assertNotNull(dto.getCabecera().getSesion());
+    public void setNumSecuencia(String numSecuencia) {
+        this.numSecuencia = numSecuencia;
+    }
 
-        assertEquals("WEB", dto.getCabecera().getCanal());
-        assertEquals("FUNC01", dto.getCabecera().getFuncion());
-        assertEquals("OK", dto.getCabecera().getResultado());
-        assertEquals("ROUTE01", dto.getCabecera().getRutaServicio());
-        assertEquals("999", dto.getCabecera().getSecuencia());
+    public String getNumCertificado() {
+        return numCertificado;
+    }
 
-        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
-        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
-        assertEquals("20240101", dto.getCabecera().getSesion().getFechaContable());
-        assertEquals("101010", dto.getCabecera().getSesion().getHoraConexion());
-        assertEquals("ADMIN", dto.getCabecera().getSesion().getPerfil());
-        assertEquals("001", dto.getCabecera().getSesion().getSucursal());
-        assertEquals("TERM01", dto.getCabecera().getSesion().getTerminal());
-        assertEquals("A", dto.getCabecera().getSesion().getTurno());
-        assertEquals("USER01", dto.getCabecera().getSesion().getUsuario());
+    public void setNumCertificado(String numCertificado) {
+        this.numCertificado = numCertificado;
     }
 }
+
+
+
+
+
+
+=======================
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp13.request;
+
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP13Request {
+
+    private TrxHeader cabecera;
+    private TrxBP13DataRequest data;
+
+    public TrxBP13Request(TrxPersonHeader header){
+
+        var session= new Session();
+        this.cabecera = new TrxHeader();
+
+        session.setUsuario(header.sesion.usuario);
+        session.setTerminal(header.sesion.terminal);
+        session.setHoraConexion(header.sesion.horaConexion);
+        session.setEntorno(header.sesion.entorno);
+        session.setPerfil(header.sesion.perfil);
+        session.setSucursal(header.sesion.sucursal);
+        session.setEntidad("0065");
+        session.setDiasRestantesCambioClave(header.sesion.diasRestantesCambioClave);
+        session.setFechaContable(header.sesion.fechaContable);
+
+        this.cabecera.setCanal(header.canal);
+        this.cabecera.setFuncion(header.getFuncion());
+        this.cabecera.setResultado(header.getResultado());
+        this.cabecera.setRutaServicio(header.rutaServicio);
+        this.cabecera.setSecuencia(header.getSecuencia());
+
+        this.cabecera.setSesion(session);
+    }
+
+    public TrxHeader getCabecera() {
+        return cabecera;
+    }
+
+    public void setCabecera(TrxHeader cabecera) {
+        this.cabecera = cabecera;
+    }
+
+    public TrxBP13DataRequest getData() {
+        return data;
+    }
+
+    public void setData(TrxBP13DataRequest data) {
+        this.data = data;
+    }
+}
+
+
+
+

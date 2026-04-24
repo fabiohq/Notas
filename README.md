@@ -1,49 +1,61 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class PepfHeaderResponseDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PepfHeaderResponseDTO {
-    private int secuencia;
-    private String rutaServicio;
-    private PepfSessionResponseDTO sesion;
-    private String resultado;
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        PepfHeaderResponseDTO dto = new PepfHeaderResponseDTO();
+        PepfSessionResponseDTO sesion = new PepfSessionResponseDTO();
 
-    public int getSecuencia() {
-        return secuencia;
+        dto.setSecuencia(1);
+        dto.setRutaServicio("rutaServicio");
+        dto.setSesion(sesion);
+        dto.setResultado("resultado");
+
+        assertEquals(1, dto.getSecuencia());
+        assertEquals("rutaServicio", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("resultado", dto.getResultado());
     }
 
-    public void setSecuencia(int secuencia) {
-        this.secuencia = secuencia;
+    @Test
+    void shouldCoverBuilder() {
+        PepfSessionResponseDTO sesion = new PepfSessionResponseDTO();
+
+        PepfHeaderResponseDTO dto = PepfHeaderResponseDTO.builder()
+                .secuencia(2)
+                .rutaServicio("ruta")
+                .sesion(sesion)
+                .resultado("ok")
+                .build();
+
+        assertNotNull(dto);
+        assertEquals(2, dto.getSecuencia());
+        assertEquals("ruta", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("ok", dto.getResultado());
     }
 
-    public String getRutaServicio() {
-        return rutaServicio;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        PepfSessionResponseDTO sesion = new PepfSessionResponseDTO();
 
-    public void setRutaServicio(String rutaServicio) {
-        this.rutaServicio = rutaServicio;
-    }
+        PepfHeaderResponseDTO dto = new PepfHeaderResponseDTO(
+                3,
+                "servicio",
+                sesion,
+                "resultado"
+        );
 
-    public PepfSessionResponseDTO getSesion() {
-        return sesion;
-    }
-
-    public void setSesion(PepfSessionResponseDTO sesion) {
-        this.sesion = sesion;
-    }
-
-    public String getResultado() {
-        return resultado;
-    }
-
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
+        assertNotNull(dto);
+        assertEquals(3, dto.getSecuencia());
+        assertEquals("servicio", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("resultado", dto.getResultado());
     }
 }

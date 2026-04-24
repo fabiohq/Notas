@@ -5,45 +5,35 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class ContractsServiceRequestDTOTest {
+class ContractIdentificationRequestDTOTest {
 
     @Test
-    void shouldCoverSettersAndGetters() {
-        ContractsServiceRequestDTO dto = new ContractsServiceRequestDTO();
+    void shouldCoverPojo() {
+        ContractIdentificationRequestDTO dto =
+                new ContractIdentificationRequestDTO();
 
-        NewAssociatedContractRequestDTO newDto =
-                new NewAssociatedContractRequestDTO();
-        OldAssociatedContractRequestDTO oldDto =
-                new OldAssociatedContractRequestDTO();
+        dto.setNationalIdentification("123");
+        dto.setInternalIdentification("ABC");
 
-        dto.setNewAssociatedContract(newDto);
-        dto.setOldAssociatedContract(oldDto);
-
-        assertEquals(newDto, dto.getNewAssociatedContract());
-        assertEquals(oldDto, dto.getOldAssociatedContract());
+        assertEquals("123", dto.getNationalIdentification());
+        assertEquals("ABC", dto.getInternalIdentification());
     }
 
     @Test
     void shouldCoverBuilderAndAllArgs() {
-        NewAssociatedContractRequestDTO newDto =
-                new NewAssociatedContractRequestDTO();
-        OldAssociatedContractRequestDTO oldDto =
-                new OldAssociatedContractRequestDTO();
-
-        ContractsServiceRequestDTO dto =
-                ContractsServiceRequestDTO.builder()
-                        .newAssociatedContract(newDto)
-                        .oldAssociatedContract(oldDto)
+        ContractIdentificationRequestDTO dto =
+                ContractIdentificationRequestDTO.builder()
+                        .nationalIdentification("123")
+                        .internalIdentification("ABC")
                         .build();
 
         assertNotNull(dto);
-        assertEquals(newDto, dto.getNewAssociatedContract());
-        assertEquals(oldDto, dto.getOldAssociatedContract());
+        assertEquals("123", dto.getNationalIdentification());
 
-        ContractsServiceRequestDTO dto2 =
-                new ContractsServiceRequestDTO(newDto, oldDto);
+        ContractIdentificationRequestDTO dto2 =
+                new ContractIdentificationRequestDTO("999", "XYZ");
 
-        assertEquals(newDto, dto2.getNewAssociatedContract());
-        assertEquals(oldDto, dto2.getOldAssociatedContract());
+        assertEquals("999", dto2.getNationalIdentification());
+        assertEquals("XYZ", dto2.getInternalIdentification());
     }
 }

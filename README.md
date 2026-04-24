@@ -1,39 +1,46 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.contracts.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class ContractIdentificationRequestDTOTest {
+class ContractRequestDTOTest {
 
     @Test
     void shouldCoverPojo() {
-        ContractIdentificationRequestDTO dto =
+        ContractRequestDTO dto = new ContractRequestDTO();
+
+        ContractIdentificationRequestDTO id =
                 new ContractIdentificationRequestDTO();
 
-        dto.setNationalIdentification("123");
-        dto.setInternalIdentification("ABC");
+        dto.setExternalContract(true);
+        dto.setContractIdentification(id);
 
-        assertEquals("123", dto.getNationalIdentification());
-        assertEquals("ABC", dto.getInternalIdentification());
+        assertTrue(dto.getExternalContract());
+        assertEquals(id, dto.getContractIdentification());
     }
 
     @Test
     void shouldCoverBuilderAndAllArgs() {
-        ContractIdentificationRequestDTO dto =
-                ContractIdentificationRequestDTO.builder()
-                        .nationalIdentification("123")
-                        .internalIdentification("ABC")
+        ContractIdentificationRequestDTO id =
+                new ContractIdentificationRequestDTO();
+
+        ContractRequestDTO dto =
+                ContractRequestDTO.builder()
+                        .isExternalContract(false)
+                        .contractIdentification(id)
                         .build();
 
         assertNotNull(dto);
-        assertEquals("123", dto.getNationalIdentification());
+        assertFalse(dto.getExternalContract());
 
-        ContractIdentificationRequestDTO dto2 =
-                new ContractIdentificationRequestDTO("999", "XYZ");
+        ContractRequestDTO dto2 =
+                new ContractRequestDTO(true, id);
 
-        assertEquals("999", dto2.getNationalIdentification());
-        assertEquals("XYZ", dto2.getInternalIdentification());
+        assertTrue(dto2.getExternalContract());
+        assertEquals(id, dto2.getContractIdentification());
     }
 }

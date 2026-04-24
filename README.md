@@ -1,66 +1,159 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.client.impl;
-
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.client.api.BanksApi;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks.BanksDTO;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks.BanksParametersRequest;
 
-import retrofit2.Call;
-import retrofit2.Response;
+private ResponseBody invalidJsonBody() {
+    return ResponseBody.create(
+            MediaType.parse("application/json"),
+            "invalid-json"
+    );
+}
 
-class BanksServiceImplTest {
 
-    private BanksApi banksApi;
-    private BanksServiceImpl banksService;
 
-    @BeforeEach
-    void setUp() {
-        banksApi = mock(BanksApi.class);
-        banksService = new BanksServiceImpl(banksApi);
-    }
 
-    @Test
-    void shouldReturnBodyWhenApiCallIsSuccessful() throws Exception {
-        BanksParametersRequest request = BanksParametersRequest.builder()
-                .authorization("auth")
-                .xSantanderClientId("client-id")
-                .build();
 
-        BanksDTO expected = mock(BanksDTO.class);
+@Test
+void shouldThrowTechnicalExceptionWhenBp31ErrorBodyCannotBeParsed() throws Exception {
+    TrxBP31Request request = mock(TrxBP31Request.class);
+    Call<TrxBP31Response> call = mock(Call.class);
 
-        @SuppressWarnings("unchecked")
-        Call<BanksDTO> call = mock(Call.class);
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
 
-        when(banksApi.callBanks("auth", "client-id")).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(expected));
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP31TRX(
+            request,
+            "SBCDTTI01-ConsultaCDTDATTitular2654",
+            "SBCDTTI01-ConsultaCDTDATTitular2654",
+            "QCTFD"))
+            .thenReturn(call);
 
-        BanksDTO result = banksService.banksResponse(request);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
 
-        assertSame(expected, result);
-    }
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
 
-    @Test
-    void shouldReturnNullWhenApiThrowsException() throws Exception {
-        BanksParametersRequest request = BanksParametersRequest.builder()
-                .authorization("auth")
-                .xSantanderClientId("client-id")
-                .build();
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP31(request));
 
-        @SuppressWarnings("unchecked")
-        Call<BanksDTO> call = mock(Call.class);
+    assertSame(expected, ex);
+}
 
-        when(banksApi.callBanks("auth", "client-id")).thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("boom"));
+@Test
+void shouldThrowTechnicalExceptionWhenPepfErrorBodyCannotBeParsed() throws Exception {
+    TrxPEPFDataRequest request = mock(TrxPEPFDataRequest.class);
+    Call<TrxPEPFDataResponse> call = mock(Call.class);
 
-        BanksDTO result = banksService.banksResponse(request);
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
 
-        assertNull(result);
-    }
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callPEPF(request, "PEPF", "PEPF", "QCTFD")).thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxPEPF(request));
+
+    assertSame(expected, ex);
+}
+
+@Test
+void shouldThrowTechnicalExceptionWhenBp13ErrorBodyCannotBeParsed() throws Exception {
+    TrxBP13Request request = mock(TrxBP13Request.class);
+    Call<TrxBP13Response> call = mock(Call.class);
+
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP13TRX(request, "consultaDatosIPF", "consultaDatosIPF", "QCTFD"))
+            .thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP13(request));
+
+    assertSame(expected, ex);
+}
+
+@Test
+void shouldThrowTechnicalExceptionWhenBp01ErrorBodyCannotBeParsed() throws Exception {
+    TrxBp01Request request = mock(TrxBp01Request.class);
+    Call<TrxBp01Response> call = mock(Call.class);
+
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP01(request, "BP01", "BP01", "QCTFD")).thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP01(request));
+
+    assertSame(expected, ex);
+}
+
+@Test
+void shouldThrowTechnicalExceptionWhenBp02ErrorBodyCannotBeParsed() throws Exception {
+    TrxBp02Request request = mock(TrxBp02Request.class);
+    Call<TrxBp02Response> call = mock(Call.class);
+
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP02(request, "BP02", "BP02", "QCTFD")).thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP02(request));
+
+    assertSame(expected, ex);
+}
+
+@Test
+void shouldThrowTechnicalExceptionWhenBp49ErrorBodyCannotBeParsed() throws Exception {
+    TrxBP49Request request = mock(TrxBP49Request.class);
+    Call<TrxBP49Response> call = mock(Call.class);
+
+    ServiceException expected = new ServiceException(HttpStatus.CONFLICT, "parse error");
+
+    when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+    when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "QCTFD")).thenReturn(call);
+    when(call.execute()).thenReturn(Response.error(400, invalidJsonBody()));
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            anyString(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(expected);
+
+    ServiceException ex = assertThrows(ServiceException.class, () -> service.trxBP49(request));
+
+    assertSame(expected, ex);
 }

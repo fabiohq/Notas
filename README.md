@@ -1,95 +1,166 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp49.request;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.response;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.junit.jupiter.api.Test;
-
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-class TrxBP49RequestTest {
+import lombok.NoArgsConstructor;
 
-    @Test
-    void shouldCoverSettersAndGetters() {
-        TrxBP49Request dto = new TrxBP49Request();
+import java.util.List;
 
-        TrxHeader header = new TrxHeader();
-        TrxBP49DataRequest data = new TrxBP49DataRequest();
 
-        dto.setCabecera(header);
-        dto.setData(data);
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP21Response {
+    private TrxBP21DataResponse data;
+    private TrxHeader cabecera;
+    private Object autorizacion;
+    private Object paginacion;
+    private List<Object> avisos;
+    private List<ErrorTrxDTO> errores;
+    private Object conexion;
+    private Boolean ok;
 
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public TrxBP21DataResponse getData() {
+        return data;
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        TrxHeader header = new TrxHeader();
-        TrxBP49DataRequest data = new TrxBP49DataRequest();
-
-        TrxBP49Request dto = TrxBP49Request.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public void setData(TrxBP21DataResponse data) {
+        this.data = data;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        TrxHeader header = new TrxHeader();
-        TrxBP49DataRequest data = new TrxBP49DataRequest();
-
-        TrxBP49Request dto = new TrxBP49Request(header, data);
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public TrxHeader getCabecera() {
+        return cabecera;
     }
 
-    @Test
-    void shouldCoverConstructorWithTrxPersonHeader() {
-        TrxPersonHeader personHeader = new TrxPersonHeader();
+    public void setCabecera(TrxHeader cabecera) {
+        this.cabecera = cabecera;
+    }
 
-        personHeader.canal = "WEB";
-        personHeader.rutaServicio = "ROUTE49";
-        personHeader.setFuncion("FUNC49");
-        personHeader.setResultado("OK");
-        personHeader.setSecuencia("888");
+    public Object getAutorizacion() {
+        return autorizacion;
+    }
 
-        personHeader.sesion = new Session();
-        personHeader.sesion.setEntorno("DEV");
-        personHeader.sesion.setFechaContable("20240101");
-        personHeader.sesion.setHoraConexion("111500");
-        personHeader.sesion.setPerfil("ADMIN");
-        personHeader.sesion.setSucursal("001");
-        personHeader.sesion.setTerminal("TERM49");
-        personHeader.sesion.setUsuario("USER49");
+    public void setAutorizacion(Object autorizacion) {
+        this.autorizacion = autorizacion;
+    }
 
-        TrxBP49Request dto = new TrxBP49Request(personHeader);
+    public Object getPaginacion() {
+        return paginacion;
+    }
 
-        assertNotNull(dto);
-        assertNotNull(dto.getCabecera());
-        assertNotNull(dto.getCabecera().getSesion());
+    public void setPaginacion(Object paginacion) {
+        this.paginacion = paginacion;
+    }
 
-        assertEquals("888", dto.getCabecera().getSecuencia());
-        assertEquals("ROUTE49", dto.getCabecera().getRutaServicio());
-        assertEquals("FUNC49", dto.getCabecera().getFuncion());
-        assertEquals("WEB", dto.getCabecera().getCanal());
-        assertEquals("OK", dto.getCabecera().getResultado());
+    public List<Object> getAvisos() {
+        return avisos;
+    }
 
-        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
-        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
-        assertEquals("20240101", dto.getCabecera().getSesion().getFechaContable());
-        assertEquals("111500", dto.getCabecera().getSesion().getHoraConexion());
-        assertEquals("ADMIN", dto.getCabecera().getSesion().getPerfil());
-        assertEquals("001", dto.getCabecera().getSesion().getSucursal());
-        assertEquals("TERM49", dto.getCabecera().getSesion().getTerminal());
-        assertEquals("USER49", dto.getCabecera().getSesion().getUsuario());
+    public void setAvisos(List<Object> avisos) {
+        this.avisos = avisos;
+    }
+
+    public List<ErrorTrxDTO> getErrores() {
+        return errores;
+    }
+
+    public void setErrores(List<ErrorTrxDTO> errores) {
+        this.errores = errores;
+    }
+
+    public Object getConexion() {
+        return conexion;
+    }
+
+    public void setConexion(Object conexion) {
+        this.conexion = conexion;
+    }
+
+    public Boolean getOk() {
+        return ok;
+    }
+
+    public void setOk(Boolean ok) {
+        this.ok = ok;
+    }
+}
+
+
+
+
+
+
+=====================================
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp21.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP21DataResponse {
+
+    private String saldoDesde;
+    private String saldoHasta;
+    private String diasDesde;
+    private String diasHasta;
+    private String tasaEfectiva;
+    private String tasaNominal;
+
+    public String getSaldoDesde() {
+        return saldoDesde;
+    }
+
+    public void setSaldoDesde(String saldoDesde) {
+        this.saldoDesde = saldoDesde;
+    }
+
+    public String getSaldoHasta() {
+        return saldoHasta;
+    }
+
+    public void setSaldoHasta(String saldoHasta) {
+        this.saldoHasta = saldoHasta;
+    }
+
+    public String getDiasDesde() {
+        return diasDesde;
+    }
+
+    public void setDiasDesde(String diasDesde) {
+        this.diasDesde = diasDesde;
+    }
+
+    public String getDiasHasta() {
+        return diasHasta;
+    }
+
+    public void setDiasHasta(String diasHasta) {
+        this.diasHasta = diasHasta;
+    }
+
+    public String getTasaEfectiva() {
+        return tasaEfectiva;
+    }
+
+    public void setTasaEfectiva(String tasaEfectiva) {
+        this.tasaEfectiva = tasaEfectiva;
+    }
+
+    public String getTasaNominal() {
+        return tasaNominal;
+    }
+
+    public void setTasaNominal(String tasaNominal) {
+        this.tasaNominal = tasaNominal;
     }
 }

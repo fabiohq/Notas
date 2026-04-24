@@ -1,97 +1,76 @@
-Sessionsbnc-bsn049-mscontracts > com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto > PepfSessionResponseDTO.java
-PepfSessionResponseDTO.java
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class PepfSessionResponseDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PepfSessionResponseDTO {
-    private String usuario;
-    private String terminal;
-    private String horaConexion;
-    private String entorno;
-    private String perfil;
-    private String sucursal;
-    private String entidad;
-    private int diasRestantesCambioClave;
-    private String fechaContable;
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        PepfSessionResponseDTO dto = new PepfSessionResponseDTO();
 
-    public String getUsuario() {
-        return usuario;
+        dto.setUsuario("usuario");
+        dto.setTerminal("terminal");
+        dto.setHoraConexion("horaConexion");
+        dto.setEntorno("entorno");
+        dto.setPerfil("perfil");
+        dto.setSucursal("sucursal");
+        dto.setEntidad("entidad");
+        dto.setDiasRestantesCambioClave(5);
+        dto.setFechaContable("fechaContable");
+
+        assertEquals("usuario", dto.getUsuario());
+        assertEquals("terminal", dto.getTerminal());
+        assertEquals("horaConexion", dto.getHoraConexion());
+        assertEquals("entorno", dto.getEntorno());
+        assertEquals("perfil", dto.getPerfil());
+        assertEquals("sucursal", dto.getSucursal());
+        assertEquals("entidad", dto.getEntidad());
+        assertEquals(5, dto.getDiasRestantesCambioClave());
+        assertEquals("fechaContable", dto.getFechaContable());
     }
 
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
+    @Test
+    void shouldCoverBuilder() {
+        PepfSessionResponseDTO dto = PepfSessionResponseDTO.builder()
+                .usuario("usuario")
+                .terminal("terminal")
+                .diasRestantesCambioClave(3)
+                .fechaContable("fechaContable")
+                .build();
+
+        assertNotNull(dto);
+        assertEquals("usuario", dto.getUsuario());
+        assertEquals("terminal", dto.getTerminal());
+        assertEquals(3, dto.getDiasRestantesCambioClave());
+        assertEquals("fechaContable", dto.getFechaContable());
     }
 
-    public String getTerminal() {
-        return terminal;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        PepfSessionResponseDTO dto = new PepfSessionResponseDTO(
+                "usuario",
+                "terminal",
+                "horaConexion",
+                "entorno",
+                "perfil",
+                "sucursal",
+                "entidad",
+                10,
+                "fechaContable"
+        );
 
-    public void setTerminal(String terminal) {
-        this.terminal = terminal;
-    }
-
-    public String getHoraConexion() {
-        return horaConexion;
-    }
-
-    public void setHoraConexion(String horaConexion) {
-        this.horaConexion = horaConexion;
-    }
-
-    public String getEntorno() {
-        return entorno;
-    }
-
-    public void setEntorno(String entorno) {
-        this.entorno = entorno;
-    }
-
-    public String getPerfil() {
-        return perfil;
-    }
-
-    public void setPerfil(String perfil) {
-        this.perfil = perfil;
-    }
-
-    public String getSucursal() {
-        return sucursal;
-    }
-
-    public void setSucursal(String sucursal) {
-        this.sucursal = sucursal;
-    }
-
-    public String getEntidad() {
-        return entidad;
-    }
-
-    public void setEntidad(String entidad) {
-        this.entidad = entidad;
-    }
-
-    public int getDiasRestantesCambioClave() {
-        return diasRestantesCambioClave;
-    }
-
-    public void setDiasRestantesCambioClave(int diasRestantesCambioClave) {
-        this.diasRestantesCambioClave = diasRestantesCambioClave;
-    }
-
-    public String getFechaContable() {
-        return fechaContable;
-    }
-
-    public void setFechaContable(String fechaContable) {
-        this.fechaContable = fechaContable;
+        assertNotNull(dto);
+        assertEquals("usuario", dto.getUsuario());
+        assertEquals("terminal", dto.getTerminal());
+        assertEquals("horaConexion", dto.getHoraConexion());
+        assertEquals("entorno", dto.getEntorno());
+        assertEquals("perfil", dto.getPerfil());
+        assertEquals("sucursal", dto.getSucursal());
+        assertEquals("entidad", dto.getEntidad());
+        assertEquals(10, dto.getDiasRestantesCambioClave());
+        assertEquals("fechaContable", dto.getFechaContable());
     }
 }
-Created with JaCoCo 0.8.11.202310140853

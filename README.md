@@ -5,52 +5,55 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class Bp01DataRequestTest {
+class Bp01HeaderRequestTest {
 
     @Test
     void shouldCoverSettersAndGetters() {
-        Bp01DataRequest dto = new Bp01DataRequest();
+        Bp01HeaderRequest dto = new Bp01HeaderRequest();
+        Bp01SesionRequest sesion = new Bp01SesionRequest();
 
-        dto.setNroCliente("cliente");
-        dto.setProducto("producto");
-        dto.setNroCtaExtAbono("cuenta");
-        dto.setTipoCtaExtAbono("tipo");
-        dto.setDiviCtaExtAbono("COP");
-        dto.setBancoCtaExtAbono("0065");
-        dto.setEjecutivoComercial("0001");
+        dto.setRutaServicio("ruta");
+        dto.setSesion(sesion);
+        dto.setFuncion("funcion");
+        dto.setSecuencia("1");
+        dto.setCanal("60");
 
-        assertEquals("cliente", dto.getNroCliente());
-        assertEquals("producto", dto.getProducto());
-        assertEquals("cuenta", dto.getNroCtaExtAbono());
-        assertEquals("tipo", dto.getTipoCtaExtAbono());
-        assertEquals("COP", dto.getDiviCtaExtAbono());
-        assertEquals("0065", dto.getBancoCtaExtAbono());
-        assertEquals("0001", dto.getEjecutivoComercial());
+        assertEquals("ruta", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("funcion", dto.getFuncion());
+        assertEquals("1", dto.getSecuencia());
+        assertEquals("60", dto.getCanal());
     }
 
     @Test
     void shouldCoverBuilder() {
-        Bp01DataRequest dto = Bp01DataRequest.builder()
-                .nroCliente("cliente")
-                .producto("04")
-                .bancoCtaExtAbono("0065")
+        Bp01SesionRequest sesion = new Bp01SesionRequest();
+
+        Bp01HeaderRequest dto = Bp01HeaderRequest.builder()
+                .rutaServicio("ruta")
+                .sesion(sesion)
+                .canal("60")
                 .build();
 
         assertNotNull(dto);
-        assertEquals("cliente", dto.getNroCliente());
-        assertEquals("04", dto.getProducto());
-        assertEquals("0065", dto.getBancoCtaExtAbono());
+        assertEquals("ruta", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("60", dto.getCanal());
     }
 
     @Test
     void shouldCoverAllArgsConstructor() {
-        Bp01DataRequest dto = new Bp01DataRequest(
-                "cliente", "producto", "cuenta", "tipo",
-                "COP", "0065", "0001"
+        Bp01SesionRequest sesion = new Bp01SesionRequest();
+
+        Bp01HeaderRequest dto = new Bp01HeaderRequest(
+                "ruta", sesion, "funcion", "1", "60"
         );
 
         assertNotNull(dto);
-        assertEquals("cliente", dto.getNroCliente());
-        assertEquals("0001", dto.getEjecutivoComercial());
+        assertEquals("ruta", dto.getRutaServicio());
+        assertEquals(sesion, dto.getSesion());
+        assertEquals("funcion", dto.getFuncion());
+        assertEquals("1", dto.getSecuencia());
+        assertEquals("60", dto.getCanal());
     }
 }

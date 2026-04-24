@@ -5,52 +5,93 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-class TrxBP13DataRequestTest {
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+
+class TrxBP13RequestTest {
 
     @Test
     void shouldCoverSettersAndGetters() {
-        TrxBP13DataRequest dto = new TrxBP13DataRequest();
+        TrxBP13Request dto = new TrxBP13Request();
 
-        dto.setEntidad("0065");
-        dto.setOficina("001");
-        dto.setCuenta("123456");
-        dto.setNumSecuencia("999");
-        dto.setNumCertificado("ABC123");
+        TrxHeader header = new TrxHeader();
+        TrxBP13DataRequest data = new TrxBP13DataRequest();
 
-        assertEquals("0065", dto.getEntidad());
-        assertEquals("001", dto.getOficina());
-        assertEquals("123456", dto.getCuenta());
-        assertEquals("999", dto.getNumSecuencia());
-        assertEquals("ABC123", dto.getNumCertificado());
+        dto.setCabecera(header);
+        dto.setData(data);
+
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
     @Test
     void shouldCoverBuilder() {
-        TrxBP13DataRequest dto = TrxBP13DataRequest.builder()
-                .entidad("0065")
-                .oficina("001")
-                .cuenta("123456")
-                .numSecuencia("999")
-                .numCertificado("ABC123")
+        TrxHeader header = new TrxHeader();
+        TrxBP13DataRequest data = new TrxBP13DataRequest();
+
+        TrxBP13Request dto = TrxBP13Request.builder()
+                .cabecera(header)
+                .data(data)
                 .build();
 
         assertNotNull(dto);
-        assertEquals("0065", dto.getEntidad());
-        assertEquals("ABC123", dto.getNumCertificado());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
     }
 
     @Test
     void shouldCoverAllArgsConstructor() {
-        TrxBP13DataRequest dto = new TrxBP13DataRequest(
-                "0065",
-                "001",
-                "123456",
-                "999",
-                "ABC123"
-        );
+        TrxHeader header = new TrxHeader();
+        TrxBP13DataRequest data = new TrxBP13DataRequest();
+
+        TrxBP13Request dto = new TrxBP13Request(header, data);
 
         assertNotNull(dto);
-        assertEquals("001", dto.getOficina());
-        assertEquals("123456", dto.getCuenta());
+        assertEquals(header, dto.getCabecera());
+        assertEquals(data, dto.getData());
+    }
+
+    @Test
+    void shouldCoverConstructorWithTrxPersonHeader() {
+        TrxPersonHeader personHeader = new TrxPersonHeader();
+
+        personHeader.canal = "WEB";
+        personHeader.rutaServicio = "ROUTE13";
+        personHeader.setFuncion("FUNC13");
+        personHeader.setResultado("OK");
+        personHeader.setSecuencia("321");
+
+        personHeader.sesion = new Session();
+        personHeader.sesion.setUsuario("USER13");
+        personHeader.sesion.setTerminal("TERM13");
+        personHeader.sesion.setHoraConexion("101500");
+        personHeader.sesion.setEntorno("DEV");
+        personHeader.sesion.setPerfil("ADMIN");
+        personHeader.sesion.setSucursal("001");
+        personHeader.sesion.setDiasRestantesCambioClave(5);
+        personHeader.sesion.setFechaContable("20240101");
+
+        TrxBP13Request dto = new TrxBP13Request(personHeader);
+
+        assertNotNull(dto);
+        assertNotNull(dto.getCabecera());
+        assertNotNull(dto.getCabecera().getSesion());
+
+        assertEquals("WEB", dto.getCabecera().getCanal());
+        assertEquals("FUNC13", dto.getCabecera().getFuncion());
+        assertEquals("OK", dto.getCabecera().getResultado());
+        assertEquals("ROUTE13", dto.getCabecera().getRutaServicio());
+        assertEquals("321", dto.getCabecera().getSecuencia());
+
+        assertEquals("USER13", dto.getCabecera().getSesion().getUsuario());
+        assertEquals("TERM13", dto.getCabecera().getSesion().getTerminal());
+        assertEquals("101500", dto.getCabecera().getSesion().getHoraConexion());
+        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
+        assertEquals("ADMIN", dto.getCabecera().getSesion().getPerfil());
+        assertEquals("001", dto.getCabecera().getSesion().getSucursal());
+        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
+        assertEquals(5, dto.getCabecera().getSesion().getDiasRestantesCambioClave());
+        assertEquals("20240101", dto.getCabecera().getSesion().getFechaContable());
     }
 }

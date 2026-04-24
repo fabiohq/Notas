@@ -1,41 +1,31 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.banks;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-import org.junit.jupiter.api.Test;
+import lombok.NoArgsConstructor;
 
-class PepfDataResponseDTOTest {
 
-    @Test
-    void shouldCoverNoArgsConstructorSettersAndGetters() {
-        PepfDataResponseDTO dto = new PepfDataResponseDTO();
-        PepfPEMFV0AResponseDTO response = new PepfPEMFV0AResponseDTO();
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BanksParametersRequest {
+    private String authorization;
+    private String xSantanderClientId;
 
-        dto.setPemfvoaResponse(response);
-
-        assertEquals(response, dto.getPemfvoaResponse());
+    public String getAuthorization() {
+        return authorization;
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        PepfPEMFV0AResponseDTO response = new PepfPEMFV0AResponseDTO();
-
-        PepfDataResponseDTO dto = PepfDataResponseDTO.builder()
-                .pemfvoaResponse(response)
-                .build();
-
-        assertNotNull(dto);
-        assertEquals(response, dto.getPemfvoaResponse());
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        PepfPEMFV0AResponseDTO response = new PepfPEMFV0AResponseDTO();
+    public String getxSantanderClientId() {
+        return xSantanderClientId;
+    }
 
-        PepfDataResponseDTO dto = new PepfDataResponseDTO(response);
-
-        assertNotNull(dto);
-        assertEquals(response, dto.getPemfvoaResponse());
+    public void setxSantanderClientId(String xSantanderClientId) {
+        this.xSantanderClientId = xSantanderClientId;
     }
 }

@@ -1,40 +1,50 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.TrxPEPFDataResponse.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+class PepfNoticeResponseDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PepfNoticeResponseDTO {
-    private String codigo;
-    private String mensaje;
-    private String transaccion;
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        PepfNoticeResponseDTO dto = new PepfNoticeResponseDTO();
 
-    public String getCodigo() {
-        return codigo;
+        dto.setCodigo("codigo");
+        dto.setMensaje("mensaje");
+        dto.setTransaccion("transaccion");
+
+        assertEquals("codigo", dto.getCodigo());
+        assertEquals("mensaje", dto.getMensaje());
+        assertEquals("transaccion", dto.getTransaccion());
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    @Test
+    void shouldCoverBuilder() {
+        PepfNoticeResponseDTO dto = PepfNoticeResponseDTO.builder()
+                .codigo("001")
+                .mensaje("ok")
+                .transaccion("trx")
+                .build();
+
+        assertNotNull(dto);
+        assertEquals("001", dto.getCodigo());
+        assertEquals("ok", dto.getMensaje());
+        assertEquals("trx", dto.getTransaccion());
     }
 
-    public String getMensaje() {
-        return mensaje;
-    }
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        PepfNoticeResponseDTO dto = new PepfNoticeResponseDTO(
+                "999",
+                "mensaje prueba",
+                "transaccion prueba"
+        );
 
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
-    }
-
-    public String getTransaccion() {
-        return transaccion;
-    }
-
-    public void setTransaccion(String transaccion) {
-        this.transaccion = transaccion;
+        assertNotNull(dto);
+        assertEquals("999", dto.getCodigo());
+        assertEquals("mensaje prueba", dto.getMensaje());
+        assertEquals("transaccion prueba", dto.getTransaccion());
     }
 }

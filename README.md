@@ -1,25 +1,46 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp13.response;
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
-import lombok.NoArgsConstructor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ErrorResponseTrxDTO {
-    private List<ErrorTrxDTO> errores;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
 
-    public List<ErrorTrxDTO> getErrores() {
-        return errores;
+class ErrorResponseTrxDTOTest {
+
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        ErrorResponseTrxDTO dto = new ErrorResponseTrxDTO();
+
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+
+        dto.setErrores(errores);
+
+        assertEquals(errores, dto.getErrores());
     }
 
-    public void setErrores(List<ErrorTrxDTO> errores) {
-        this.errores = errores;
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+
+        ErrorResponseTrxDTO dto = new ErrorResponseTrxDTO(errores);
+
+        assertNotNull(dto);
+        assertEquals(errores, dto.getErrores());
+    }
+
+    @Test
+    void shouldCoverBuilder() {
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+
+        ErrorResponseTrxDTO dto = ErrorResponseTrxDTO.builder()
+                .errores(errores)
+                .build();
+
+        assertNotNull(dto);
+        assertEquals(errores, dto.getErrores());
     }
 }

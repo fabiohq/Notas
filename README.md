@@ -1,56 +1,91 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp02.request;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+
 import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxSessionHeader;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
 
-import lombok.NoArgsConstructor;
+class TrxBp02RequestTest {
 
+    @Test
+    void shouldCoverSettersAndGetters() {
+        TrxBp02Request request = new TrxBp02Request();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxBp02Request {
-    private TrxHeader cabecera;
-    private TrxBp02DataRequest data;
+        TrxHeader header = new TrxHeader();
+        TrxBp02DataRequest data = new TrxBp02DataRequest();
 
-    public TrxBp02Request(TrxPersonHeader header){
-        var session= new Session();
-        this.cabecera = new TrxHeader();
+        request.setCabecera(header);
+        request.setData(data);
 
-        session.setEntidad("0065");
-        session.setEntorno(header.sesion.entorno);
-        session.setFechaContable(header.sesion.fechaContable);
-        session.setHoraConexion(header.sesion.horaConexion);
-        session.setPerfil(header.sesion.perfil);
-        session.setSucursal(header.sesion.sucursal);
-        session.setTerminal(header.sesion.terminal);
-        session.setTurno(header.sesion.turno);
-        session.setUsuario(header.sesion.usuario);
-
-        this.cabecera.setCanal(header.canal);
-        this.cabecera.setFuncion(header.getFuncion());
-        this.cabecera.setResultado(header.getResultado());
-        this.cabecera.setRutaServicio(header.rutaServicio);
-        this.cabecera.setSecuencia(header.getSecuencia());
-        this.cabecera.setSesion(session);
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
     }
 
-    public TrxHeader getCabecera() {
-        return cabecera;
+    @Test
+    void shouldCoverBuilder() {
+        TrxHeader header = new TrxHeader();
+        TrxBp02DataRequest data = new TrxBp02DataRequest();
+
+        TrxBp02Request request = TrxBp02Request.builder()
+                .cabecera(header)
+                .data(data)
+                .build();
+
+        assertNotNull(request);
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
     }
 
-    public void setCabecera(TrxHeader cabecera) {
-        this.cabecera = cabecera;
+    @Test
+    void shouldCoverAllArgsConstructor() {
+        TrxHeader header = new TrxHeader();
+        TrxBp02DataRequest data = new TrxBp02DataRequest();
+
+        TrxBp02Request request = new TrxBp02Request(header, data);
+
+        assertNotNull(request);
+        assertEquals(header, request.getCabecera());
+        assertEquals(data, request.getData());
     }
 
-    public TrxBp02DataRequest getData() {
-        return data;
-    }
+    @Test
+    void shouldCoverConstructorWithTrxPersonHeader() {
+        TrxPersonHeader personHeader = new TrxPersonHeader();
+        personHeader.canal = "60";
+        personHeader.rutaServicio = "ruta";
+        personHeader.setFuncion("funcion");
+        personHeader.setResultado("OK");
+        personHeader.setSecuencia(10);
 
-    public void setData(TrxBp02DataRequest data) {
-        this.data = data;
+        TrxSessionHeader session = new TrxSessionHeader();
+        session.usuario = "user";
+        session.terminal = "term";
+        session.horaConexion = "10:00";
+        session.entorno = "DEV";
+        session.perfil = "perfil";
+        session.sucursal = "0001";
+        session.turno = "A";
+        session.fechaContable = "20240101";
+
+        personHeader.sesion = session;
+
+        TrxBp02Request request = new TrxBp02Request(personHeader);
+
+        assertNotNull(request);
+        assertNotNull(request.getCabecera());
+        assertEquals("60", request.getCabecera().getCanal());
+        assertEquals("funcion", request.getCabecera().getFuncion());
+        assertEquals("OK", request.getCabecera().getResultado());
+        assertEquals("ruta", request.getCabecera().getRutaServicio());
+        assertEquals(10, request.getCabecera().getSecuencia());
+
+        assertEquals("0065", request.getCabecera().getSesion().getEntidad());
+        assertEquals("user", request.getCabecera().getSesion().getUsuario());
+        assertEquals("term", request.getCabecera().getSesion().getTerminal());
+        assertEquals("DEV", request.getCabecera().getSesion().getEntorno());
     }
 }

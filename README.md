@@ -1,89 +1,57 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp17.request;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.junit.jupiter.api.Test;
-
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.pepf.request.dto.PepfDataDTO;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-class TrxBP17RequestTest {
+import lombok.NoArgsConstructor;
 
-    @Test
-    void shouldCoverSettersAndGetters() {
-        TrxBP17Request dto = new TrxBP17Request();
 
-        TrxHeader header = new TrxHeader();
-        TrxBP17DataRequest data = new TrxBP17DataRequest();
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxPEPFDataRequest {
+    private TrxHeader cabecera;
+    private PepfDataDTO data;
 
-        dto.setCabecera(header);
-        dto.setData(data);
+    public TrxPEPFDataRequest(TrxPersonHeader header){
+        var session= new Session();
+        this.cabecera = new TrxHeader();
 
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+        session.setEntidad("0065");
+        session.setEntorno(header.sesion.entorno);
+        session.setFechaContable(header.sesion.fechaContable);
+        session.setHoraConexion(header.sesion.horaConexion);
+        session.setPerfil(header.sesion.perfil);
+        session.setSucursal(header.sesion.sucursal);
+        session.setTerminal(header.sesion.terminal);
+        session.setTurno(header.sesion.turno);
+        session.setUsuario(header.sesion.usuario);
+
+        this.cabecera.setCanal(header.canal);
+        this.cabecera.setFuncion(header.getFuncion());
+        this.cabecera.setResultado(header.getResultado());
+        this.cabecera.setRutaServicio(header.rutaServicio);
+        this.cabecera.setSecuencia(header.getSecuencia());
+        this.cabecera.setSesion(session);
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        TrxHeader header = new TrxHeader();
-        TrxBP17DataRequest data = new TrxBP17DataRequest();
-
-        TrxBP17Request dto = TrxBP17Request.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public TrxHeader getCabecera() {
+        return cabecera;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        TrxHeader header = new TrxHeader();
-        TrxBP17DataRequest data = new TrxBP17DataRequest();
-
-        TrxBP17Request dto = new TrxBP17Request(header, data);
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public void setCabecera(TrxHeader cabecera) {
+        this.cabecera = cabecera;
     }
 
-    @Test
-    void shouldCoverConstructorWithTrxPersonHeader() {
-        TrxPersonHeader personHeader = new TrxPersonHeader();
-        personHeader.canal = "WEB";
-        personHeader.rutaServicio = "ROUTE";
+    public PepfDataDTO getData() {
+        return data;
+    }
 
-        personHeader.setSecuencia("123");
-        personHeader.setFuncion("FUNC");
-        personHeader.setResultado("OK");
-
-        personHeader.sesion = new Session();
-        personHeader.sesion.setEntorno("DEV");
-        personHeader.sesion.setFechaContable("20240101");
-        personHeader.sesion.setHoraConexion("120000");
-        personHeader.sesion.setPerfil("ADMIN");
-        personHeader.sesion.setSucursal("001");
-        personHeader.sesion.setTerminal("TERM");
-        personHeader.sesion.setTurno("A");
-        personHeader.sesion.setUsuario("USER");
-
-        TrxBP17Request dto = new TrxBP17Request(personHeader);
-
-        assertNotNull(dto);
-        assertNotNull(dto.getCabecera());
-        assertEquals("123", dto.getCabecera().getSecuencia());
-        assertEquals("ROUTE", dto.getCabecera().getRutaServicio());
-        assertEquals("FUNC", dto.getCabecera().getFuncion());
-        assertEquals("WEB", dto.getCabecera().getCanal());
-        assertEquals("OK", dto.getCabecera().getResultado());
-
-        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
-        assertEquals("USER", dto.getCabecera().getSesion().getUsuario());
-        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
+    public void setData(PepfDataDTO data) {
+        this.data = data;
     }
 }

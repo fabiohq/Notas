@@ -1,97 +1,143 @@
-package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp13.request;
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp49.request;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-import org.junit.jupiter.api.Test;
+import lombok.NoArgsConstructor;
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP49DataRequest {
+    private String buscarPor;
+    private String ent;
+    private String ofic;
+    private String cuenta;
+    private String secuencia;
+    private String numeroCertificado;
+    private String documentoCajero;
+
+    public String getBuscarPor() {
+        return buscarPor;
+    }
+
+    public void setBuscarPor(String buscarPor) {
+        this.buscarPor = buscarPor;
+    }
+
+    public String getEnt() {
+        return ent;
+    }
+
+    public void setEnt(String ent) {
+        this.ent = ent;
+    }
+
+    public String getOfic() {
+        return ofic;
+    }
+
+    public void setOfic(String ofic) {
+        this.ofic = ofic;
+    }
+
+    public String getCuenta() {
+        return cuenta;
+    }
+
+    public void setCuenta(String cuenta) {
+        this.cuenta = cuenta;
+    }
+
+    public String getSecuencia() {
+        return secuencia;
+    }
+
+    public void setSecuencia(String secuencia) {
+        this.secuencia = secuencia;
+    }
+
+    public String getNumeroCertificado() {
+        return numeroCertificado;
+    }
+
+    public void setNumeroCertificado(String numeroCertificado) {
+        this.numeroCertificado = numeroCertificado;
+    }
+
+    public String getDocumentoCajero() {
+        return documentoCajero;
+    }
+
+    public void setDocumentoCajero(String documentoCajero) {
+        this.documentoCajero = documentoCajero;
+    }
+}
+
+
+
+
+====================
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp49.request;
+
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-class TrxBP13RequestTest {
+import lombok.NoArgsConstructor;
 
-    @Test
-    void shouldCoverSettersAndGetters() {
-        TrxBP13Request dto = new TrxBP13Request();
 
-        TrxHeader header = new TrxHeader();
-        TrxBP13DataRequest data = new TrxBP13DataRequest();
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP49Request {
+    private TrxHeader cabecera;
+    private TrxBP49DataRequest data;
 
-        dto.setCabecera(header);
-        dto.setData(data);
+    public TrxBP49Request(TrxPersonHeader header) {
 
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+        var session = new Session();
+        this.cabecera = new TrxHeader();
+
+        session.setEntidad("0065");
+        session.setEntorno(header.sesion.entorno);
+        session.setFechaContable(header.sesion.fechaContable);
+        session.setHoraConexion(header.sesion.horaConexion);
+        session.setPerfil(header.sesion.perfil);
+        session.setSucursal(header.sesion.sucursal);
+        session.setTerminal(header.sesion.terminal);
+
+        session.setUsuario(header.sesion.usuario);
+
+        this.cabecera.setSecuencia(header.getSecuencia());
+        this.cabecera.setRutaServicio(header.rutaServicio);
+        this.cabecera.setSesion(session);
+        this.cabecera.setFuncion(header.getFuncion());
+        this.cabecera.setCanal(header.canal);
+
+        this.cabecera.setResultado(header.getResultado());
+
     }
 
-    @Test
-    void shouldCoverBuilder() {
-        TrxHeader header = new TrxHeader();
-        TrxBP13DataRequest data = new TrxBP13DataRequest();
-
-        TrxBP13Request dto = TrxBP13Request.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public TrxHeader getCabecera() {
+        return cabecera;
     }
 
-    @Test
-    void shouldCoverAllArgsConstructor() {
-        TrxHeader header = new TrxHeader();
-        TrxBP13DataRequest data = new TrxBP13DataRequest();
-
-        TrxBP13Request dto = new TrxBP13Request(header, data);
-
-        assertNotNull(dto);
-        assertEquals(header, dto.getCabecera());
-        assertEquals(data, dto.getData());
+    public void setCabecera(TrxHeader cabecera) {
+        this.cabecera = cabecera;
     }
 
-    @Test
-    void shouldCoverConstructorWithTrxPersonHeader() {
-        TrxPersonHeader personHeader = new TrxPersonHeader();
+    public TrxBP49DataRequest getData() {
+        return data;
+    }
 
-        personHeader.canal = "WEB";
-        personHeader.rutaServicio = "ROUTE13";
-        personHeader.setFuncion("FUNC13");
-        personHeader.setResultado("OK");
-        personHeader.setSecuencia("321");
-
-        personHeader.sesion = new Session();
-        personHeader.sesion.setUsuario("USER13");
-        personHeader.sesion.setTerminal("TERM13");
-        personHeader.sesion.setHoraConexion("101500");
-        personHeader.sesion.setEntorno("DEV");
-        personHeader.sesion.setPerfil("ADMIN");
-        personHeader.sesion.setSucursal("001");
-        personHeader.sesion.setDiasRestantesCambioClave(5);
-        personHeader.sesion.setFechaContable("20240101");
-
-        TrxBP13Request dto = new TrxBP13Request(personHeader);
-
-        assertNotNull(dto);
-        assertNotNull(dto.getCabecera());
-        assertNotNull(dto.getCabecera().getSesion());
-
-        assertEquals("WEB", dto.getCabecera().getCanal());
-        assertEquals("FUNC13", dto.getCabecera().getFuncion());
-        assertEquals("OK", dto.getCabecera().getResultado());
-        assertEquals("ROUTE13", dto.getCabecera().getRutaServicio());
-        assertEquals("321", dto.getCabecera().getSecuencia());
-
-        assertEquals("USER13", dto.getCabecera().getSesion().getUsuario());
-        assertEquals("TERM13", dto.getCabecera().getSesion().getTerminal());
-        assertEquals("101500", dto.getCabecera().getSesion().getHoraConexion());
-        assertEquals("DEV", dto.getCabecera().getSesion().getEntorno());
-        assertEquals("ADMIN", dto.getCabecera().getSesion().getPerfil());
-        assertEquals("001", dto.getCabecera().getSesion().getSucursal());
-        assertEquals("0065", dto.getCabecera().getSesion().getEntidad());
-        assertEquals(5, dto.getCabecera().getSesion().getDiasRestantesCambioClave());
-        assertEquals("20240101", dto.getCabecera().getSesion().getFechaContable());
+    public void setData(TrxBP49DataRequest data) {
+        this.data = data;
     }
 }

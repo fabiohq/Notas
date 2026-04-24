@@ -1,89 +1,74 @@
 package com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.bp13.response;
 
-import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
-import lombok.NoArgsConstructor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TrxBP13Response {
-    private TrxBP13DataResponse data;
-    private TrxHeader cabecera;
-    private Object autorizacion;
-    private Object paginacion;
-    private List<Object> avisos;
-    private List<ErrorTrxDTO> errores;
-    private Object conexion;
-    private Boolean ok;
+import com.santander.bnc.bsn049.bncbsn049mscontracts.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
 
-    public TrxBP13DataResponse getData() {
-        return data;
+class TrxBP13ResponseTest {
+
+    @Test
+    void shouldCoverNoArgsConstructorSettersAndGetters() {
+        TrxBP13Response response = new TrxBP13Response();
+
+        TrxBP13DataResponse data = new TrxBP13DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        Object autorizacion = new Object();
+        Object paginacion = new Object();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
+        Object conexion = new Object();
+
+        response.setData(data);
+        response.setCabecera(cabecera);
+        response.setAutorizacion(autorizacion);
+        response.setPaginacion(paginacion);
+        response.setAvisos(avisos);
+        response.setErrores(errores);
+        response.setConexion(conexion);
+        response.setOk(Boolean.TRUE);
+
+        assertEquals(data, response.getData());
+        assertEquals(cabecera, response.getCabecera());
+        assertEquals(autorizacion, response.getAutorizacion());
+        assertEquals(paginacion, response.getPaginacion());
+        assertEquals(avisos, response.getAvisos());
+        assertEquals(errores, response.getErrores());
+        assertEquals(conexion, response.getConexion());
+        assertEquals(Boolean.TRUE, response.getOk());
     }
 
-    public void setData(TrxBP13DataResponse data) {
-        this.data = data;
-    }
+    @Test
+    void shouldCoverBuilder() {
+        TrxBP13DataResponse data = new TrxBP13DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of(new ErrorTrxDTO());
 
-    public TrxHeader getCabecera() {
-        return cabecera;
-    }
+        TrxBP13Response response = TrxBP13Response.builder()
+                .data(data)
+                .cabecera(cabecera)
+                .autorizacion("auth")
+                .paginacion("page")
+                .avisos(avisos)
+                .errores(errores)
+                .conexion("conexion")
+                .ok(Boolean.FALSE)
+                .build();
 
-    public void setCabecera(TrxHeader cabecera) {
-        this.cabecera = cabecera;
-    }
-
-    public Object getAutorizacion() {
-        return autorizacion;
-    }
-
-    public void setAutorizacion(Object autorizacion) {
-        this.autorizacion = autorizacion;
-    }
-
-    public Object getPaginacion() {
-        return paginacion;
-    }
-
-    public void setPaginacion(Object paginacion) {
-        this.paginacion = paginacion;
-    }
-
-    public List<Object> getAvisos() {
-        return avisos;
-    }
-
-    public void setAvisos(List<Object> avisos) {
-        this.avisos = avisos;
-    }
-
-    public List<ErrorTrxDTO> getErrores() {
-        return errores;
-    }
-
-    public void setErrores(List<ErrorTrxDTO> errores) {
-        this.errores = errores;
-    }
-
-    public Object getConexion() {
-        return conexion;
-    }
-
-    public void setConexion(Object conexion) {
-        this.conexion = conexion;
-    }
-
-    public Boolean getOk() {
-        return ok;
-    }
-
-    public void setOk(Boolean ok) {
-        this.ok = ok;
+        assertNotNull(response);
+        assertEquals(data, response.getData());
+        assertEquals(cabecera, response.getCabecera());
+        assertEquals("auth", response.getAutorizacion());
+        assertEquals("page", response.getPaginacion());
+        assertEquals(avisos, response.getAvisos());
+        assertEquals(errores, response.getErrores());
+        assertEquals("conexion", response.getConexion());
+        assertEquals(Boolean.FALSE, response.getOk());
     }
 }

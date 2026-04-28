@@ -1,411 +1,329 @@
 package com.santander.bnc.bsn049.bncbsn049mscountries.exception.error;
 
-public class ErrorDictionary {
-    private ErrorDictionary() {}
-    public static String STATE_0006_CODE = "COUNTRIES-P-F-0006";
-    public static String STATE_0006_LEVEL = "error";
-    public static String STATE_0006_MESSAGE = "Bad request - Invalid input data";
-    public static String STATE_0006_DESCRIPTION = "countries-api-services-v2: Invalid input data";
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Constructor;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ErrorClassesTest {
+
+    @Test
+    void shouldCoverErrorDictionaryConstantsAndPrivateConstructor() throws Exception {
+        assertEquals("COUNTRIES-P-F-0006", ErrorDictionary.STATE_0006_CODE);
+        assertEquals("error", ErrorDictionary.STATE_0006_LEVEL);
+        assertEquals("Bad request - Invalid input data", ErrorDictionary.STATE_0006_MESSAGE);
+        assertEquals("countries-api-services-v2: Invalid input data", ErrorDictionary.STATE_0006_DESCRIPTION);
+
+        Constructor<ErrorDictionary> constructor = ErrorDictionary.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        assertNotNull(constructor.newInstance());
+    }
+
+    @Test
+    void shouldCoverErrorDTO() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CODE")
+                .message("MESSAGE")
+                .level("LEVEL")
+                .description("DESCRIPTION")
+                .build();
+
+        assertEquals("CODE", error.getCode());
+        assertEquals("MESSAGE", error.getMessage());
+        assertEquals("LEVEL", error.getLevel());
+        assertEquals("DESCRIPTION", error.getDescription());
+
+        error.setCode("CODE2");
+        error.setMessage("MESSAGE2");
+        error.setLevel("LEVEL2");
+        error.setDescription("DESCRIPTION2");
+
+        assertEquals("CODE2", error.getCode());
+        assertEquals("MESSAGE2", error.getMessage());
+        assertEquals("LEVEL2", error.getLevel());
+        assertEquals("DESCRIPTION2", error.getDescription());
+        assertNotNull(error.toString());
+    }
+
+    @Test
+    void shouldCoverErrorResponseDTO() {
+        ErrorDTO error = ErrorDTO.builder().code("400").message("error").build();
+
+        ErrorResponseDTO response = new ErrorResponseDTO();
+        response.setErrors(List.of(error));
+
+        assertNotNull(response.getErrors());
+        assertEquals(1, response.getErrors().size());
+        assertEquals("400", response.getErrors().get(0).getCode());
+        assertNotNull(response.toString());
+
+        ErrorResponseDTO response2 = new ErrorResponseDTO(List.of(error));
+        assertEquals(1, response2.getErrors().size());
+    }
 }
 
 
-*************
 
-package com.santander.bnc.bsn049.bncbsn049mscountries.exception.error;
-
-import lombok.*;
-
-/**
- * @author Freddy Paredes
- * This class handle error data
- */
-
-@Builder
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class ErrorDTO {    
-    private String code;
-    private String message;
-    private String level;    
-    private String description;
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-}
-
-
-****
-
-package com.santander.bnc.bsn049.bncbsn049mscountries.exception.error;
-
-import lombok.AllArgsConstructor;
-
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.List;
-
-/**
- * @author Freddy Paredes
- * This class handle error general response
- */
-
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class ErrorResponseDTO {
-    private List<ErrorDTO> errors;
-
-    public List<ErrorDTO> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<ErrorDTO> errors) {
-        this.errors = errors;
-    }
-}//method closure
-
-
-****
-
-package com.santander.bnc.bsn049.bncbsn049mscountries.exception.error;
-
-import lombok.AllArgsConstructor;
-
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.List;
-
-/**
- * @author Freddy Paredes
- * This class handle error general response
- */
-
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class ErrorResponseDTO {
-    private List<ErrorDTO> errors;
-
-    public List<ErrorDTO> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<ErrorDTO> errors) {
-        this.errors = errors;
-    }
-}//method closure
-**************
-
+>>>>>>>>>
 
 package com.santander.bnc.bsn049.bncbsn049mscountries.exception;
 
-
 import com.santander.bnc.bsn049.bncbsn049mscountries.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049mscountries.exception.error.ErrorResponseDTO;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Freddy Paredes
- * This class handle all Exceptions
- */
-@Slf4j
-@ControllerAdvice
-public class GlobalExceptionHandler {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
-    private String GENERIC_ERROR_CODE= "400"; //code in responseBody
-    private String errorLevel  = "error";
-    private String functionalBadrequestError = "-P-F-9400";
-    private String notSpecified = " not specified";
-    @Value("${params.app-name}")
-    private String MS_NAME = "COUNTRIES";
+class GlobalExceptionHandlerTest {
 
+    private GlobalExceptionHandler handler;
 
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
-        log.info("Error type: {}", e.getClass().getName());
-        log.info("Error: {}", e.getMessage());
-        List<ErrorDTO> errors = new ArrayList<>();        
-        errors.add(ErrorDTO.builder()
-                .code(GENERIC_ERROR_CODE).description( e.getMessage()).build());
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }//method closure
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<ErrorDTO> errors = new ArrayList<>();
-       
-
-        result.getAllErrors().forEach(error -> {           
-            log.info(error.toString());            
-            errors.add(ErrorDTO.builder()
-                                .code(MS_NAME + "-P-F-9404")
-                                .level(errorLevel)
-                                .message(error.getDefaultMessage())
-                                .description(error.getDefaultMessage()).build());
-        });
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    @BeforeEach
+    void setUp() {
+        handler = new GlobalExceptionHandler();
+        ReflectionTestUtils.setField(handler, "MS_NAME", "COUNTRIES");
     }
 
-    @ExceptionHandler({ ServiceException.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceException ex, WebRequest request) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder().code(ex.getCode().name()).description(ex.getMessage()).build());
-        return buildResponseEntity(errors, ex.getCode());
+    @Test
+    void shouldHandleGenericException() {
+        ResponseEntity<ErrorResponseDTO> response = handler.handleException(new RuntimeException("boom"));
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("400", response.getBody().getErrors().get(0).getCode());
+        assertEquals("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.",
+                response.getBody().getErrors().get(0).getDescription());
     }
 
-    /**
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
-        ErrorResponseDTO responseError = new ErrorResponseDTO();
-        responseError.setErrors(errors);
-        errors.forEach( error->
-            log.error(error.getMessage())
+    @Test
+    void shouldHandleMethodArgumentNotValidException() throws Exception {
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "request");
+        bindingResult.addError(new FieldError("request", "name", "must not be blank"));
 
-        );
-        return new ResponseEntity<>(responseError, status);
-    }//method closure
-    */
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
+        MethodArgumentNotValidException ex =
+                new MethodArgumentNotValidException(null, bindingResult);
 
-        ErrorResponseDTO responseError = new ErrorResponseDTO();
-        responseError.setErrors(errors);
-        if (errors != null) {
-            // 1. REGISTRO SEGURO (Logging interno para diagnóstico de devs)
-            // Registramos todos los detalles originales ANTES de limpiarlos.
-            log.error("Se detectaron {} errores técnicos detallados:", errors.size());
-            errors.forEach(error -> 
-                log.error("Código de Error Técnico: {}, Descripción Técnica Detallada: {}", error.getCode(), error.getDescription())
-            );
-        }
-         // 2. CREACIÓN DE RESPUESTA DESDE CERO (Interrupción de flujo)
-         // No usamos 'responseError.setErrors(sanitizedErrors)' sobre un objeto que tocó datos viejos.
-         ErrorResponseDTO cleanResponse = new ErrorResponseDTO();
-         List<ErrorDTO> externalErrors = new ArrayList<>();
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex);
 
-         if (errors != null) {
-             for (ErrorDTO original : errors) {
-                 // Creamos un DTO nuevo por cada error, sin copiar referencias sospechosas
-                 ErrorDTO safeDto = new ErrorDTO();
-                 
-                 // Usamos constantes o valores fijos para la descripción externa
-                 // Esto garantiza a Fortify que el 'Sink' no recibe el 'Source' original
-                 safeDto.setCode(original.getCode()); 
-                 safeDto.setDescription("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-                 
-                 externalErrors.add(safeDto);
-             }
-         }
-
-         cleanResponse.setErrors(externalErrors);
-
-         // 3. RETORNO SEGURO
-         // Al usar 'cleanResponse', que solo contiene datos generados localmente ("hardcoded"),
-         // Fortify debería validar la línea como segura.
-         return new ResponseEntity<>(cleanResponse, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
-
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(NoResourceFoundException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                            .code(MS_NAME + "-P-F-9404")
-                            .message("Not Found")
-                            .level(errorLevel)
-                            .description(MS_NAME.toLowerCase() + "-api-services-v2: Not Found")
-                            .build());        
-
-        return buildResponseEntity(errors, HttpStatus.NOT_FOUND);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9404", response.getBody().getErrors().get(0).getCode());
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingServletRequestParameterException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                            .code(MS_NAME + functionalBadrequestError)
-                            .message("Required query parameter " + ex.getParameterName() + notSpecified)
-                            .level(errorLevel)
-                            .description(MS_NAME.toLowerCase() + "-api-services-v2: Required query parameter " + ex.getParameterName() + " not specified")
-                            .build());        
+    @Test
+    void shouldHandleServiceException() {
+        ServiceException ex = new ServiceException(HttpStatus.CONFLICT, "service error");
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleSchemaException(ex, mock(WebRequest.class));
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("CONFLICT", response.getBody().getErrors().get(0).getCode());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(IllegalArgumentException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                            .code(MS_NAME + functionalBadrequestError)
-                            .message(ex.getMessage())
-                            .level(errorLevel)
-                            .description(MS_NAME.toLowerCase() + "-api-services-v2: Bad request")
-                            .build());        
+    @Test
+    void shouldBuildResponseEntityWithBadRequestWhenStatusIsNull() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CODE")
+                .message("message")
+                .description("description")
+                .build();
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        ResponseEntity<ErrorResponseDTO> response = handler.buildResponseEntity(List.of(error), null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("CODE", response.getBody().getErrors().get(0).getCode());
+        assertEquals("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.",
+                response.getBody().getErrors().get(0).getDescription());
     }
 
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingRequestHeaderException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                            .code(MS_NAME + "-P-F-9400")
-                            .message("Required header " + ex.getHeaderName() + notSpecified)
-                            .level(errorLevel)
-                            .description(MS_NAME.toLowerCase() + "-api-services-v2: Required header " + ex.getHeaderName() + notSpecified)
-                            .build());        
+    @Test
+    void shouldBuildResponseEntityWithNullErrors() {
+        ResponseEntity<ErrorResponseDTO> response = handler.buildResponseEntity(null, HttpStatus.I_AM_A_TEAPOT);
 
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+        assertEquals(HttpStatus.I_AM_A_TEAPOT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().isEmpty());
     }
 
+    @Test
+    void shouldHandleNoResourceFoundException() {
+        NoResourceFoundException ex =
+                new NoResourceFoundException(HttpMethod.GET, "/not-found");
 
-        @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponseDTO> handleMethodNotAllowedExceptions(HttpRequestMethodNotSupportedException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-F-9405")
-                .message("Method not allowed")
-                .level(errorLevel)
-                .description(MS_NAME.toLowerCase() + "-api-services-v2: Method not allowed")
-                .build());
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex);
 
-        return buildResponseEntity(errors, HttpStatus.METHOD_NOT_ALLOWED);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9404", response.getBody().getErrors().get(0).getCode());
     }
-    @ExceptionHandler({ ServiceExceptionClient.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceExceptionClient ex, WebRequest request) {
-        log.error("ERRORRS {}", ex.getErrorResponseDTO());
-        return buildResponseEntity(ex.getErrorResponseDTO().getErrors(), ex.getHttpStatus());
+
+    @Test
+    void shouldHandleMissingServletRequestParameterException() {
+        MissingServletRequestParameterException ex =
+                new MissingServletRequestParameterException("country", "String");
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9400", response.getBody().getErrors().get(0).getCode());
     }
-}//class closure
+
+    @Test
+    void shouldHandleIllegalArgumentException() {
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleValidationExceptions(new IllegalArgumentException("invalid"));
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9400", response.getBody().getErrors().get(0).getCode());
+    }
+
+    @Test
+    void shouldHandleMissingRequestHeaderException() {
+        MissingRequestHeaderException ex =
+                new MissingRequestHeaderException("Authorization", null);
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidationExceptions(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9400", response.getBody().getErrors().get(0).getCode());
+    }
+
+    @Test
+    void shouldHandleMethodNotAllowedException() {
+        HttpRequestMethodNotSupportedException ex =
+                new HttpRequestMethodNotSupportedException("POST");
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleMethodNotAllowedExceptions(ex);
+
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+        assertEquals("COUNTRIES-P-F-9405", response.getBody().getErrors().get(0).getCode());
+    }
+
+    @Test
+    void shouldHandleServiceExceptionClient() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("CLIENT")
+                .message("client error")
+                .description("client description")
+                .build();
+
+        ServiceExceptionClient ex = new ServiceExceptionClient(HttpStatus.NOT_FOUND, error);
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleSchemaException(ex, mock(WebRequest.class));
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("CLIENT", response.getBody().getErrors().get(0).getCode());
+    }
+}
+
+
+
+>>>>>>>>>
 
 
 
 package com.santander.bnc.bsn049.bncbsn049mscountries.exception;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.springframework.http.HttpStatus;
-
-import java.time.LocalDateTime;
-
-/**
- * @author Freddy Paredes
- */
-
-
-@ToString
-@Getter
-@Setter
-@RequiredArgsConstructor
-public class ServiceException  extends RuntimeException{
-    /**
-     * error code
-     */
-    final HttpStatus code;
-
-    /**
-     * timestamp
-     */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    final LocalDateTime timestamp;
-
-    /**
-     * @param code
-     * @param message
-     */
-    public ServiceException(HttpStatus code, String message) {
-        super(message);
-        this.code = code;
-        this.timestamp = LocalDateTime.now();
-
-    }
-
-
-
-}//class closure
-
-
-
-
-package com.santander.bnc.bsn049.bncbsn049mscountries.exception;
-
-import java.util.Arrays;
-
-import org.springframework.http.HttpStatus;
 
 import com.santander.bnc.bsn049.bncbsn049mscountries.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049mscountries.exception.error.ErrorResponseDTO;
-import lombok.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * @author Wilfredo Peña
- */
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor
-@ToString
-@Getter
-@Setter
-@AllArgsConstructor
-public class ServiceExceptionClient extends RuntimeException{
+class ServiceExceptionTest {
 
-    private  HttpStatus httpStatus;
-    private  transient ErrorResponseDTO errorResponseDTO;
+    @Test
+    void shouldCreateServiceExceptionWithMessage() {
+        ServiceException ex = new ServiceException(HttpStatus.BAD_REQUEST, "bad request");
 
-    public ServiceExceptionClient(HttpStatus httpStatus, ErrorDTO errorDTO) {
-        super(errorDTO.getMessage());        
-        this.httpStatus = httpStatus;                
-        this.errorResponseDTO = new ErrorResponseDTO(Arrays.asList(errorDTO));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getCode());
+        assertEquals("bad request", ex.getMessage());
+        assertNotNull(ex.getTimestamp());
+        assertNotNull(ex.toString());
     }
 
-}//class closure
+    @Test
+    void shouldCreateServiceExceptionWithRequiredArgsConstructor() {
+        LocalDateTime now = LocalDateTime.now();
+
+        ServiceException ex = new ServiceException(HttpStatus.CONFLICT, now);
+
+        assertEquals(HttpStatus.CONFLICT, ex.getCode());
+        assertEquals(now, ex.getTimestamp());
+    }
+
+    @Test
+    void shouldCreateServiceExceptionClientWithErrorDTO() {
+        ErrorDTO error = ErrorDTO.builder()
+                .code("400")
+                .message("client error")
+                .description("description")
+                .build();
+
+        ServiceExceptionClient ex = new ServiceExceptionClient(HttpStatus.BAD_REQUEST, error);
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        assertNotNull(ex.getErrorResponseDTO());
+        assertEquals("client error", ex.getMessage());
+        assertEquals(1, ex.getErrorResponseDTO().getErrors().size());
+    }
+
+    @Test
+    void shouldCoverServiceExceptionClientNoArgsAndSetters() {
+        ErrorResponseDTO responseDTO = new ErrorResponseDTO(List.of(
+                ErrorDTO.builder().code("500").message("error").build()
+        ));
+
+        ServiceExceptionClient ex = new ServiceExceptionClient();
+        ex.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        ex.setErrorResponseDTO(responseDTO);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+        assertEquals(responseDTO, ex.getErrorResponseDTO());
+        assertNotNull(ex.toString());
+    }
+
+    @Test
+    void shouldCoverServiceExceptionClientAllArgsConstructor() {
+        ErrorResponseDTO responseDTO = new ErrorResponseDTO();
+
+        ServiceExceptionClient ex =
+                new ServiceExceptionClient(HttpStatus.CONFLICT, responseDTO);
+
+        assertEquals(HttpStatus.CONFLICT, ex.getHttpStatus());
+        assertEquals(responseDTO, ex.getErrorResponseDTO());
+    }
+}
+
+
+
+
+>>>>>>>>>>
+
+
+
+

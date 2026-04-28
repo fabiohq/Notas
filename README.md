@@ -1,148 +1,113 @@
-package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+package com.santander.bnc.bsn049.bncbsn049mscountries.observability;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.stereotype.Component;
 
-import static org.junit.jupiter.api.Assertions.*;
+@Component("externalApis") 
+public class ExternalApisHealthIndicator implements HealthIndicator{
+    private final ExternalApisHealthProperties properties;
+    private final HttpClient httpClient;
 
-class DataListDTOTest {
-
-    @Test
-    void shouldCoverGettersSettersConstructorsAndBuilder() {
-        DataListDTO dto = new DataListDTO();
-        dto.setListCode("0112");
-        dto.setCode("CO");
-        dto.setDescription("Colombia");
-
-        assertEquals("0112", dto.getListCode());
-        assertEquals("CO", dto.getCode());
-        assertEquals("Colombia", dto.getDescription());
-
-        DataListDTO dto2 = new DataListDTO("0009", "05", "Antioquia");
-        assertEquals("0009", dto2.getListCode());
-        assertEquals("05", dto2.getCode());
-        assertEquals("Antioquia", dto2.getDescription());
-
-        DataListDTO dto3 = DataListDTO.builder()
-                .listCode("0008")
-                .code("05001")
-                .description("Medellin")
+    public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
+        this.properties = properties;
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
                 .build();
-
-        assertEquals("0008", dto3.getListCode());
-        assertEquals("05001", dto3.getCode());
-        assertEquals("Medellin", dto3.getDescription());
     }
-}
 
+    @Override
+    public Health health() {
+        Map<String, Object> details = new LinkedHashMap<>(properties.getChecks().size());
+        boolean allCriticalUp = true;
 
->>>>>>>
+        for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
+            ApiResult result = checkApi(api);
 
+            Map<String, Object> apiDetail = new LinkedHashMap<>(5);
+            apiDetail.put("status", result.up ? "UP" : "DOWN");
+            apiDetail.put("url", api.getUrl());
+            apiDetail.put("critical", api.isCritical());
 
-package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+            if (result.httpStatus != null) {
+                apiDetail.put("httpStatus", result.httpStatus);
+            }
+            if (result.error != null) {
+                apiDetail.put("error", result.error);
+            }
 
-import org.junit.jupiter.api.Test;
+            details.put(api.getName(), apiDetail);
 
-import static org.junit.jupiter.api.Assertions.*;
+            if (api.isCritical() && !result.up) {
+                allCriticalUp = false;
+            }
+        }
 
-class SecurityHeadersTest {
-
-    @Test
-    void shouldCoverGettersSettersAndConstructors() {
-        SecurityHeaders headers = new SecurityHeaders();
-        headers.setAuthorization("Bearer token");
-        headers.setxSantanderClientId("client-id");
-
-        assertEquals("Bearer token", headers.getAuthorization());
-        assertEquals("client-id", headers.getxSantanderClientId());
-
-        SecurityHeaders headers2 = new SecurityHeaders("auth", "client");
-
-        assertEquals("auth", headers2.getAuthorization());
-        assertEquals("client", headers2.getxSantanderClientId());
+        return allCriticalUp
+                ? Health.up().withDetails(details).build()
+                : Health.down().withDetails(details).build();
     }
-}
 
+    private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(api.getUrl()))
+                    .timeout(Duration.ofMillis(properties.getTimeoutMs()))
+                    .GET()
+                    .build();
 
+            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
 
->>>>>>>
+            int status = response.statusCode();
+            boolean up = isAcceptedStatus(status,api);
 
-
-
-package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class StateDTOTest {
-
-    @Test
-    void shouldCoverGettersSettersAndConstructors() {
-        StateDTO dto = new StateDTO();
-        dto.setCode("05");
-        dto.setName("Antioquia");
-
-        assertEquals("05", dto.getCode());
-        assertEquals("Antioquia", dto.getName());
-
-        StateDTO dto2 = new StateDTO("11", "Bogota");
-
-        assertEquals("11", dto2.getCode());
-        assertEquals("Bogota", dto2.getName());
+            return new ApiResult(up, status, null);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }catch (IOException e) {
+            return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
+        }
     }
-}
 
+    private static class ApiResult {
+        private final boolean up;
+        private final Integer httpStatus;
+        private final String error;
 
+        private ApiResult(boolean up, Integer httpStatus, String error) {
+            this.up = up;
+            this.httpStatus = httpStatus;
+            this.error = error;
+        }
 
->>>>>>
+        public boolean isUp() {
+            return up;
+        }
 
+        public Integer getHttpStatus() {
+            return httpStatus;
+        }
 
-package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
-
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class TownsDTOTest {
-
-    @Test
-    void shouldCoverGettersSettersConstructorsAndBuilder() {
-        List<StateDTO> states = List.of(new StateDTO("05", "Antioquia"));
-
-        TownsDTO dto = new TownsDTO();
-        dto.setListCode("0008");
-        dto.setCode("05001");
-        dto.setDescription("Medellin");
-        dto.setStates(states);
-
-        assertEquals("0008", dto.getListCode());
-        assertEquals("05001", dto.getCode());
-        assertEquals("Medellin", dto.getDescription());
-        assertEquals(states, dto.getStates());
-
-        TownsDTO dto2 = new TownsDTO("0008", "11001", "Bogota", states);
-
-        assertEquals("0008", dto2.getListCode());
-        assertEquals("11001", dto2.getCode());
-        assertEquals("Bogota", dto2.getDescription());
-        assertEquals(states, dto2.getStates());
-
-        TownsDTO dto3 = TownsDTO.builder()
-                .listCode("0008")
-                .code("76001")
-                .description("Cali")
-                .states(states)
-                .build();
-
-        assertEquals("0008", dto3.getListCode());
-        assertEquals("76001", dto3.getCode());
-        assertEquals("Cali", dto3.getDescription());
-        assertEquals(states, dto3.getStates());
+        public String getError() {
+            return error;
+        }
+        
     }
+    
+    private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
+        if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
+            return api.getAcceptedStatuses().contains(status);
+        }
+        return status >= 200 && status < 300;
+    }
+
 }
-
-
-
->>>>>

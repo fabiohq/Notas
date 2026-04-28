@@ -1,36 +1,44 @@
 package com.santander.bnc.bsn049.bncbsn049mscountries.enums;
-public enum ParametersEnums {
-    TOWNS("0008"),
-    STATES("0009"),
-    WAY_TYPE("0314"),
-    CIVIL_STATE("0116"),
-    LIST_EMPLACEMENT("0305"),
-    LIST_BCO_EXT("0026"),
-    DOCU_TYPE("0113"),
-    COUNTRY("0112");
 
-    private final String code;
+import static org.junit.jupiter.api.Assertions.*;
 
-    ParametersEnums(String path) {
-        this.code = path;
+import org.junit.jupiter.api.Test;
+
+class ParametersEnumsTest {
+
+    @Test
+    void shouldReturnCorrectValueForEachEnum() {
+        assertEquals("0008", ParametersEnums.TOWNS.value());
+        assertEquals("0009", ParametersEnums.STATES.value());
+        assertEquals("0314", ParametersEnums.WAY_TYPE.value());
+        assertEquals("0116", ParametersEnums.CIVIL_STATE.value());
+        assertEquals("0305", ParametersEnums.LIST_EMPLACEMENT.value());
+        assertEquals("0026", ParametersEnums.LIST_BCO_EXT.value());
+        assertEquals("0113", ParametersEnums.DOCU_TYPE.value());
+        assertEquals("0112", ParametersEnums.COUNTRY.value());
     }
 
-    public String value() {
-        return code;
+    @Test
+    void shouldReturnTrueWhenValueContainsValidCode() {
+        assertTrue(ParametersEnums.isValidEnumValue("test0008"));
+        assertTrue(ParametersEnums.isValidEnumValue("abc0009xyz"));
+        assertTrue(ParametersEnums.isValidEnumValue("0314"));
+        assertTrue(ParametersEnums.isValidEnumValue("0116"));
+        assertTrue(ParametersEnums.isValidEnumValue("0305"));
+        assertTrue(ParametersEnums.isValidEnumValue("0026"));
+        assertTrue(ParametersEnums.isValidEnumValue("0113"));
+        assertTrue(ParametersEnums.isValidEnumValue("0112"));
     }
 
-    public static Boolean isValidEnumValue(String value){        
+    @Test
+    void shouldReturnFalseWhenValueIsNull() {
+        assertFalse(ParametersEnums.isValidEnumValue(null));
+    }
 
-        if(value == null) return false;
-
-        return value.contains(TOWNS.value()) ||
-                value.contains(STATES.value()) ||
-                value.contains(WAY_TYPE.value()) ||
-                value.contains(CIVIL_STATE.value()) ||
-                value.contains(LIST_EMPLACEMENT.value()) ||
-                value.contains(LIST_BCO_EXT.value()) ||
-                value.contains(DOCU_TYPE.value()) ||
-                value.contains(COUNTRY.value());
-
+    @Test
+    void shouldReturnFalseWhenValueDoesNotContainAnyValidCode() {
+        assertFalse(ParametersEnums.isValidEnumValue(""));
+        assertFalse(ParametersEnums.isValidEnumValue("9999"));
+        assertFalse(ParametersEnums.isValidEnumValue("invalid"));
     }
 }

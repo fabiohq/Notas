@@ -1,143 +1,218 @@
-package com.santander.bnc.bsn049.bncbsn049mscountries.service.impl;
+package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
 
-import com.santander.bnc.bsn049.bncbsn049mscountries.domain.DataListDTO;
-import com.santander.bnc.bsn049.bncbsn049mscountries.domain.response.CountriesResponse;
-import com.santander.bnc.bsn049.bncbsn049mscountries.entity.DataList;
-import com.santander.bnc.bsn049.bncbsn049mscountries.enums.ParametersEnums;
-import com.santander.bnc.bsn049.bncbsn049mscountries.exception.ServiceExceptionClient;
-import com.santander.bnc.bsn049.bncbsn049mscountries.mappers.ParametersMappers;
-import com.santander.bnc.bsn049.bncbsn049mscountries.repository.DataListRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-class CountriesServiceImplTest {
+@AllArgsConstructor
+@NoArgsConstructor
+public class CountryDTO {
+    
+    private String code;
+    private String name;
+    private String internal;  
+    private String isoAlpha3;
+    
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getInternal() {
+        return internal;
+    }
+    public void setInternal(String internal) {
+        this.internal = internal;
+    }
+    public String getIsoAlpha3() {
+        return isoAlpha3;
+    }
+    public void setIsoAlpha3(String isoAlpha3) {
+        this.isoAlpha3 = isoAlpha3;
+    }
+    
+}
 
-    private DataListRepository dataListRepository;
-    private ParametersMappers mapper;
-    private CountriesServiceImpl service;
 
-    @BeforeEach
-    void setUp() {
-        dataListRepository = mock(DataListRepository.class);
-        mapper = mock(ParametersMappers.class);
-        service = new CountriesServiceImpl(dataListRepository, mapper);
+
+
+
+*************************
+
+package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class DataListDTO {
+    @JsonIgnore
+    private String listCode;
+    private String code;
+    private String description;
+
+    public String getListCode() {
+        return listCode;
     }
 
-    @Test
-    void shouldThrowBadRequestWhenListCodeIsEmpty() {
-        ServiceExceptionClient ex = assertThrows(
-                ServiceExceptionClient.class,
-                () -> service.getDataList("", null)
-        );
-
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
-        verifyNoInteractions(dataListRepository);
+    public void setListCode(String listCode) {
+        this.listCode = listCode;
     }
 
-    @Test
-    void shouldThrowBadRequestWhenListCodeIsInvalid() {
-        ServiceExceptionClient ex = assertThrows(
-                ServiceExceptionClient.class,
-                () -> service.getDataList("9999", null)
-        );
-
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
-        verifyNoInteractions(dataListRepository);
+    public String getCode() {
+        return code;
     }
 
-    @Test
-    void shouldGetDataListByListCodeWhenValueCodeIsNull() {
-        List<DataList> entities = List.of(mock(DataList.class));
-        List<DataListDTO> dtos = List.of(new DataListDTO("0112", "COL", "Colombia"));
-
-        when(dataListRepository.getByListCode(ParametersEnums.COUNTRY.value()))
-                .thenReturn(entities);
-        when(mapper.dataListEntityToDTOArrays(entities))
-                .thenReturn(dtos);
-
-        List<DataListDTO> result = service.getDataList(ParametersEnums.COUNTRY.value(), null);
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("CO", result.get(0).getCode());
-
-        verify(dataListRepository).getByListCode(ParametersEnums.COUNTRY.value());
-        verify(dataListRepository, never()).getByListCodeAndValueCode(any(), any());
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    @Test
-    void shouldGetDataListByListCodeWhenValueCodeIsEmpty() {
-        List<DataList> entities = List.of(mock(DataList.class));
-        List<DataListDTO> dtos = List.of(new DataListDTO("0009", "05", "Antioquia"));
-
-        when(dataListRepository.getByListCode(ParametersEnums.STATES.value()))
-                .thenReturn(entities);
-        when(mapper.dataListEntityToDTOArrays(entities))
-                .thenReturn(dtos);
-
-        List<DataListDTO> result = service.getDataList(ParametersEnums.STATES.value(), "");
-
-        assertNotNull(result);
-        assertEquals("05", result.get(0).getCode());
-
-        verify(dataListRepository).getByListCode(ParametersEnums.STATES.value());
-        verify(dataListRepository, never()).getByListCodeAndValueCode(any(), any());
+    public String getDescription() {
+        return description;
     }
 
-    @Test
-    void shouldGetDataListByListCodeAndValueCodeWhenValueCodeHasValue() {
-        List<DataList> entities = List.of(mock(DataList.class));
-        List<DataListDTO> dtos = List.of(new DataListDTO("0009", "05", "Antioquia"));
-
-        when(dataListRepository.getByListCodeAndValueCode(ParametersEnums.STATES.value(), "05"))
-                .thenReturn(entities);
-        when(mapper.dataListEntityToDTOArrays(entities))
-                .thenReturn(dtos);
-
-        List<DataListDTO> result = service.getDataList(ParametersEnums.STATES.value(), "05");
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("05", result.get(0).getCode());
-
-        verify(dataListRepository).getByListCodeAndValueCode(ParametersEnums.STATES.value(), "05");
-        verify(dataListRepository, never()).getByListCode(any());
-    }
-
-    @Test
-    void shouldReturnCountriesOkFilteringExtAndMoe() {
-        CountriesServiceImpl spyService = spy(service);
-
-        doReturn(List.of(
-                new DataListDTO("0112", "COL", "Colombia"),
-                new DataListDTO("0112", "EXT", "Exterior"),
-                new DataListDTO("0112", "MOE", "Moneda extranjera")
-        )).when(spyService).getDataList(ParametersEnums.COUNTRY.value(), null);
-
-        ResponseEntity<CountriesResponse> response = spyService.getCountries();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getCountries().size());
-        assertEquals("COL", response.getBody().getCountries().get(0).getCode());
-    }
-
-    @Test
-    void shouldReturnNoContentWhenCountriesDataListIsNull() {
-        CountriesServiceImpl spyService = spy(service);
-
-        doReturn(null).when(spyService).getDataList(ParametersEnums.COUNTRY.value(), null);
-
-        ResponseEntity<CountriesResponse> response = spyService.getCountries();
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
+
+
+
+*****************
+
+
+package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+
+import lombok.AllArgsConstructor;
+
+import lombok.NoArgsConstructor;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class SecurityHeaders {
+    private String authorization;
+    private String xSantanderClientId;
+
+    public String getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
+    }
+
+    public String getxSantanderClientId() {
+        return xSantanderClientId;
+    }
+
+    public void setxSantanderClientId(String xSantanderClientId) {
+        this.xSantanderClientId = xSantanderClientId;
+    }
+}
+
+
+
+**********************
+
+package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+
+import lombok.AllArgsConstructor;
+
+import lombok.NoArgsConstructor;
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+public class StateDTO {
+    
+    private String code;
+    private String name;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+
+************************
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscountries.domain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.NoArgsConstructor;
+import java.util.List;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class TownsDTO {
+    @JsonIgnore
+    private String listCode;
+    private String code;
+    private String description;
+    private List<StateDTO> states;
+
+    public String getListCode() {
+        return listCode;
+    }
+
+    public void setListCode(String listCode) {
+        this.listCode = listCode;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<StateDTO> getStates() {
+        return states;
+    }
+
+    public void setStates(List<StateDTO> states) {
+        this.states = states;
+    }
+}
+

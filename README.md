@@ -66,3 +66,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+>>>>>>>>
+
+private HttpClient httpClient;

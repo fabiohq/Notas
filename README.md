@@ -1,869 +1,1342 @@
-package com.santander.bnc.bsn049.bncbsn049mscustomer.mappers;
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.create;
 
-import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.ParameterApiService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.create.CreateCustomerRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.*;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.DocumentDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.Parameters;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.PostalAddressDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.pagination.PaginationDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.DocumentRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.PersonNameRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.ContactPointDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.DataOriginDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.OrganizationDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.BankRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.PersonRequestDto;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.OrganizationCustomerSearchDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.update.UpdateProspectRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.BasicData;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonData;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonResponse;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters.DataListDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.enums.ParametersEnums;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorType;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.service.ParamService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import lombok.*;
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class CustomerMapper {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreateCustomerRequestDTO {
+    private PersonRequestDto person;
+    private OrganizationDTO organization;
+    private String structuralSegmentCode;
+    private String structuralSubsegmentCode;
+    private BankRequestDTO bank;
+    private List<ContactPointDTO> contactPoints;
+    private List<DataOriginDTO> dataOrigins;
 
-    final ParamService paramsService;
-    final ParameterApiService parameterApiService;
-    final CustomerMapperUtils customerMapperUtils;
-    final RegexUtils regexUtils;
-    final ErrorService errorService;
-
-    @Value("${params.default-channel}")
-    private String defaultChannel;
-
-    @Value("${params.foreignTaxIndicatorFromBDD.positive}")
-    private String foreignTaxIndicatorPositive;
-
-    @Value("${params.foreignTaxIndicatorFromBDD.negative}")
-    private String foreignTaxIndicatorNegative;
-
-    private static final String GIVEN_NAME_FIELD = "person.personName.givenName";
-    private static final String LAST_NAME_FIELD = "person.personName.lastName";
-    private static final String SECOND_LAST_NAME_FIELD = "person.personName.secondLastName";
-    private static final String DOCUMENT_COUNTRY_CODE_FIELD = "person.documents.country.code";
-    private static final String TOWN_FIELD = "person.documents.town";
-    private static final String ISSUE_DATE_FIELD = "person.documents.issueDate";
-    private static final String EXPIRA_DATE_FIELD  = "person.documents.expirationDate";
-    private static final String PLACE_OF_BIRTH_COUNTRY_CODE_FIELD = "person.placeOfBirth.country.code";
-    private static final String PLACE_OF_BIRTH_TOWN_FIELD = "person.placeOfBirth.town";
-    private static final String BIRTH_DATE_FIELD = "person.birthDate";
-    private static final String GENDER_CODE_FIELD = "person.genderCode";
-    private static final String COUNTRY_OF_RESIDENCE_CODE_FIELD = "person.countryOfResidence.code";
-    private static final String FIRST_NATIONALITY_CODE_FIELD = "person.firstNationality.code";
-    private static final String DOCUMENT_NUMBER_FIELD = "person.documents.documentNumber";
-    private static final String DOCUMENT_TYPE_CODE_FIELD = "person.documents.documentTypeCode";
-    private static final String INTERNATIONAL_CODE_FIELD = "internationalCode";
-    private static final String COD_PAID = "codPaid";
-    private static final String DEFAULT_CITY = "99999";
-
-    /**
-     * Customer Details
-     *
-     * @param trxBody
-     * @param securityHeaders
-     * @return
-     */
-    public CustomerDetailsResponseDTO trxPersonToCustomerDetailsDTO(TrxPersonResponse trxBody, SecurityHeaders securityHeaders) {
-        TrxPersonData personData = trxBody.getData().getDatosBasicos();
-        CustomerDetailsResponseDTO responseDTO = new CustomerDetailsResponseDTO();
-
-        if (CustomerMapperUtils.isNotCustomer(personData.getConper())) {
-            return null;
-        }
-        Parameters param = paramsService.findParameters(personData, securityHeaders);
-        PersonDTO personDTO = CustomerMapperUtils.personDTONames(personData, param);
-        // Foreign tax indicator
-        personDTO.setForeignTaxIndicator(customerMapperUtils.getForeignTaxIndicator(personData));
-        // Contact Point
-        responseDTO.setContactPoints(List.of(CustomerMapperUtils.getContactPoint(personData, param)));
-        personDTO.setDocuments(List.of(CustomerMapperUtils.getDocumentBasics(personData, param)));
-        responseDTO.setPerson(personDTO);
-        // Ex customer
-        responseDTO.setPendingExCustomer("EXC".equals(personData.getConper()));
-        // Source code
-        DataOriginDTO dataOrigins = new DataOriginDTO();
-        dataOrigins.setSourceCode(CustomerMapperUtils.getSourceCode(personData));
-        responseDTO.setDataOrigins(List.of(dataOrigins));
-        return responseDTO;
-    }// method closure
-
-    /**
-     * MAP Customer Search Response
-     *
-     * @return CustomerSearchResponseDTO
-     */
-    public CustomerSearchResponseDTO trxPersonToCustomerSearchDTO(TrxPersonResponse trxBody, SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "mapp for search customer");
-        TrxPersonData personData = trxBody.getData().getDatosBasicos();
-        CustomerSearchResponseDTO responseDTO = new CustomerSearchResponseDTO();
-        List<CustomerSearchDTO> customers = new ArrayList<>();
-        CustomerSearchDTO customerSearchDTO = new CustomerSearchDTO();
-
-        if (CustomerMapperUtils.isNotCustomer(personData.getConper())) {
-            return null;
-        }
-        Parameters param = paramsService.findParameters(personData,securityHeaders);
-
-        DocumentDTO document = CustomerMapperUtils.getDocumentBasics(personData, param);
-        PersonDTO personDTO = CustomerMapperUtils.personDTONames(personData, param);
-        personDTO.setPlaceOfBirth(null);// Hide in Search Customer
-        personDTO.setGenderDescription(null);// Hide in Search Customer
-        personDTO.setGenderCode(null);// Hide in Search Customer
-        personDTO.setFirstNationality(null);// Hide in Search Customer
-        personDTO.setCountryOfResidence(null);// Hide in Search Customer
-        document.setIssueDate(TimeUtils.formatDate(personData.getFechaExpedicion()));
-
-        // Contact Point
-        ContactPointDTO contactPoint = CustomerMapperUtils.getContactPoint(personData, param);
-        personDTO.setDocument(document);
-
-        customerSearchDTO.setCustomerId(personData.getNumper());
-        customerSearchDTO.setPerson(personDTO);
-        customerSearchDTO.setOrganization(new OrganizationCustomerSearchDTO());
-        contactPoint.setPhoneAddress(null);// Hide in Search Customer
-        contactPoint.setElectronicAddress(null);// Hide in Search Customer
-        contactPoint.setUseTypes(null);// Hide in Search Customer
-        customerSearchDTO.setContactPoint(contactPoint);
-
-        customers.add(customerSearchDTO);
-
-        responseDTO.setCustomers(customers);
-        responseDTO.setPagination(new PaginationDTO());
-        return responseDTO;
-    }// method closure
-
-    /**
-     * USED ON UPDATE CUSTOMER
-     *
-     * @param trxBasicData
-     * @return
-     */
-    public BasicData pef3ResponseToPef2Request(TrxPersonData trxBasicData) {
-
-        BasicData response = new BasicData();
-        response.setCelular(trxBasicData.getCelular().replace(" ", ""));
-        response.setTelefono(trxBasicData.getTelefono().replace(" ", ""));
-        response.setAgrofic(trxBasicData.getAgrofic());
-        response.setCodact(trxBasicData.getCodact());
-        response.setClase(trxBasicData.getClase()); // 004
-        response.setConper(trxBasicData.getConper());
-        response.setDepartamento(trxBasicData.getDepartamento());
-        response.setCodpaip(trxBasicData.getCodpaip());
-        response.setTipoIdentificacion(trxBasicData.getTipoIdentificacion());
-        response.setNumeroIdentificacion(trxBasicData.getNumeroIdentificacion());
-        response.setTipoVia(trxBasicData.getTipoVia());
-        String fullAdressFormat = cleanAddress(trxBasicData.getNombreVia()); // Borra espacios en blanco y caracteres
-        fullAdressFormat = replaceSpaces(fullAdressFormat);
-        response.setNombreVia(fullAdressFormat);
-        response.setPrecelular(trxBasicData.getPrecelular());
-        response.setPrecel(trxBasicData.getPrecel());
-        response.setSexo(trxBasicData.getSexo());
-        response.setPrimerApellido(trxBasicData.getPrimerApellido());
-        response.setSegundoApellido(trxBasicData.getSegundoApellido());
-        // pais
-        response.setPaisDireccion(trxBasicData.getPaisDireccion());
-        response.setPaisExpedicion(trxBasicData.getPaisExpedicion());
-        response.setPaisNacimiento(trxBasicData.getPaisNacimiento());
-        response.setPaisDireccionDesc(""); // DESC
-        response.setPaisNacimientoDesc(""); // DESC
-        response.setPaisExpedicionDesc(""); // DESC
-        response.setLugardeExpDescripcion(""); // DESC
-        response.setLugardeNacimiento(""); // DESC     
-        response.setDescripcionDireccion(trxBasicData.getDescripcionDireccion());
-        //response.setDescripcionDireccion("83 7 VAPTO 202                                   9999-12-31");
-
-
-        response.setIndicativo(trxBasicData.getIndicativo());
-        response.setTermod(trxBasicData.getTermod());
-        // ciudad
-        response.setCiudad(trxBasicData.getCiudad());
-        response.setCiudadExpedicion(trxBasicData.getCiudadExpedicion());
-        response.setCiudadNacimiento(trxBasicData.getCiudadNacimiento());
-//        response.setCiudadExpedicion("");
-//        response.setCiudadNacimiento("");
-        response.setFecing(trxBasicData.getFecing());
-        response.setCiudadDescripcion(""); // DESC
-        response.setDomant(Integer.toString(trxBasicData.getDomant())); // CASE
-        response.setSeccel(Integer.toString(trxBasicData.getSeccel()));// CASE
-        response.setSeccel(Integer.toString(trxBasicData.getSeccel())); // CASE
-        response.setSecema(Integer.toString(trxBasicData.getSecema())); // CASE
-        response.setSecdotc(Integer.toString(trxBasicData.getSecdotc())); // CASE
-        response.setSectelp(Integer.toString(trxBasicData.getSectelp())); // CASE
-        response.setSecdomp(Integer.toString(trxBasicData.getSecdomp())); // CASE
-        response.setSecdotp(Integer.toString(trxBasicData.getSecdotp())); // CASE
-        response.setSucadm(trxBasicData.getSucadm());
-        response.setSucmod(trxBasicData.getSucmod());
-
-        response.setAutorizoTelefono(Boolean.parseBoolean(trxBasicData.getAutorizoTelefono()));// CASE
-        response.setAutorizacionEmail(Boolean.parseBoolean(trxBasicData.getAutorizacionEmail())); // CASE
-
-        response.setLogdomp(trxBasicData.getLogdomp());
-        response.setLogtelp(trxBasicData.getLogtelp());
-        response.setHstamp(trxBasicData.getHstamp());
-        response.setHstamp2(trxBasicData.getHstamp2());
-        response.setHstamp3(trxBasicData.getHstamp3());
-        response.setHstamp4(trxBasicData.getHstamp4());
-        response.setHstamp5(trxBasicData.getHstamp5());
-        response.setEstrat(trxBasicData.getEstrat());
-        response.setEstciv(trxBasicData.getEstciv());
-        response.setEstper(trxBasicData.getEstper());
-        response.setEntpre(trxBasicData.getEntpre());
-        response.setUsualt(trxBasicData.getUsualt());
-        response.setFechaExpedicion(trxBasicData.getFechaExpedicion());
-        response.setFechaNacimiento(trxBasicData.getFechaNacimiento());
-        response.setFecalt(trxBasicData.getFecalt());
-        response.setFecfal(trxBasicData.getFecfal());
-        response.setUsumod(trxBasicData.getUsumod());
-        response.setEmail(trxBasicData.getEmail());
-        response.setSecdoc(trxBasicData.getSecdoc());
-        response.setTiptelp(trxBasicData.getTiptelp());
-        response.setTipper(trxBasicData.getTipper());
-        response.setTipocu(trxBasicData.getTipocu());
-        response.setProfes(trxBasicData.getProfes());
-        response.setNumper(trxBasicData.getNumper());
-        response.setTipdomp(trxBasicData.getTipdomp());
-        response.setNombre(trxBasicData.getNombre());
-        response.setNacionalidad(trxBasicData.getNacionalidad());
-
-        return response;
-    }// method closure
-
-    /**
-     *
-     * @param dtoUpdateProspectRequest
-     * @return
-     */
-    public BasicData prospectPatchToPef2Request(CreateCustomerRequestDTO dtoUpdateProspectRequest,SecurityHeaders securityHeaders, String tipoIdentificacion ) {
-        BasicData response = new BasicData();
-        PersonRequestDto person = dtoUpdateProspectRequest.getPerson();
-        if (person == null)
-            return response;
-        // Person Name
-        PersonNameRequestDTO personNameDTO = person.getPersonName();
-        if (personNameDTO != null) {
-            processGivenName(personNameDTO.getGivenName(), response);
-            processLastName(personNameDTO.getLastName(), response);
-            processSecondLastName(personNameDTO.getSecondLastName(), response, tipoIdentificacion);
-        }
-
-        // Documents
-        List<DocumentRequestDTO> documents = person.getDocuments();
-        if (documents != null && !documents.isEmpty()) {
-            DocumentRequestDTO firstDocument = documents.get(0);
-            if (firstDocument != null) {
-                processDocumentCountry(firstDocument, response);
-                processDocumentTown(firstDocument, response, securityHeaders);
-                processDocumentIssueDate(firstDocument, response);
-                processDocumentExpirationDate(firstDocument, response);
-            }
-        }
-
-        // Place of Birth
-        PlaceOfBirthDTO placeOfBirthRequestDTO = person.getPlaceOfBirth();
-        if (placeOfBirthRequestDTO != null) {
-            processCountryOfBirth(placeOfBirthRequestDTO.getCountry(), response, securityHeaders);
-            if (placeOfBirthRequestDTO.getTown() != null) {
-                processTown(placeOfBirthRequestDTO.getTown(), response, securityHeaders);
-            }
-            processTownCode(placeOfBirthRequestDTO.getTownCode(), response, securityHeaders);
-        }
-
-
-
-        // Birth Date
-        if (person.getBirthDate() != null) {
-            if (person.getBirthDate().isBlank()) {
-                errorService.isBlank(person.getBirthDate(), BIRTH_DATE_FIELD);
-            }
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, person.getBirthDate(),
-                    BIRTH_DATE_FIELD);
-            response.setFechaNacimiento(person.getBirthDate());
-        }
-        // Sex
-        if (person.getGenderCode() != null) {
-            errorService.isBlank(person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_FORMAT, person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_LENGTH, person.getGenderCode(), GENDER_CODE_FIELD);
-            response.setSexo(person.getGenderCode());
-        }
-        return response;
-    }// method closure
-
-    private void processGivenName(String givenName, BasicData response) {
-        if (givenName != null) {
-            if (givenName.isBlank()) {
-                errorService.isBlank(givenName, GIVEN_NAME_FIELD);
-            } else {
-                regexUtils.validateRegex(RegexTypes.TEXT_40_FORMAT, givenName, GIVEN_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_40_LENGTH, givenName, GIVEN_NAME_FIELD);
-                response.setNombre(StringUtils.replaceSpaces(givenName));
-            }
-        }
+    public PersonRequestDto getPerson() {
+        return person;
     }
 
-    private void processLastName(String lastName, BasicData response) {
-        if (lastName != null) {
-            if (lastName.isBlank()) {
-                errorService.isBlank(lastName, LAST_NAME_FIELD);
-            } else {
-                regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, lastName, LAST_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, lastName, LAST_NAME_FIELD);
-                response.setPrimerApellido(StringUtils.replaceSpaces(lastName));
-            }
-        }
+    public void setPerson(PersonRequestDto person) {
+        this.person = person;
     }
 
-    private void processSecondLastName(String secondLastName, BasicData response, String tipoIdentificacion) {
-        if (secondLastName == null){
-            return; // Opcional: si el segundo apellido es opcional
-        }
-        log.info("Segundo apellido: {}", secondLastName);
-
-        if ("CE".equals(tipoIdentificacion) || "CC".equals(tipoIdentificacion)) {
-            if (!secondLastName.isBlank()) {
-                regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, secondLastName, SECOND_LAST_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, secondLastName, SECOND_LAST_NAME_FIELD);
-            }
-        }
-        response.setSegundoApellido(StringUtils.replaceSpaces(secondLastName));
+    public OrganizationDTO getOrganization() {
+        return organization;
     }
 
-
-    private void processDocumentCountry(DocumentRequestDTO document, BasicData response) {
-        if (document.getCountry() != null && document.getCountry().getCode() != null) {
-            errorService.isBlank(document.getCountry().getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, document.getCountry().getCode(),
-                    DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, document.getCountry().getCode(),
-                    DOCUMENT_COUNTRY_CODE_FIELD);
-            response.setPaisExpedicion(DataUtils.translateCountryToXXX(document.getCountry().getCode()));
-        }
+    public void setOrganization(OrganizationDTO organization) {
+        this.organization = organization;
     }
 
-    private void processDocumentTown(DocumentRequestDTO document, BasicData response, SecurityHeaders securityHeaders) {
-        if (document != null && document.getTown() != null) {
-            processDocumentTown(document.getTown(), response, securityHeaders);
-        }
+    public String getStructuralSegmentCode() {
+        return structuralSegmentCode;
     }
 
-    private void processDocumentTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town.isBlank() || town.isEmpty()) {
-            response.setCiudadExpedicion(DEFAULT_CITY); // Si 'town' en el documento está en blanco, se establece como '99999'
-        } else {
-            // Validación y asignación normal si 'town' en el documento tiene valor
-            errorService.isBlank(town, TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, TOWN_FIELD);
-
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
-
-            if (towns != null) {
-                String townCode = findDocumentTownCode(town, towns);
-                response.setCiudadExpedicion(townCode);
-            }
-        }
+    public void setStructuralSegmentCode(String structuralSegmentCode) {
+        this.structuralSegmentCode = structuralSegmentCode;
     }
 
-
-
-    private String findDocumentTownCode(String town, List<DataListDTO> towns) {
-        CompareStringUtils compareString = new CompareStringUtils();
-        for (DataListDTO townDto : towns) {
-            if (compareString.ciudadMatch(town, townDto.getDescription())) {
-                return townDto.getCode();
-            }
-        }
-
-        // Si no encuentra una ciudad similar, retorna el código "99999"
-        return towns.stream()
-                .filter(x -> x.getCode().equals("99999"))
-                .findAny()
-                .map(DataListDTO::getCode)
-                .orElse(null);
+    public String getStructuralSubsegmentCode() {
+        return structuralSubsegmentCode;
     }
 
-    private void processDocumentIssueDate(DocumentRequestDTO document, BasicData response) {
-        if (document.getIssueDate() != null) {
-            errorService.isBlank(document.getIssueDate(), ISSUE_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.ISSUE_DATE_FORMAT, document.getIssueDate(), ISSUE_DATE_FIELD);
-
-            response.setFechaExpedicion(document.getIssueDate());
-        }
-    }
-    private void processDocumentExpirationDate(DocumentRequestDTO document, BasicData response){
-        if (document.getExpirationDate() != null) {
-            errorService.isBlank(document.getExpirationDate(), EXPIRA_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.ISSUE_DATE_FORMAT, document.getExpirationDate(), EXPIRA_DATE_FIELD);         
-            response.setDescripcionDireccion(document.getExpirationDate());    
-        }
+    public void setStructuralSubsegmentCode(String structuralSubsegmentCode) {
+        this.structuralSubsegmentCode = structuralSubsegmentCode;
     }
 
-    private void processCountryOfBirth(CodeNameDTO countryOfBirth, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryOfBirth != null && countryOfBirth.getCode() != null) {
-            errorService.isBlank(countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-
-            var countries = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (countries != null) {
-                var country = countries.stream().filter(x -> x.getCode().equals(countryOfBirth.getCode())).findAny();
-
-                if (!country.isPresent()) {
-                    var message = "'person.placeOfBirth.country.code' " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisNacimiento(DataUtils.translateCountryToXXX(countryOfBirth.getCode()));
-            }
-        }
+    public BankRequestDTO getBank() {
+        return bank;
     }
 
-    private void processTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town != null) {
-            processValidTown(town, response, securityHeaders);
-        } else {
-            response.setCiudadNacimiento(DEFAULT_CITY); // Si 'town' es null, se establece como '99999'
-        }
+    public void setBank(BankRequestDTO bank) {
+        this.bank = bank;
     }
 
-    private void processValidTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town.isBlank()) {
-            response.setCiudadNacimiento(DEFAULT_CITY); // Si 'town' está en blanco, se establece como '99999'
-        } else {
-            // Validación y asignación normal si 'town' tiene valor
-            errorService.isBlank(town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, PLACE_OF_BIRTH_TOWN_FIELD);
-
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
-
-            if (towns != null) {
-                String townCode = findTownCode(town, towns);
-                response.setCiudadNacimiento(townCode);
-            }
-        }
+    public List<ContactPointDTO> getContactPoints() {
+        return contactPoints;
     }
 
-
-    private String findTownCode(String town, List<DataListDTO> towns) {
-        CompareStringUtils compareString = new CompareStringUtils();
-        boolean isSimilar = false;
-        DataListDTO similarTown = null;
-
-        for (DataListDTO townDto : towns) {
-            isSimilar = compareString.ciudadMatch(town, townDto.getDescription());
-            if (isSimilar) {
-                similarTown = townDto;
-                break;
-            }
-        }
-
-        if (isSimilar && similarTown != null) {
-            return similarTown.getCode();
-        } else {
-            var notInformedTown = towns.stream().filter(x -> x.getCode().equals("99999")).findAny();
-            if (notInformedTown.isPresent()) {
-                return notInformedTown.get().getCode();
-            }
-        }
-
-        return null; // Return a default value if no match is found
+    public void setContactPoints(List<ContactPointDTO> contactPoints) {
+        this.contactPoints = contactPoints;
     }
 
-    private void processTownCode(String townCode, BasicData response, SecurityHeaders securityHeaders) {
-        if (townCode != null) {
-            errorService.isBlank(townCode, "placeOfBirth.townCode");
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
-
-            if (towns != null) {
-                var town = towns.stream().filter(x -> x.getCode().equals(townCode)).findAny();
-
-                if (!town.isPresent()) {
-                    var message = "'placeOfBirth.townCode': " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setCiudadNacimiento(townCode);
-            }
-        }
+    public List<DataOriginDTO> getDataOrigins() {
+        return dataOrigins;
     }
 
-    public BasicData prospectPutToPef2Request(UpdateProspectRequestDTO dtoUpdateProspectRequest, SecurityHeaders securityHeaders) {
-        BasicData response = new BasicData();
-        PersonDTO person = dtoUpdateProspectRequest.getPerson();
-        if (person == null)
-            return response;
+    public void setDataOrigins(List<DataOriginDTO> dataOrigins) {
+        this.dataOrigins = dataOrigins;
+    }
+}
 
-        // Person Name
-        PersonNameDTO personNameDTO = person.getPersonName();
-        if (personNameDTO != null) {
-            processPutGivenName(personNameDTO.getGivenName(), response);
-            processPutLastName(personNameDTO.getLastName(), response);
-            processPutSecondLastName(personNameDTO.getSecondLastName(), response);
-        }
 
-        // Gender
-        if (person.getGenderCode() != null) {
-            errorService.isBlank(person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_FORMAT, person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_LENGTH, person.getGenderCode(), GENDER_CODE_FIELD);
-            response.setSexo(person.getGenderCode());
-        }
 
-        // Birth Date
-        if (person.getBirthDate() != null) {
-            errorService.isBlank(person.getBirthDate(), BIRTH_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, person.getBirthDate(),
-                    BIRTH_DATE_FIELD);
-            errorService.isValidDate(person.getBirthDate(), BIRTH_DATE_FIELD);
-            response.setFechaNacimiento(person.getBirthDate());
-        }
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
 
-        // Place of Birth
-        PlaceOfBirthDTO placeOfBirthRequestDTO = person.getPlaceOfBirth();
-        if (placeOfBirthRequestDTO != null) {
-            processPutCountryOfBirth(placeOfBirthRequestDTO.getCountry(),response,securityHeaders);
-            processPutTownName(placeOfBirthRequestDTO.getTown(), response, securityHeaders);
-        }
+import lombok.*;
 
-        // CountryOfResidence
-        processPutCountryOfResidence(person.getCountryOfResidence(), response, securityHeaders);
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuditDTO {
+    private String creationDate;
+    private String lastUpdateDate;
 
-        // FirstNationality
-        processPutFirstNationality(person.getFirstNationality(), response, securityHeaders);
-
-        // Documents
-        processPutDocuments(person.getDocuments(), response, securityHeaders);
-
-        // Contact Point
-        List<ContactPointDTO> contactPoints = dtoUpdateProspectRequest.getContactPoints();
-        if (contactPoints != null) {
-            for (ContactPointDTO contactPoint : contactPoints) {
-                processPutContactPoint(contactPoint, response);
-            }
-        }
-
-        return response;
+    public String getCreationDate() {
+        return creationDate;
     }
 
-    private void processPutGivenName(String givenName, BasicData response) {
-        if (givenName != null) {
-            errorService.isBlank(givenName, GIVEN_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_40_FORMAT, givenName, GIVEN_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_40_LENGTH, givenName, GIVEN_NAME_FIELD);
-            response.setNombre(givenName);
-        }
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
     }
 
-    private void processPutLastName(String lastName, BasicData response) {
-        if (lastName != null) {
-            errorService.isBlank(lastName, LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, lastName, LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, lastName, LAST_NAME_FIELD);
-            response.setPrimerApellido(lastName);
-        }
+    public String getLastUpdateDate() {
+        return lastUpdateDate;
     }
 
-    private void processPutSecondLastName(String secondLastName, BasicData response) {
-        if (secondLastName != null) {
-            errorService.isBlank(secondLastName, SECOND_LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, secondLastName, SECOND_LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, secondLastName, SECOND_LAST_NAME_FIELD);
-            response.setSegundoApellido(secondLastName);
-        }
+    public void setLastUpdateDate(String lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.PostalAddressDTO;
+import lombok.*;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContactPointDTO {
+    private String contactPointId;
+    private List<CodeNameDTO> useTypes;
+    private PostalAddressDTO postalAddress;
+    private PhoneAddressDTO phoneAddress;
+    private ElectronicAddressDTO electronicAddress;
+    private AuditDTO audit;
+
+    public String getContactPointId() {
+        return contactPointId;
     }
 
-    private void processPutCountryOfBirth(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var placeOfBirthCountry = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!placeOfBirthCountry.isPresent()) {
-                    var message = "'person.placeOfBirth.country.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisNacimiento(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
+    public void setContactPointId(String contactPointId) {
+        this.contactPointId = contactPointId;
     }
 
-    private void processPutTownName(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town != null) {
-            errorService.isBlank(town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
-
-            if (towns != null) {
-                var placeOfBirthTown = towns.stream().filter(x -> x.getDescription().equals(town)).map(DataListDTO::getCode).findAny();
-                if (!placeOfBirthTown.isPresent()) {
-                    var message = "'person.placeOfBirth.town': " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-                response.setCiudadNacimiento(placeOfBirthTown.get());
-            }
-        }
+    public List<CodeNameDTO> getUseTypes() {
+        return useTypes;
     }
 
-    private void processPutCountryOfResidence(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var countryOfResidence = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!countryOfResidence.isPresent()) {
-                    var message = "'person.countryOfResidence.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisDireccion(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
+    public void setUseTypes(List<CodeNameDTO> useTypes) {
+        this.useTypes = useTypes;
     }
 
-    // FirstNationality
-    private void processPutFirstNationality(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var firstNationalityCountry = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!firstNationalityCountry.isPresent()) {
-                    var message = "'person.firstNationality.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setNacionalidad(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
+    public PostalAddressDTO getPostalAddress() {
+        return postalAddress;
     }
 
-    private void processPutDocuments(List<DocumentDTO> documents, BasicData response, SecurityHeaders securityHeaders) {
-        if (documents != null && !documents.isEmpty()) {
-            DocumentDTO firstDocument = documents.get(0);
-            if (firstDocument != null) {
-                processPutDocumentTypeCode(firstDocument.getDocumentTypeCode());
-                processPutDocumentNumber(firstDocument.getDocumentNumber());
-                processPutIssueDate(firstDocument.getIssueDate(), response);
-                processPutDocumentCountry(firstDocument.getCountry(), response, securityHeaders);
-            }
-        }
+    public void setPostalAddress(PostalAddressDTO postalAddress) {
+        this.postalAddress = postalAddress;
     }
 
-    private void processPutDocumentTypeCode(String documentTypeCode) {
-        if (documentTypeCode != null) {
-            errorService.isBlank(documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.DOCUMENT_TYPE_FORMAT, documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.STRICT_CHAR_LENGTH_2, documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-        }
+    public PhoneAddressDTO getPhoneAddress() {
+        return phoneAddress;
     }
 
-    private void processPutDocumentNumber(String documentNumber) {
-        if (documentNumber != null) {
-            errorService.isBlank(documentNumber, DOCUMENT_NUMBER_FIELD);
-            regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, documentNumber, DOCUMENT_NUMBER_FIELD);
-            regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_11, documentNumber, DOCUMENT_NUMBER_FIELD);
-        }
+    public void setPhoneAddress(PhoneAddressDTO phoneAddress) {
+        this.phoneAddress = phoneAddress;
     }
 
-    private void processPutIssueDate(String issueDate, BasicData response) {
-        if (issueDate != null) {
-            errorService.isBlank(issueDate, ISSUE_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, issueDate, ISSUE_DATE_FIELD);
-            errorService.isValidDate(issueDate, ISSUE_DATE_FIELD);
-            response.setFechaExpedicion(issueDate);
-        }
+    public ElectronicAddressDTO getElectronicAddress() {
+        return electronicAddress;
     }
 
-    private void processPutDocumentCountry(CodeNameDTO country, BasicData response, SecurityHeaders securityHeaders) {
-        if (country != null && country.getCode() != null) {
-            errorService.isBlank(country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-
-            var countryList = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (countryList != null) {
-                var documentCountry = countryList.stream().filter(x -> x.getCode().equals(country.getCode())).findAny();
-
-                if (!documentCountry.isPresent()) {
-                    var message = "'person.documents.country.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisExpedicion(DataUtils.translateCountryToXXX(country.getCode()));
-            }
-        }
+    public void setElectronicAddress(ElectronicAddressDTO electronicAddress) {
+        this.electronicAddress = electronicAddress;
     }
 
-    private void processPutContactPoint(ContactPointDTO contactPoint, BasicData response) {
-        if (contactPoint == null) {
-            return;
-        }
-
-        processPutPostalAddress(contactPoint.getPostalAddress(), response);
-        processPutPhoneAddress(contactPoint.getPhoneAddress(), response);
-        processPutEmailAddress(contactPoint.getElectronicAddress(), response);
+    public AuditDTO getAudit() {
+        return audit;
     }
 
-    private void processPutPostalAddress(PostalAddressDTO postalAddress, BasicData response) {
-        if (postalAddress == null) {
-            return;
-        }
+    public void setAudit(AuditDTO audit) {
+        this.audit = audit;
+    }
+}
 
-        if (postalAddress.getStreetTypeCode() != null) {
-            if (!postalAddress.getStreetTypeCode().isBlank()) {
-                regexUtils.validateRegex(RegexTypes.STRICT_CHAR_LENGTH_2, postalAddress.getStreetTypeCode(), "streetTypeCode");
-            }
-            response.setTipoVia(postalAddress.getStreetTypeCode());
-        }
 
-        if (postalAddress.getFullAddress() != null) {
-            response.setNombreVia(postalAddress.getFullAddress());
-        }
 
-        if (postalAddress.getTown() != null) {
-            response.setCiudad(postalAddress.getTown().getName());
-        }
 
-        if (postalAddress.getCountry() != null && postalAddress.getCountry().getCode() != null) {
-            errorService.isBlank(postalAddress.getCountry().getCode(), COD_PAID);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, postalAddress.getCountry().getCode(), COD_PAID);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, postalAddress.getCountry().getCode(), COD_PAID);
-            response.setCodpaip(postalAddress.getCountry().getCode());
-        }
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.BankDTO;
+import lombok.*;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CustomerDetailsResponseDTO {
+
+    private PersonDTO person;
+    private OrganizationDTO organization;
+    private List<ContactPointDTO> contactPoints;
+    private Boolean highConfidentialityIndicator;
+    private Boolean isPendingExCustomer;
+    private String confidentialityLevel;
+    private BankDTO bank;
+    private List<DataOriginDTO> dataOrigins;
+    private String structuralSegmentCode;
+    private String structuralSegmentDescription;
+    private String structuralSubsegmentCode;
+    private String structuralSubsegmentDescription;
+
+    public PersonDTO getPerson() {
+        return person;
     }
 
-    public static String cleanAddress(String address) {
-        address = address.replace("#", " ");
-        address = address.replace("/", " ");
-        address = address.replace("-", " ");
-        address = address.replace("_", " ");
-        address = address.replace("&", " ");
-        address = address.replace("#", " ");
-        address = address.replace(".", " ");
-        address = address.replace(",", " ");
-        address = address.replace("°", " ");
-        address = address.replace(";", " ");
-        address = address.replace(":", " ");
-        address = address.replace("*", " ");
-        address = address.replace("+", " ");
-        address = address.replace("%", " ");
-        address = address.replace("$", " ");
-        address = address.replace("ñ", "n");
-        address = address.replace("Ñ", "N");
-        address = address.replace("á", "a");
-        address = address.replace("é", "e");
-        address = address.replace("í", "i");
-        address = address.replace("ó", "o");
-        address = address.replace("ú", "u");
-        address = address.replace("Á", "A");
-        address = address.replace("É", "E");
-        address = address.replace("Í", "I");
-        address = address.replace("Ó", "O");
-        address = address.replace("Ú", "U");
-        return address;
+    public void setPerson(PersonDTO person) {
+        this.person = person;
     }
 
-    public static String replaceSpaces(String cadena) {
-        // Primero reemplazar espacios triples
-        Pattern patternTriples = Pattern.compile("\\s{3}");
-        Matcher matcherTriples = patternTriples.matcher(cadena);
-        String cadenaSinTriples = matcherTriples.replaceAll(" ");
-
-        // Luego reemplazar espacios dobles
-        Pattern patternDobles = Pattern.compile("\\s{2}");
-        Matcher matcherDobles = patternDobles.matcher(cadenaSinTriples);
-        return matcherDobles.replaceAll(" ").trim();
+    public OrganizationDTO getOrganization() {
+        return organization;
     }
 
-    private void processPutPhoneAddress(PhoneAddressDTO phoneAddress, BasicData response) {
-        if (phoneAddress == null) {
-            return;
-        }
-
-        response.setIndicativo(phoneAddress.getInternationalCode());
-        if (phoneAddress.getInternationalCode() != null && !phoneAddress.getInternationalCode().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-        }
-
-        response.setTelefono(phoneAddress.getPhoneNumber());
-        if (phoneAddress.getPhoneNumber() != null && !phoneAddress.getPhoneNumber().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.PHONE_FORMAT, phoneAddress.getPhoneNumber(), "phoneNumber");
-            regexUtils.validateRegex(RegexTypes.PHONE_LENGTH, phoneAddress.getPhoneNumber(), "phoneNumber");
-        }
-
-        response.setPrecelular(phoneAddress.getInternationalCode());
-        if (phoneAddress.getInternationalCode() != null && !phoneAddress.getInternationalCode().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-        }
-
-        response.setCelular(phoneAddress.getMobileNumber());
-        if (phoneAddress.getMobileNumber() != null && !phoneAddress.getMobileNumber().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.PHONE_FORMAT, phoneAddress.getMobileNumber(), "mobileNumber");
-            regexUtils.validateRegex(RegexTypes.PHONE_LENGTH, phoneAddress.getMobileNumber(), "mobileNumber");
-        }
+    public void setOrganization(OrganizationDTO organization) {
+        this.organization = organization;
     }
 
-
-    private void processPutEmailAddress(ElectronicAddressDTO electronicAddress, BasicData response) {
-        if (electronicAddress == null) {
-            return;
-        }
-
-        response.setEmail(electronicAddress.getEmailAddress());
-        if (electronicAddress.getEmailAddress() != null && !electronicAddress.getEmailAddress().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.EMAIL, electronicAddress.getEmailAddress(), "emailAddress");
-        }
+    public List<ContactPointDTO> getContactPoints() {
+        return contactPoints;
     }
 
-
-    public String usualtMapper(String usualt, String foreignTaxIndicator){
-
-        var localForeignTaxIndicator = foreignTaxIndicator != null && foreignTaxIndicator.contains("YES") ? foreignTaxIndicatorPositive : foreignTaxIndicatorNegative;
-
-        var localUsualt = usualt != null && usualt.length() > 2 ? usualt.substring(0, 3) : defaultChannel;
-
-        return localUsualt + localForeignTaxIndicator;
+    public void setContactPoints(List<ContactPointDTO> contactPoints) {
+        this.contactPoints = contactPoints;
     }
-}// class closure
+
+    public Boolean getHighConfidentialityIndicator() {
+        return highConfidentialityIndicator;
+    }
+
+    public void setHighConfidentialityIndicator(Boolean highConfidentialityIndicator) {
+        this.highConfidentialityIndicator = highConfidentialityIndicator;
+    }
+
+    public Boolean getPendingExCustomer() {
+        return isPendingExCustomer;
+    }
+
+    public void setPendingExCustomer(Boolean pendingExCustomer) {
+        isPendingExCustomer = pendingExCustomer;
+    }
+
+    public String getConfidentialityLevel() {
+        return confidentialityLevel;
+    }
+
+    public void setConfidentialityLevel(String confidentialityLevel) {
+        this.confidentialityLevel = confidentialityLevel;
+    }
+
+    public BankDTO getBank() {
+        return bank;
+    }
+
+    public void setBank(BankDTO bank) {
+        this.bank = bank;
+    }
+
+    public List<DataOriginDTO> getDataOrigins() {
+        return dataOrigins;
+    }
+
+    public void setDataOrigins(List<DataOriginDTO> dataOrigins) {
+        this.dataOrigins = dataOrigins;
+    }
+
+    public String getStructuralSegmentCode() {
+        return structuralSegmentCode;
+    }
+
+    public void setStructuralSegmentCode(String structuralSegmentCode) {
+        this.structuralSegmentCode = structuralSegmentCode;
+    }
+
+    public String getStructuralSegmentDescription() {
+        return structuralSegmentDescription;
+    }
+
+    public void setStructuralSegmentDescription(String structuralSegmentDescription) {
+        this.structuralSegmentDescription = structuralSegmentDescription;
+    }
+
+    public String getStructuralSubsegmentCode() {
+        return structuralSubsegmentCode;
+    }
+
+    public void setStructuralSubsegmentCode(String structuralSubsegmentCode) {
+        this.structuralSubsegmentCode = structuralSubsegmentCode;
+    }
+
+    public String getStructuralSubsegmentDescription() {
+        return structuralSubsegmentDescription;
+    }
+
+    public void setStructuralSubsegmentDescription(String structuralSubsegmentDescription) {
+        this.structuralSubsegmentDescription = structuralSubsegmentDescription;
+    }
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.*;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DataOriginDTO {
+    private String sourceCode;
+    private String sourceDescription;
+    private String creationDate;
+
+    public String getSourceCode() {
+        return sourceCode;
+    }
+
+    public void setSourceCode(String sourceCode) {
+        this.sourceCode = sourceCode;
+    }
+
+    public String getSourceDescription() {
+        return sourceDescription;
+    }
+
+    public void setSourceDescription(String sourceDescription) {
+        this.sourceDescription = sourceDescription;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+    }
+}
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.*;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class EconomicActivityDTO {
+    private String categoryCode;
+    private String categoryDescription;
+    private String subCategoryCode;
+    private String subCategoryDescription;
+
+    public String getCategoryCode() {
+        return categoryCode;
+    }
+
+    public void setCategoryCode(String categoryCode) {
+        this.categoryCode = categoryCode;
+    }
+
+    public String getCategoryDescription() {
+        return categoryDescription;
+    }
+
+    public void setCategoryDescription(String categoryDescription) {
+        this.categoryDescription = categoryDescription;
+    }
+
+    public String getSubCategoryCode() {
+        return subCategoryCode;
+    }
+
+    public void setSubCategoryCode(String subCategoryCode) {
+        this.subCategoryCode = subCategoryCode;
+    }
+
+    public String getSubCategoryDescription() {
+        return subCategoryDescription;
+    }
+
+    public void setSubCategoryDescription(String subCategoryDescription) {
+        this.subCategoryDescription = subCategoryDescription;
+    }
+}
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.*;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ElectronicAddressDTO {
+    private String emailAddress;
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+}
+
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.*;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class EmploymentInformationDTO {
+    private String statusCode;
+    private String statusDescription;
+    private EconomicActivityDTO economicActivity;
+    private String occupationCode;
+    private String occupationDescription;
+    private String subActivityCode;
+    private String subActivityDescription;
+    private String subActivityComments;
+
+    public String getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public String getStatusDescription() {
+        return statusDescription;
+    }
+
+    public void setStatusDescription(String statusDescription) {
+        this.statusDescription = statusDescription;
+    }
+
+    public EconomicActivityDTO getEconomicActivity() {
+        return economicActivity;
+    }
+
+    public void setEconomicActivity(EconomicActivityDTO economicActivity) {
+        this.economicActivity = economicActivity;
+    }
+
+    public String getOccupationCode() {
+        return occupationCode;
+    }
+
+    public void setOccupationCode(String occupationCode) {
+        this.occupationCode = occupationCode;
+    }
+
+    public String getOccupationDescription() {
+        return occupationDescription;
+    }
+
+    public void setOccupationDescription(String occupationDescription) {
+        this.occupationDescription = occupationDescription;
+    }
+
+    public String getSubActivityCode() {
+        return subActivityCode;
+    }
+
+    public void setSubActivityCode(String subActivityCode) {
+        this.subActivityCode = subActivityCode;
+    }
+
+    public String getSubActivityDescription() {
+        return subActivityDescription;
+    }
+
+    public void setSubActivityDescription(String subActivityDescription) {
+        this.subActivityDescription = subActivityDescription;
+    }
+
+    public String getSubActivityComments() {
+        return subActivityComments;
+    }
+
+    public void setSubActivityComments(String subActivityComments) {
+        this.subActivityComments = subActivityComments;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.DocumentDTO;
+import lombok.*;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrganizationDTO {
+    private String registrationDate;
+    private String entityDisolutionDate;
+    private String residentialStatusCode;
+    private String residentialStatusDescription;
+    private String foreignTaxIndicator;
+    private PlaceOfRegistrationDTO placeOfRegistration;
+    private OrganizationNameDTO organizationName;
+    private String typeCode;
+    private String typeDescription;
+    private String subtypeCode;
+    private String subtypeDescription;
+    private List<DocumentDTO> documents;
+    private CodeNameDTO countryOfOperation;
+    private String accountingSectorCode;
+    private String accountingSectorDescription;
+    private EconomicActivityDTO economicActivity;
+    private CodeNameDTO preferredLanguage;
+
+    public String getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(String registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public String getEntityDisolutionDate() {
+        return entityDisolutionDate;
+    }
+
+    public void setEntityDisolutionDate(String entityDisolutionDate) {
+        this.entityDisolutionDate = entityDisolutionDate;
+    }
+
+    public String getResidentialStatusCode() {
+        return residentialStatusCode;
+    }
+
+    public void setResidentialStatusCode(String residentialStatusCode) {
+        this.residentialStatusCode = residentialStatusCode;
+    }
+
+    public String getResidentialStatusDescription() {
+        return residentialStatusDescription;
+    }
+
+    public void setResidentialStatusDescription(String residentialStatusDescription) {
+        this.residentialStatusDescription = residentialStatusDescription;
+    }
+
+    public String getForeignTaxIndicator() {
+        return foreignTaxIndicator;
+    }
+
+    public void setForeignTaxIndicator(String foreignTaxIndicator) {
+        this.foreignTaxIndicator = foreignTaxIndicator;
+    }
+
+    public PlaceOfRegistrationDTO getPlaceOfRegistration() {
+        return placeOfRegistration;
+    }
+
+    public void setPlaceOfRegistration(PlaceOfRegistrationDTO placeOfRegistration) {
+        this.placeOfRegistration = placeOfRegistration;
+    }
+
+    public OrganizationNameDTO getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(OrganizationNameDTO organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
+    }
+
+    public String getTypeDescription() {
+        return typeDescription;
+    }
+
+    public void setTypeDescription(String typeDescription) {
+        this.typeDescription = typeDescription;
+    }
+
+    public String getSubtypeCode() {
+        return subtypeCode;
+    }
+
+    public void setSubtypeCode(String subtypeCode) {
+        this.subtypeCode = subtypeCode;
+    }
+
+    public String getSubtypeDescription() {
+        return subtypeDescription;
+    }
+
+    public void setSubtypeDescription(String subtypeDescription) {
+        this.subtypeDescription = subtypeDescription;
+    }
+
+    public List<DocumentDTO> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<DocumentDTO> documents) {
+        this.documents = documents;
+    }
+
+    public CodeNameDTO getCountryOfOperation() {
+        return countryOfOperation;
+    }
+
+    public void setCountryOfOperation(CodeNameDTO countryOfOperation) {
+        this.countryOfOperation = countryOfOperation;
+    }
+
+    public String getAccountingSectorCode() {
+        return accountingSectorCode;
+    }
+
+    public void setAccountingSectorCode(String accountingSectorCode) {
+        this.accountingSectorCode = accountingSectorCode;
+    }
+
+    public String getAccountingSectorDescription() {
+        return accountingSectorDescription;
+    }
+
+    public void setAccountingSectorDescription(String accountingSectorDescription) {
+        this.accountingSectorDescription = accountingSectorDescription;
+    }
+
+    public EconomicActivityDTO getEconomicActivity() {
+        return economicActivity;
+    }
+
+    public void setEconomicActivity(EconomicActivityDTO economicActivity) {
+        this.economicActivity = economicActivity;
+    }
+
+    public CodeNameDTO getPreferredLanguage() {
+        return preferredLanguage;
+    }
+
+    public void setPreferredLanguage(CodeNameDTO preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrganizationNameDTO {
+    private String legalName;
+    private List<String> tradingNames;
+
+    public String getLegalName() {
+        return legalName;
+    }
+
+    public void setLegalName(String legalName) {
+        this.legalName = legalName;
+    }
+
+    public List<String> getTradingNames() {
+        return tradingNames;
+    }
+
+    public void setTradingNames(List<String> tradingNames) {
+        this.tradingNames = tradingNames;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.DocumentDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PersonDTO {
+    private PersonNameDTO personName;
+    private String motherName;
+    private String fatherName;
+    private String genderCode;
+    private String genderDescription;
+    private String birthDate;
+    private PlaceOfBirthDTO placeOfBirth;
+    private CodeNameDTO countryOfResidence;
+    private String foreignTaxIndicator;
+    private CodeNameDTO firstNationality;
+    private CodeNameDTO secondNationality;
+    private String residentialStatusCode;
+    private String residentialStatusDescription;
+    private String civilStatusCode;
+    private String civilStatusDescription;
+    private PublicOfficeInformationDTO publicOfficeInformation;
+    private String deathDate;
+    private Boolean employeeIndicator;
+    private String staffCode;
+    private String staffDescription;
+    private Boolean legallyIncapacitated;
+    private Boolean legallyCapableMinor;
+    private Boolean diplomatic;
+    private String educationalLevelCode;
+    private String educationalLevelDescription;
+    private String accountingSectorCode;
+    private String accountingSectorDescription;
+    private EmploymentInformationDTO employmentInformation;
+    private CodeNameDTO preferredLanguage;
+    private List<DocumentDTO> documents;
+    private DocumentDTO document; //Customer Search
+
+    public PersonNameDTO getPersonName() {
+        return personName;
+    }
+
+    public void setPersonName(PersonNameDTO personName) {
+        this.personName = personName;
+    }
+
+    public String getMotherName() {
+        return motherName;
+    }
+
+    public void setMotherName(String motherName) {
+        this.motherName = motherName;
+    }
+
+    public String getFatherName() {
+        return fatherName;
+    }
+
+    public void setFatherName(String fatherName) {
+        this.fatherName = fatherName;
+    }
+
+    public String getGenderCode() {
+        return genderCode;
+    }
+
+    public void setGenderCode(String genderCode) {
+        this.genderCode = genderCode;
+    }
+
+    public String getGenderDescription() {
+        return genderDescription;
+    }
+
+    public void setGenderDescription(String genderDescription) {
+        this.genderDescription = genderDescription;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public PlaceOfBirthDTO getPlaceOfBirth() {
+        return placeOfBirth;
+    }
+
+    public void setPlaceOfBirth(PlaceOfBirthDTO placeOfBirth) {
+        this.placeOfBirth = placeOfBirth;
+    }
+
+    public CodeNameDTO getCountryOfResidence() {
+        return countryOfResidence;
+    }
+
+    public void setCountryOfResidence(CodeNameDTO countryOfResidence) {
+        this.countryOfResidence = countryOfResidence;
+    }
+
+    public String getForeignTaxIndicator() {
+        return foreignTaxIndicator;
+    }
+
+    public void setForeignTaxIndicator(String foreignTaxIndicator) {
+        this.foreignTaxIndicator = foreignTaxIndicator;
+    }
+
+    public CodeNameDTO getFirstNationality() {
+        return firstNationality;
+    }
+
+    public void setFirstNationality(CodeNameDTO firstNationality) {
+        this.firstNationality = firstNationality;
+    }
+
+    public CodeNameDTO getSecondNationality() {
+        return secondNationality;
+    }
+
+    public void setSecondNationality(CodeNameDTO secondNationality) {
+        this.secondNationality = secondNationality;
+    }
+
+    public String getResidentialStatusCode() {
+        return residentialStatusCode;
+    }
+
+    public void setResidentialStatusCode(String residentialStatusCode) {
+        this.residentialStatusCode = residentialStatusCode;
+    }
+
+    public String getResidentialStatusDescription() {
+        return residentialStatusDescription;
+    }
+
+    public void setResidentialStatusDescription(String residentialStatusDescription) {
+        this.residentialStatusDescription = residentialStatusDescription;
+    }
+
+    public String getCivilStatusCode() {
+        return civilStatusCode;
+    }
+
+    public void setCivilStatusCode(String civilStatusCode) {
+        this.civilStatusCode = civilStatusCode;
+    }
+
+    public String getCivilStatusDescription() {
+        return civilStatusDescription;
+    }
+
+    public void setCivilStatusDescription(String civilStatusDescription) {
+        this.civilStatusDescription = civilStatusDescription;
+    }
+
+    public PublicOfficeInformationDTO getPublicOfficeInformation() {
+        return publicOfficeInformation;
+    }
+
+    public void setPublicOfficeInformation(PublicOfficeInformationDTO publicOfficeInformation) {
+        this.publicOfficeInformation = publicOfficeInformation;
+    }
+
+    public String getDeathDate() {
+        return deathDate;
+    }
+
+    public void setDeathDate(String deathDate) {
+        this.deathDate = deathDate;
+    }
+
+    public Boolean getEmployeeIndicator() {
+        return employeeIndicator;
+    }
+
+    public void setEmployeeIndicator(Boolean employeeIndicator) {
+        this.employeeIndicator = employeeIndicator;
+    }
+
+    public String getStaffCode() {
+        return staffCode;
+    }
+
+    public void setStaffCode(String staffCode) {
+        this.staffCode = staffCode;
+    }
+
+    public String getStaffDescription() {
+        return staffDescription;
+    }
+
+    public void setStaffDescription(String staffDescription) {
+        this.staffDescription = staffDescription;
+    }
+
+    public Boolean getLegallyIncapacitated() {
+        return legallyIncapacitated;
+    }
+
+    public void setLegallyIncapacitated(Boolean legallyIncapacitated) {
+        this.legallyIncapacitated = legallyIncapacitated;
+    }
+
+    public Boolean getLegallyCapableMinor() {
+        return legallyCapableMinor;
+    }
+
+    public void setLegallyCapableMinor(Boolean legallyCapableMinor) {
+        this.legallyCapableMinor = legallyCapableMinor;
+    }
+
+    public Boolean getDiplomatic() {
+        return diplomatic;
+    }
+
+    public void setDiplomatic(Boolean diplomatic) {
+        this.diplomatic = diplomatic;
+    }
+
+    public String getEducationalLevelCode() {
+        return educationalLevelCode;
+    }
+
+    public void setEducationalLevelCode(String educationalLevelCode) {
+        this.educationalLevelCode = educationalLevelCode;
+    }
+
+    public String getEducationalLevelDescription() {
+        return educationalLevelDescription;
+    }
+
+    public void setEducationalLevelDescription(String educationalLevelDescription) {
+        this.educationalLevelDescription = educationalLevelDescription;
+    }
+
+    public String getAccountingSectorCode() {
+        return accountingSectorCode;
+    }
+
+    public void setAccountingSectorCode(String accountingSectorCode) {
+        this.accountingSectorCode = accountingSectorCode;
+    }
+
+    public String getAccountingSectorDescription() {
+        return accountingSectorDescription;
+    }
+
+    public void setAccountingSectorDescription(String accountingSectorDescription) {
+        this.accountingSectorDescription = accountingSectorDescription;
+    }
+
+    public EmploymentInformationDTO getEmploymentInformation() {
+        return employmentInformation;
+    }
+
+    public void setEmploymentInformation(EmploymentInformationDTO employmentInformation) {
+        this.employmentInformation = employmentInformation;
+    }
+
+    public CodeNameDTO getPreferredLanguage() {
+        return preferredLanguage;
+    }
+
+    public void setPreferredLanguage(CodeNameDTO preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
+    }
+
+    public List<DocumentDTO> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<DocumentDTO> documents) {
+        this.documents = documents;
+    }
+
+    public DocumentDTO getDocument() {
+        return document;
+    }
+
+    public void setDocument(DocumentDTO document) {
+        this.document = document;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PersonNameDTO {
+    private String namePrefixCode;
+    private String namePrefixDescription;
+    private String givenName;
+    private String middleName;
+    private String lastName;
+    private String secondLastName;
+    private String nameSuffixCode;
+    private String nameSuffixDescription;
+    private String fullName;
+    private String birthName;
+    private List<String> aliases;
+
+    public String getNamePrefixCode() {
+        return namePrefixCode;
+    }
+
+    public void setNamePrefixCode(String namePrefixCode) {
+        this.namePrefixCode = namePrefixCode;
+    }
+
+    public String getNamePrefixDescription() {
+        return namePrefixDescription;
+    }
+
+    public void setNamePrefixDescription(String namePrefixDescription) {
+        this.namePrefixDescription = namePrefixDescription;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getSecondLastName() {
+        return secondLastName;
+    }
+
+    public void setSecondLastName(String secondLastName) {
+        this.secondLastName = secondLastName;
+    }
+
+    public String getNameSuffixCode() {
+        return nameSuffixCode;
+    }
+
+    public void setNameSuffixCode(String nameSuffixCode) {
+        this.nameSuffixCode = nameSuffixCode;
+    }
+
+    public String getNameSuffixDescription() {
+        return nameSuffixDescription;
+    }
+
+    public void setNameSuffixDescription(String nameSuffixDescription) {
+        this.nameSuffixDescription = nameSuffixDescription;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getBirthName() {
+        return birthName;
+    }
+
+    public void setBirthName(String birthName) {
+        this.birthName = birthName;
+    }
+
+    public List<String> getAliases() {
+        return aliases;
+    }
+
+    public void setAliases(List<String> aliases) {
+        this.aliases = aliases;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PhoneAddressDTO {
+    private String mobileNumber;
+    private String phoneNumber;
+    private String faxNumber;
+    private String internationalCode;
+    private String extension;
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getFaxNumber() {
+        return faxNumber;
+    }
+
+    public void setFaxNumber(String faxNumber) {
+        this.faxNumber = faxNumber;
+    }
+
+    public String getInternationalCode() {
+        return internationalCode;
+    }
+
+    public void setInternationalCode(String internationalCode) {
+        this.internationalCode = internationalCode;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CodeNameDTO {
+    private String code;
+    private String name;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PlaceOfRegistrationDTO {
+    private CodeNameDTO country;
+    private CodeNameDTO state;
+    private String town;
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PublicOfficeInformationDTO {
+    private String positionCode;
+    private String positionDescription;
+    private ValidityPeriodDTO validityPeriod;
+
+    public String getPositionCode() {
+        return positionCode;
+    }
+
+    public void setPositionCode(String positionCode) {
+        this.positionCode = positionCode;
+    }
+
+    public String getPositionDescription() {
+        return positionDescription;
+    }
+
+    public void setPositionDescription(String positionDescription) {
+        this.positionDescription = positionDescription;
+    }
+
+    public ValidityPeriodDTO getValidityPeriod() {
+        return validityPeriod;
+    }
+
+    public void setValidityPeriod(ValidityPeriodDTO validityPeriod) {
+        this.validityPeriod = validityPeriod;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TownDTO {
+    private String code;
+    private String name;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+
+
+
+package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ValidityPeriodDTO {
+    private String startDate;
+    private String endDate;
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+}

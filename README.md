@@ -4,68 +4,49 @@ import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.res
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.OrganizationDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.PersonDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.BankRequestDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateProspectRequestDTO {
-    private PersonDTO person;
-    private OrganizationDTO organization;
-    private String structuralSegmentCode;
-    private String structuralSubsegmentCode;
-    private BankRequestDTO bank;
-    private List<ContactPointDTO> contactPoints;
+import static org.junit.jupiter.api.Assertions.*;
 
-    public PersonDTO getPerson() {
-        return person;
+class UpdateProspectRequestDTOTest {
+
+    @Test
+    void testGettersAndSetters() {
+        UpdateProspectRequestDTO dto = new UpdateProspectRequestDTO();
+
+        PersonDTO person = new PersonDTO();
+        OrganizationDTO organization = new OrganizationDTO();
+        BankRequestDTO bank = new BankRequestDTO();
+        ContactPointDTO contactPoint = new ContactPointDTO();
+
+        dto.setPerson(person);
+        dto.setOrganization(organization);
+        dto.setStructuralSegmentCode("SEG01");
+        dto.setStructuralSubsegmentCode("SUB01");
+        dto.setBank(bank);
+        dto.setContactPoints(List.of(contactPoint));
+
+        assertEquals(person, dto.getPerson());
+        assertEquals(organization, dto.getOrganization());
+        assertEquals("SEG01", dto.getStructuralSegmentCode());
+        assertEquals("SUB01", dto.getStructuralSubsegmentCode());
+        assertEquals(bank, dto.getBank());
+        assertNotNull(dto.getContactPoints());
+        assertEquals(1, dto.getContactPoints().size());
     }
 
-    public void setPerson(PersonDTO person) {
-        this.person = person;
-    }
+    @Test
+    void testBuilder() {
+        PersonDTO person = new PersonDTO();
 
-    public OrganizationDTO getOrganization() {
-        return organization;
-    }
+        UpdateProspectRequestDTO dto = UpdateProspectRequestDTO.builder()
+                .person(person)
+                .structuralSegmentCode("SEG01")
+                .build();
 
-    public void setOrganization(OrganizationDTO organization) {
-        this.organization = organization;
-    }
-
-    public String getStructuralSegmentCode() {
-        return structuralSegmentCode;
-    }
-
-    public void setStructuralSegmentCode(String structuralSegmentCode) {
-        this.structuralSegmentCode = structuralSegmentCode;
-    }
-
-    public String getStructuralSubsegmentCode() {
-        return structuralSubsegmentCode;
-    }
-
-    public void setStructuralSubsegmentCode(String structuralSubsegmentCode) {
-        this.structuralSubsegmentCode = structuralSubsegmentCode;
-    }
-
-    public BankRequestDTO getBank() {
-        return bank;
-    }
-
-    public void setBank(BankRequestDTO bank) {
-        this.bank = bank;
-    }
-
-    public List<ContactPointDTO> getContactPoints() {
-        return contactPoints;
-    }
-
-    public void setContactPoints(List<ContactPointDTO> contactPoints) {
-        this.contactPoints = contactPoints;
+        assertEquals(person, dto.getPerson());
+        assertEquals("SEG01", dto.getStructuralSegmentCode());
     }
 }

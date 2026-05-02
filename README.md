@@ -7,863 +7,434 @@ import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.Code
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.DocumentDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.Parameters;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.PostalAddressDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.pagination.PaginationDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.CountryRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.DocumentRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.PersonNameRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.PersonRequestDto;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.OrganizationCustomerSearchDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.update.UpdateProspectRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.BasicData;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxBasicData;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonData;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonResponse;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters.DataListDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.enums.ParametersEnums;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.ServiceException;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorType;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.service.ParamService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.CustomerMapperUtils;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.RegexUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class CustomerMapper {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-    final ParamService paramsService;
-    final ParameterApiService parameterApiService;
-    final CustomerMapperUtils customerMapperUtils;
-    final RegexUtils regexUtils;
-    final ErrorService errorService;
+@ExtendWith(MockitoExtension.class)
+class CustomerMapperTest {
 
-    @Value("${params.default-channel}")
-    private String defaultChannel;
+    @Mock
+    private ParamService paramsService;
 
-    @Value("${params.foreignTaxIndicatorFromBDD.positive}")
-    private String foreignTaxIndicatorPositive;
+    @Mock
+    private ParameterApiService parameterApiService;
 
-    @Value("${params.foreignTaxIndicatorFromBDD.negative}")
-    private String foreignTaxIndicatorNegative;
+    @Mock
+    private CustomerMapperUtils customerMapperUtils;
 
-    private static final String GIVEN_NAME_FIELD = "person.personName.givenName";
-    private static final String LAST_NAME_FIELD = "person.personName.lastName";
-    private static final String SECOND_LAST_NAME_FIELD = "person.personName.secondLastName";
-    private static final String DOCUMENT_COUNTRY_CODE_FIELD = "person.documents.country.code";
-    private static final String TOWN_FIELD = "person.documents.town";
-    private static final String ISSUE_DATE_FIELD = "person.documents.issueDate";
-    private static final String EXPIRA_DATE_FIELD  = "person.documents.expirationDate";
-    private static final String PLACE_OF_BIRTH_COUNTRY_CODE_FIELD = "person.placeOfBirth.country.code";
-    private static final String PLACE_OF_BIRTH_TOWN_FIELD = "person.placeOfBirth.town";
-    private static final String BIRTH_DATE_FIELD = "person.birthDate";
-    private static final String GENDER_CODE_FIELD = "person.genderCode";
-    private static final String COUNTRY_OF_RESIDENCE_CODE_FIELD = "person.countryOfResidence.code";
-    private static final String FIRST_NATIONALITY_CODE_FIELD = "person.firstNationality.code";
-    private static final String DOCUMENT_NUMBER_FIELD = "person.documents.documentNumber";
-    private static final String DOCUMENT_TYPE_CODE_FIELD = "person.documents.documentTypeCode";
-    private static final String INTERNATIONAL_CODE_FIELD = "internationalCode";
-    private static final String COD_PAID = "codPaid";
-    private static final String DEFAULT_CITY = "99999";
+    @Mock
+    private RegexUtils regexUtils;
 
-    /**
-     * Customer Details
-     *
-     * @param trxBody
-     * @param securityHeaders
-     * @return
-     */
-    public CustomerDetailsResponseDTO trxPersonToCustomerDetailsDTO(TrxPersonResponse trxBody, SecurityHeaders securityHeaders) {
-        TrxPersonData personData = trxBody.getData().getDatosBasicos();
-        CustomerDetailsResponseDTO responseDTO = new CustomerDetailsResponseDTO();
+    @Mock
+    private ErrorService errorService;
 
-        if (CustomerMapperUtils.isNotCustomer(personData.getConper())) {
-            return null;
-        }
-        Parameters param = paramsService.findParameters(personData, securityHeaders);
-        PersonDTO personDTO = CustomerMapperUtils.personDTONames(personData, param);
-        // Foreign tax indicator
-        personDTO.setForeignTaxIndicator(customerMapperUtils.getForeignTaxIndicator(personData));
-        // Contact Point
-        responseDTO.setContactPoints(List.of(CustomerMapperUtils.getContactPoint(personData, param)));
-        personDTO.setDocuments(List.of(CustomerMapperUtils.getDocumentBasics(personData, param)));
-        responseDTO.setPerson(personDTO);
-        // Ex customer
-        responseDTO.setPendingExCustomer("EXC".equals(personData.getConper()));
-        // Source code
-        DataOriginDTO dataOrigins = new DataOriginDTO();
-        dataOrigins.setSourceCode(CustomerMapperUtils.getSourceCode(personData));
-        responseDTO.setDataOrigins(List.of(dataOrigins));
-        return responseDTO;
-    }// method closure
+    private CustomerMapper mapper;
 
-    /**
-     * MAP Customer Search Response
-     *
-     * @return CustomerSearchResponseDTO
-     */
-    public CustomerSearchResponseDTO trxPersonToCustomerSearchDTO(TrxPersonResponse trxBody, SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "mapp for search customer");
-        TrxPersonData personData = trxBody.getData().getDatosBasicos();
-        CustomerSearchResponseDTO responseDTO = new CustomerSearchResponseDTO();
-        List<CustomerSearchDTO> customers = new ArrayList<>();
-        CustomerSearchDTO customerSearchDTO = new CustomerSearchDTO();
+    private SecurityHeaders securityHeaders;
 
-        if (CustomerMapperUtils.isNotCustomer(personData.getConper())) {
-            return null;
-        }
-        Parameters param = paramsService.findParameters(personData,securityHeaders);
+    @BeforeEach
+    void setUp() {
+        mapper = new CustomerMapper(
+                paramsService,
+                parameterApiService,
+                customerMapperUtils,
+                regexUtils,
+                errorService
+        );
 
-        DocumentDTO document = CustomerMapperUtils.getDocumentBasics(personData, param);
-        PersonDTO personDTO = CustomerMapperUtils.personDTONames(personData, param);
-        personDTO.setPlaceOfBirth(null);// Hide in Search Customer
-        personDTO.setGenderDescription(null);// Hide in Search Customer
-        personDTO.setGenderCode(null);// Hide in Search Customer
-        personDTO.setFirstNationality(null);// Hide in Search Customer
-        personDTO.setCountryOfResidence(null);// Hide in Search Customer
-        document.setIssueDate(TimeUtils.formatDate(personData.getFechaExpedicion()));
+        ReflectionTestUtils.setField(mapper, "defaultChannel", "ODS");
+        ReflectionTestUtils.setField(mapper, "foreignTaxIndicatorPositive", "CONS");
+        ReflectionTestUtils.setField(mapper, "foreignTaxIndicatorNegative", "CONN");
 
-        // Contact Point
-        ContactPointDTO contactPoint = CustomerMapperUtils.getContactPoint(personData, param);
-        personDTO.setDocument(document);
+        ReflectionTestUtils.setField(errorService, "INVALID_VALUE", "Invalid value");
+        ReflectionTestUtils.setField(errorService, "CODE_NOT_EXIST", "The code does not exist");
 
-        customerSearchDTO.setCustomerId(personData.getNumper());
-        customerSearchDTO.setPerson(personDTO);
-        customerSearchDTO.setOrganization(new OrganizationCustomerSearchDTO());
-        contactPoint.setPhoneAddress(null);// Hide in Search Customer
-        contactPoint.setElectronicAddress(null);// Hide in Search Customer
-        contactPoint.setUseTypes(null);// Hide in Search Customer
-        customerSearchDTO.setContactPoint(contactPoint);
+        securityHeaders = new SecurityHeaders();
 
-        customers.add(customerSearchDTO);
+        doNothing().when(regexUtils).validateRegex(any(), anyString(), anyString());
 
-        responseDTO.setCustomers(customers);
-        responseDTO.setPagination(new PaginationDTO());
-        return responseDTO;
-    }// method closure
-
-    /**
-     * USED ON UPDATE CUSTOMER
-     *
-     * @param trxBasicData
-     * @return
-     */
-    public BasicData pef3ResponseToPef2Request(TrxPersonData trxBasicData) {
-
-        BasicData response = new BasicData();
-        response.setCelular(trxBasicData.getCelular().replace(" ", ""));
-        response.setTelefono(trxBasicData.getTelefono().replace(" ", ""));
-        response.setAgrofic(trxBasicData.getAgrofic());
-        response.setCodact(trxBasicData.getCodact());
-        response.setClase(trxBasicData.getClase()); // 004
-        response.setConper(trxBasicData.getConper());
-        response.setDepartamento(trxBasicData.getDepartamento());
-        response.setCodpaip(trxBasicData.getCodpaip());
-        response.setTipoIdentificacion(trxBasicData.getTipoIdentificacion());
-        response.setNumeroIdentificacion(trxBasicData.getNumeroIdentificacion());
-        response.setTipoVia(trxBasicData.getTipoVia());
-        String fullAdressFormat = cleanAddress(trxBasicData.getNombreVia()); // Borra espacios en blanco y caracteres
-        fullAdressFormat = replaceSpaces(fullAdressFormat);
-        response.setNombreVia(fullAdressFormat);
-        response.setPrecelular(trxBasicData.getPrecelular());
-        response.setPrecel(trxBasicData.getPrecel());
-        response.setSexo(trxBasicData.getSexo());
-        response.setPrimerApellido(trxBasicData.getPrimerApellido());
-        response.setSegundoApellido(trxBasicData.getSegundoApellido());
-        // pais
-        response.setPaisDireccion(trxBasicData.getPaisDireccion());
-        response.setPaisExpedicion(trxBasicData.getPaisExpedicion());
-        response.setPaisNacimiento(trxBasicData.getPaisNacimiento());
-        response.setPaisDireccionDesc(""); // DESC
-        response.setPaisNacimientoDesc(""); // DESC
-        response.setPaisExpedicionDesc(""); // DESC
-        response.setLugardeExpDescripcion(""); // DESC
-        response.setLugardeNacimiento(""); // DESC     
-        response.setDescripcionDireccion(trxBasicData.getDescripcionDireccion());
-        //response.setDescripcionDireccion("83 7 VAPTO 202                                   9999-12-31");
-
-
-        response.setIndicativo(trxBasicData.getIndicativo());
-        response.setTermod(trxBasicData.getTermod());
-        // ciudad
-        response.setCiudad(trxBasicData.getCiudad());
-        response.setCiudadExpedicion(trxBasicData.getCiudadExpedicion());
-        response.setCiudadNacimiento(trxBasicData.getCiudadNacimiento());
-//        response.setCiudadExpedicion("");
-//        response.setCiudadNacimiento("");
-        response.setFecing(trxBasicData.getFecing());
-        response.setCiudadDescripcion(""); // DESC
-        response.setDomant(Integer.toString(trxBasicData.getDomant())); // CASE
-        response.setSeccel(Integer.toString(trxBasicData.getSeccel()));// CASE
-        response.setSeccel(Integer.toString(trxBasicData.getSeccel())); // CASE
-        response.setSecema(Integer.toString(trxBasicData.getSecema())); // CASE
-        response.setSecdotc(Integer.toString(trxBasicData.getSecdotc())); // CASE
-        response.setSectelp(Integer.toString(trxBasicData.getSectelp())); // CASE
-        response.setSecdomp(Integer.toString(trxBasicData.getSecdomp())); // CASE
-        response.setSecdotp(Integer.toString(trxBasicData.getSecdotp())); // CASE
-        response.setSucadm(trxBasicData.getSucadm());
-        response.setSucmod(trxBasicData.getSucmod());
-
-        response.setAutorizoTelefono(Boolean.parseBoolean(trxBasicData.getAutorizoTelefono()));// CASE
-        response.setAutorizacionEmail(Boolean.parseBoolean(trxBasicData.getAutorizacionEmail())); // CASE
-
-        response.setLogdomp(trxBasicData.getLogdomp());
-        response.setLogtelp(trxBasicData.getLogtelp());
-        response.setHstamp(trxBasicData.getHstamp());
-        response.setHstamp2(trxBasicData.getHstamp2());
-        response.setHstamp3(trxBasicData.getHstamp3());
-        response.setHstamp4(trxBasicData.getHstamp4());
-        response.setHstamp5(trxBasicData.getHstamp5());
-        response.setEstrat(trxBasicData.getEstrat());
-        response.setEstciv(trxBasicData.getEstciv());
-        response.setEstper(trxBasicData.getEstper());
-        response.setEntpre(trxBasicData.getEntpre());
-        response.setUsualt(trxBasicData.getUsualt());
-        response.setFechaExpedicion(trxBasicData.getFechaExpedicion());
-        response.setFechaNacimiento(trxBasicData.getFechaNacimiento());
-        response.setFecalt(trxBasicData.getFecalt());
-        response.setFecfal(trxBasicData.getFecfal());
-        response.setUsumod(trxBasicData.getUsumod());
-        response.setEmail(trxBasicData.getEmail());
-        response.setSecdoc(trxBasicData.getSecdoc());
-        response.setTiptelp(trxBasicData.getTiptelp());
-        response.setTipper(trxBasicData.getTipper());
-        response.setTipocu(trxBasicData.getTipocu());
-        response.setProfes(trxBasicData.getProfes());
-        response.setNumper(trxBasicData.getNumper());
-        response.setTipdomp(trxBasicData.getTipdomp());
-        response.setNombre(trxBasicData.getNombre());
-        response.setNacionalidad(trxBasicData.getNacionalidad());
-
-        return response;
-    }// method closure
-
-    /**
-     *
-     * @param dtoUpdateProspectRequest
-     * @return
-     */
-    public BasicData prospectPatchToPef2Request(CreateCustomerRequestDTO dtoUpdateProspectRequest,SecurityHeaders securityHeaders, String tipoIdentificacion ) {
-        BasicData response = new BasicData();
-        PersonRequestDto person = dtoUpdateProspectRequest.getPerson();
-        if (person == null)
-            return response;
-        // Person Name
-        PersonNameRequestDTO personNameDTO = person.getPersonName();
-        if (personNameDTO != null) {
-            processGivenName(personNameDTO.getGivenName(), response);
-            processLastName(personNameDTO.getLastName(), response);
-            processSecondLastName(personNameDTO.getSecondLastName(), response, tipoIdentificacion);
-        }
-
-        // Documents
-        List<DocumentRequestDTO> documents = person.getDocuments();
-        if (documents != null && !documents.isEmpty()) {
-            DocumentRequestDTO firstDocument = documents.get(0);
-            if (firstDocument != null) {
-                processDocumentCountry(firstDocument, response);
-                processDocumentTown(firstDocument, response, securityHeaders);
-                processDocumentIssueDate(firstDocument, response);
-                processDocumentExpirationDate(firstDocument, response);
-            }
-        }
-
-        // Place of Birth
-        PlaceOfBirthDTO placeOfBirthRequestDTO = person.getPlaceOfBirth();
-        if (placeOfBirthRequestDTO != null) {
-            processCountryOfBirth(placeOfBirthRequestDTO.getCountry(), response, securityHeaders);
-            if (placeOfBirthRequestDTO.getTown() != null) {
-                processTown(placeOfBirthRequestDTO.getTown(), response, securityHeaders);
-            }
-            processTownCode(placeOfBirthRequestDTO.getTownCode(), response, securityHeaders);
-        }
-
-
-
-        // Birth Date
-        if (person.getBirthDate() != null) {
-            if (person.getBirthDate().isBlank()) {
-                errorService.isBlank(person.getBirthDate(), BIRTH_DATE_FIELD);
-            }
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, person.getBirthDate(),
-                    BIRTH_DATE_FIELD);
-            response.setFechaNacimiento(person.getBirthDate());
-        }
-        // Sex
-        if (person.getGenderCode() != null) {
-            errorService.isBlank(person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_FORMAT, person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_LENGTH, person.getGenderCode(), GENDER_CODE_FIELD);
-            response.setSexo(person.getGenderCode());
-        }
-        return response;
-    }// method closure
-
-    private void processGivenName(String givenName, BasicData response) {
-        if (givenName != null) {
-            if (givenName.isBlank()) {
-                errorService.isBlank(givenName, GIVEN_NAME_FIELD);
-            } else {
-                regexUtils.validateRegex(RegexTypes.TEXT_40_FORMAT, givenName, GIVEN_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_40_LENGTH, givenName, GIVEN_NAME_FIELD);
-                response.setNombre(StringUtils.replaceSpaces(givenName));
-            }
-        }
+        lenient().when(errorService.errorBuilder(any(HttpStatus.class), anyString(), any(ErrorType.class)))
+                .thenAnswer(invocation -> new ServiceException(
+                        invocation.getArgument(0),
+                        ErrorDTO.builder()
+                                .message(invocation.getArgument(1))
+                                .build()
+                ));
     }
 
-    private void processLastName(String lastName, BasicData response) {
-        if (lastName != null) {
-            if (lastName.isBlank()) {
-                errorService.isBlank(lastName, LAST_NAME_FIELD);
-            } else {
-                regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, lastName, LAST_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, lastName, LAST_NAME_FIELD);
-                response.setPrimerApellido(StringUtils.replaceSpaces(lastName));
-            }
-        }
+    @Test
+    void trxPersonToCustomerDetailsDTOShouldReturnNullWhenPersonIsProspect() {
+        TrxPersonResponse response = buildTrxPersonResponse("PRO");
+
+        CustomerDetailsResponseDTO result = mapper.trxPersonToCustomerDetailsDTO(response, securityHeaders);
+
+        assertNull(result);
     }
 
-    private void processSecondLastName(String secondLastName, BasicData response, String tipoIdentificacion) {
-        if (secondLastName == null){
-            return; // Opcional: si el segundo apellido es opcional
-        }
-        log.info("Segundo apellido: {}", secondLastName);
+    @Test
+    void trxPersonToCustomerDetailsDTOShouldMapCustomer() {
+        TrxPersonResponse response = buildTrxPersonResponse("CLI");
+        Parameters parameters = buildParameters();
 
-        if ("CE".equals(tipoIdentificacion) || "CC".equals(tipoIdentificacion)) {
-            if (!secondLastName.isBlank()) {
-                regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, secondLastName, SECOND_LAST_NAME_FIELD);
-                regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, secondLastName, SECOND_LAST_NAME_FIELD);
-            }
-        }
-        response.setSegundoApellido(StringUtils.replaceSpaces(secondLastName));
+        when(paramsService.findParameters(any(), any())).thenReturn(parameters);
+        when(customerMapperUtils.getForeignTaxIndicator(any())).thenReturn("YES");
+
+        CustomerDetailsResponseDTO result = mapper.trxPersonToCustomerDetailsDTO(response, securityHeaders);
+
+        assertNotNull(result);
+        assertNotNull(result.getPerson());
+        assertNotNull(result.getContactPoints());
+        assertNotNull(result.getDataOrigins());
+        assertFalse(result.getPendingExCustomer());
+        assertEquals("YES", result.getPerson().getForeignTaxIndicator());
     }
 
+    @Test
+    void trxPersonToCustomerDetailsDTOShouldSetPendingExCustomerTrue() {
+        TrxPersonResponse response = buildTrxPersonResponse("EXC");
 
-    private void processDocumentCountry(DocumentRequestDTO document, BasicData response) {
-        if (document.getCountry() != null && document.getCountry().getCode() != null) {
-            errorService.isBlank(document.getCountry().getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, document.getCountry().getCode(),
-                    DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, document.getCountry().getCode(),
-                    DOCUMENT_COUNTRY_CODE_FIELD);
-            response.setPaisExpedicion(DataUtils.translateCountryToXXX(document.getCountry().getCode()));
-        }
+        when(paramsService.findParameters(any(), any())).thenReturn(buildParameters());
+        when(customerMapperUtils.getForeignTaxIndicator(any())).thenReturn("NO");
+
+        CustomerDetailsResponseDTO result = mapper.trxPersonToCustomerDetailsDTO(response, securityHeaders);
+
+        assertNotNull(result);
+        assertTrue(result.getPendingExCustomer());
     }
 
-    private void processDocumentTown(DocumentRequestDTO document, BasicData response, SecurityHeaders securityHeaders) {
-        if (document != null && document.getTown() != null) {
-            processDocumentTown(document.getTown(), response, securityHeaders);
-        }
+    @Test
+    void trxPersonToCustomerSearchDTOShouldReturnNullWhenPersonIsProspect() {
+        TrxPersonResponse response = buildTrxPersonResponse("PRO");
+
+        CustomerSearchResponseDTO result = mapper.trxPersonToCustomerSearchDTO(response, securityHeaders);
+
+        assertNull(result);
     }
 
-    private void processDocumentTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town.isBlank() || town.isEmpty()) {
-            response.setCiudadExpedicion(DEFAULT_CITY); // Si 'town' en el documento está en blanco, se establece como '99999'
-        } else {
-            // Validación y asignación normal si 'town' en el documento tiene valor
-            errorService.isBlank(town, TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, TOWN_FIELD);
+    @Test
+    void trxPersonToCustomerSearchDTOShouldMapCustomer() {
+        TrxPersonResponse response = buildTrxPersonResponse("CLI");
 
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
+        when(paramsService.findParameters(any(), any())).thenReturn(buildParameters());
 
-            if (towns != null) {
-                String townCode = findDocumentTownCode(town, towns);
-                response.setCiudadExpedicion(townCode);
-            }
-        }
+        CustomerSearchResponseDTO result = mapper.trxPersonToCustomerSearchDTO(response, securityHeaders);
+
+        assertNotNull(result);
+        assertNotNull(result.getCustomers());
+        assertEquals(1, result.getCustomers().size());
+        assertNotNull(result.getPagination());
+        assertEquals("12345678", result.getCustomers().get(0).getCustomerId());
+        assertNull(result.getCustomers().get(0).getPerson().getGenderCode());
     }
 
+    @Test
+    void pef3ResponseToPef2RequestShouldMapData() {
+        TrxPersonData trx = buildPersonData("CLI");
+        trx.setCelular("300 123");
+        trx.setTelefono("601 456");
+        trx.setNombreVia("Cra#10-20 Ñandú");
 
+        BasicData result = mapper.pef3ResponseToPef2Request(trx);
 
-    private String findDocumentTownCode(String town, List<DataListDTO> towns) {
-        CompareStringUtils compareString = new CompareStringUtils();
-        for (DataListDTO townDto : towns) {
-            if (compareString.ciudadMatch(town, townDto.getDescription())) {
-                return townDto.getCode();
-            }
-        }
-
-        // Si no encuentra una ciudad similar, retorna el código "99999"
-        return towns.stream()
-                .filter(x -> x.getCode().equals("99999"))
-                .findAny()
-                .map(DataListDTO::getCode)
-                .orElse(null);
+        assertNotNull(result);
+        assertEquals("300123", result.getCelular());
+        assertEquals("601456", result.getTelefono());
+        assertEquals("Cra 10 20 Nandu", result.getNombreVia());
+        assertEquals(trx.getNombre(), result.getNombre());
     }
 
-    private void processDocumentIssueDate(DocumentRequestDTO document, BasicData response) {
-        if (document.getIssueDate() != null) {
-            errorService.isBlank(document.getIssueDate(), ISSUE_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.ISSUE_DATE_FORMAT, document.getIssueDate(), ISSUE_DATE_FIELD);
+    @Test
+    void prospectPatchToPef2RequestShouldReturnEmptyWhenPersonIsNull() {
+        CreateCustomerRequestDTO request = new CreateCustomerRequestDTO();
 
-            response.setFechaExpedicion(document.getIssueDate());
-        }
-    }
-    private void processDocumentExpirationDate(DocumentRequestDTO document, BasicData response){
-        if (document.getExpirationDate() != null) {
-            errorService.isBlank(document.getExpirationDate(), EXPIRA_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.ISSUE_DATE_FORMAT, document.getExpirationDate(), EXPIRA_DATE_FIELD);         
-            response.setDescripcionDireccion(document.getExpirationDate());    
-        }
+        BasicData result = mapper.prospectPatchToPef2Request(request, securityHeaders, "CC");
+
+        assertNotNull(result);
+        assertNull(result.getNombre());
     }
 
-    private void processCountryOfBirth(CodeNameDTO countryOfBirth, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryOfBirth != null && countryOfBirth.getCode() != null) {
-            errorService.isBlank(countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
+    @Test
+    void prospectPatchToPef2RequestShouldMapFullRequest() {
+        when(parameterApiService.getParameter(eq("0008"), isNull(), any()))
+                .thenReturn(List.of(
+                        new DataListDTO("0008", "05001", "MEDELLIN"),
+                        new DataListDTO("0008", "99999", "NO INFORMADO")
+                ));
 
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryOfBirth.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
+        when(parameterApiService.getParameter(eq("0112"), isNull(), any()))
+                .thenReturn(List.of(new DataListDTO("0112", "CO", "COL")));
 
-            var countries = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
+        CreateCustomerRequestDTO request = new CreateCustomerRequestDTO();
+        PersonRequestDto person = new PersonRequestDto();
 
-            if (countries != null) {
-                var country = countries.stream().filter(x -> x.getCode().equals(countryOfBirth.getCode())).findAny();
+        PersonNameRequestDTO name = new PersonNameRequestDTO();
+        name.setGivenName("JUAN   CARLOS");
+        name.setLastName("PEREZ");
+        name.setSecondLastName("GOMEZ");
 
-                if (!country.isPresent()) {
-                    var message = "'person.placeOfBirth.country.code' " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
+        CountryRequestDTO country = new CountryRequestDTO();
+        country.setCode("CO");
 
-                response.setPaisNacimiento(DataUtils.translateCountryToXXX(countryOfBirth.getCode()));
-            }
-        }
+        DocumentRequestDTO document = new DocumentRequestDTO();
+        document.setCountry(country);
+        document.setTown("MEDELLIN");
+        document.setIssueDate("2020-01-01");
+        document.setExpirationDate("2030-01-01");
+
+        PlaceOfBirthDTO place = new PlaceOfBirthDTO();
+        place.setCountry(new CodeNameDTO("CO", "Colombia"));
+        place.setTown("MEDELLIN");
+        place.setTownCode("05001");
+
+        person.setPersonName(name);
+        person.setDocuments(List.of(document));
+        person.setPlaceOfBirth(place);
+        person.setBirthDate("1990-01-01");
+        person.setGenderCode("H");
+
+        request.setPerson(person);
+
+        BasicData result = mapper.prospectPatchToPef2Request(request, securityHeaders, "CC");
+
+        assertNotNull(result);
+        assertEquals("JUAN CARLOS", result.getNombre());
+        assertEquals("PEREZ", result.getPrimerApellido());
+        assertEquals("GOMEZ", result.getSegundoApellido());
+        assertEquals("COL", result.getPaisExpedicion());
+        assertEquals("05001", result.getCiudadExpedicion());
+        assertEquals("05001", result.getCiudadNacimiento());
+        assertEquals("2020-01-01", result.getFechaExpedicion());
+        assertEquals("2030-01-01", result.getDescripcionDireccion());
+        assertEquals("1990-01-01", result.getFechaNacimiento());
+        assertEquals("H", result.getSexo());
     }
 
-    private void processTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town != null) {
-            processValidTown(town, response, securityHeaders);
-        } else {
-            response.setCiudadNacimiento(DEFAULT_CITY); // Si 'town' es null, se establece como '99999'
-        }
+    @Test
+    void prospectPatchToPef2RequestShouldUseDefaultCityWhenDocumentTownIsBlank() {
+        CreateCustomerRequestDTO request = new CreateCustomerRequestDTO();
+        PersonRequestDto person = new PersonRequestDto();
+
+        DocumentRequestDTO document = new DocumentRequestDTO();
+        document.setTown("");
+
+        person.setDocuments(List.of(document));
+        request.setPerson(person);
+
+        BasicData result = mapper.prospectPatchToPef2Request(request, securityHeaders, "CC");
+
+        assertEquals("99999", result.getCiudadExpedicion());
     }
 
-    private void processValidTown(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town.isBlank()) {
-            response.setCiudadNacimiento(DEFAULT_CITY); // Si 'town' está en blanco, se establece como '99999'
-        } else {
-            // Validación y asignación normal si 'town' tiene valor
-            errorService.isBlank(town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, PLACE_OF_BIRTH_TOWN_FIELD);
+    @Test
+    void prospectPutToPef2RequestShouldReturnEmptyWhenPersonIsNull() {
+        UpdateProspectRequestDTO request = new UpdateProspectRequestDTO();
 
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
+        BasicData result = mapper.prospectPutToPef2Request(request, securityHeaders);
 
-            if (towns != null) {
-                String townCode = findTownCode(town, towns);
-                response.setCiudadNacimiento(townCode);
-            }
-        }
+        assertNotNull(result);
+        assertNull(result.getNombre());
     }
 
+    @Test
+    void prospectPutToPef2RequestShouldMapFullRequest() {
+        when(parameterApiService.getParameter(eq("0112"), isNull(), any()))
+                .thenReturn(List.of(new DataListDTO("0112", "CO", "COL")));
 
-    private String findTownCode(String town, List<DataListDTO> towns) {
-        CompareStringUtils compareString = new CompareStringUtils();
-        boolean isSimilar = false;
-        DataListDTO similarTown = null;
+        when(parameterApiService.getParameter(eq("0008"), isNull(), any()))
+                .thenReturn(List.of(new DataListDTO("0008", "05001", "MEDELLIN")));
 
-        for (DataListDTO townDto : towns) {
-            isSimilar = compareString.ciudadMatch(town, townDto.getDescription());
-            if (isSimilar) {
-                similarTown = townDto;
-                break;
-            }
-        }
+        UpdateProspectRequestDTO request = new UpdateProspectRequestDTO();
 
-        if (isSimilar && similarTown != null) {
-            return similarTown.getCode();
-        } else {
-            var notInformedTown = towns.stream().filter(x -> x.getCode().equals("99999")).findAny();
-            if (notInformedTown.isPresent()) {
-                return notInformedTown.get().getCode();
-            }
-        }
+        PersonDTO person = new PersonDTO();
+        PersonNameDTO personName = new PersonNameDTO();
+        personName.setGivenName("JUAN");
+        personName.setLastName("PEREZ");
+        personName.setSecondLastName("GOMEZ");
 
-        return null; // Return a default value if no match is found
+        PlaceOfBirthDTO place = new PlaceOfBirthDTO();
+        place.setCountry(new CodeNameDTO("CO", "Colombia"));
+        place.setTown("MEDELLIN");
+
+        DocumentDTO document = new DocumentDTO();
+        document.setDocumentTypeCode("CC");
+        document.setDocumentNumber("123456789");
+        document.setIssueDate("2020-01-01");
+        document.setCountry(new CodeNameDTO("CO", "Colombia"));
+
+        person.setPersonName(personName);
+        person.setGenderCode("H");
+        person.setBirthDate("1990-01-01");
+        person.setPlaceOfBirth(place);
+        person.setCountryOfResidence(new CodeNameDTO("CO", "Colombia"));
+        person.setFirstNationality(new CodeNameDTO("CO", "Colombia"));
+        person.setDocuments(List.of(document));
+
+        ContactPointDTO contactPoint = new ContactPointDTO();
+
+        PostalAddressDTO postalAddress = new PostalAddressDTO();
+        postalAddress.setStreetTypeCode("CL");
+        postalAddress.setFullAddress("Calle 1");
+        postalAddress.setTown(new CodeNameDTO("05001", "MEDELLIN"));
+        postalAddress.setCountry(new CodeNameDTO("57", "Colombia"));
+
+        PhoneAddressDTO phoneAddress = new PhoneAddressDTO();
+        phoneAddress.setInternationalCode("57");
+        phoneAddress.setPhoneNumber("6011234567");
+        phoneAddress.setMobileNumber("3001234567");
+
+        ElectronicAddressDTO electronicAddress = new ElectronicAddressDTO();
+        electronicAddress.setEmailAddress("test@test.com");
+
+        contactPoint.setPostalAddress(postalAddress);
+        contactPoint.setPhoneAddress(phoneAddress);
+        contactPoint.setElectronicAddress(electronicAddress);
+
+        request.setPerson(person);
+        request.setContactPoints(List.of(contactPoint));
+
+        BasicData result = mapper.prospectPutToPef2Request(request, securityHeaders);
+
+        assertNotNull(result);
+        assertEquals("JUAN", result.getNombre());
+        assertEquals("PEREZ", result.getPrimerApellido());
+        assertEquals("GOMEZ", result.getSegundoApellido());
+        assertEquals("H", result.getSexo());
+        assertEquals("1990-01-01", result.getFechaNacimiento());
+        assertEquals("COL", result.getPaisNacimiento());
+        assertEquals("05001", result.getCiudadNacimiento());
+        assertEquals("COL", result.getPaisDireccion());
+        assertEquals("COL", result.getNacionalidad());
+        assertEquals("2020-01-01", result.getFechaExpedicion());
+        assertEquals("COL", result.getPaisExpedicion());
+        assertEquals("CL", result.getTipoVia());
+        assertEquals("Calle 1", result.getNombreVia());
+        assertEquals("MEDELLIN", result.getCiudad());
+        assertEquals("57", result.getCodpaip());
+        assertEquals("6011234567", result.getTelefono());
+        assertEquals("3001234567", result.getCelular());
+        assertEquals("test@test.com", result.getEmail());
     }
 
-    private void processTownCode(String townCode, BasicData response, SecurityHeaders securityHeaders) {
-        if (townCode != null) {
-            errorService.isBlank(townCode, "placeOfBirth.townCode");
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
+    @Test
+    void usualtMapperShouldUsePositiveForeignTaxIndicator() {
+        String result = mapper.usualtMapper("ABCXXXX", "YES");
 
-            if (towns != null) {
-                var town = towns.stream().filter(x -> x.getCode().equals(townCode)).findAny();
-
-                if (!town.isPresent()) {
-                    var message = "'placeOfBirth.townCode': " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setCiudadNacimiento(townCode);
-            }
-        }
+        assertEquals("ABCCONS", result);
     }
 
-    public BasicData prospectPutToPef2Request(UpdateProspectRequestDTO dtoUpdateProspectRequest, SecurityHeaders securityHeaders) {
-        BasicData response = new BasicData();
-        PersonDTO person = dtoUpdateProspectRequest.getPerson();
-        if (person == null)
-            return response;
+    @Test
+    void usualtMapperShouldUseNegativeForeignTaxIndicatorAndDefaultChannel() {
+        String result = mapper.usualtMapper(null, "NO");
 
-        // Person Name
-        PersonNameDTO personNameDTO = person.getPersonName();
-        if (personNameDTO != null) {
-            processPutGivenName(personNameDTO.getGivenName(), response);
-            processPutLastName(personNameDTO.getLastName(), response);
-            processPutSecondLastName(personNameDTO.getSecondLastName(), response);
-        }
+        assertEquals("ODSCONN", result);
+    }
 
-        // Gender
-        if (person.getGenderCode() != null) {
-            errorService.isBlank(person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_FORMAT, person.getGenderCode(), GENDER_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.GENDER_CODE_LENGTH, person.getGenderCode(), GENDER_CODE_FIELD);
-            response.setSexo(person.getGenderCode());
-        }
+    @Test
+    void cleanAddressShouldReplaceSpecialCharactersAndAccents() {
+        String result = CustomerMapper.cleanAddress("Cra#10-20 Ñandú ÁÉÍÓÚ");
 
-        // Birth Date
-        if (person.getBirthDate() != null) {
-            errorService.isBlank(person.getBirthDate(), BIRTH_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, person.getBirthDate(),
-                    BIRTH_DATE_FIELD);
-            errorService.isValidDate(person.getBirthDate(), BIRTH_DATE_FIELD);
-            response.setFechaNacimiento(person.getBirthDate());
-        }
+        assertEquals("Cra 10 20 Nandu AEIOU", result);
+    }
 
-        // Place of Birth
-        PlaceOfBirthDTO placeOfBirthRequestDTO = person.getPlaceOfBirth();
-        if (placeOfBirthRequestDTO != null) {
-            processPutCountryOfBirth(placeOfBirthRequestDTO.getCountry(),response,securityHeaders);
-            processPutTownName(placeOfBirthRequestDTO.getTown(), response, securityHeaders);
-        }
+    @Test
+    void replaceSpacesShouldNormalizeSpaces() {
+        String result = CustomerMapper.replaceSpaces("JUAN   CARLOS  PEREZ");
 
-        // CountryOfResidence
-        processPutCountryOfResidence(person.getCountryOfResidence(), response, securityHeaders);
+        assertEquals("JUAN CARLOS PEREZ", result);
+    }
 
-        // FirstNationality
-        processPutFirstNationality(person.getFirstNationality(), response, securityHeaders);
+    private TrxPersonResponse buildTrxPersonResponse(String conper) {
+        TrxPersonResponse response = new TrxPersonResponse();
 
-        // Documents
-        processPutDocuments(person.getDocuments(), response, securityHeaders);
+        TrxBasicData trxBasicData = new TrxBasicData();
+        trxBasicData.setDatosBasicos(buildPersonData(conper));
 
-        // Contact Point
-        List<ContactPointDTO> contactPoints = dtoUpdateProspectRequest.getContactPoints();
-        if (contactPoints != null) {
-            for (ContactPointDTO contactPoint : contactPoints) {
-                processPutContactPoint(contactPoint, response);
-            }
-        }
+        response.setData(trxBasicData);
 
         return response;
     }
 
-    private void processPutGivenName(String givenName, BasicData response) {
-        if (givenName != null) {
-            errorService.isBlank(givenName, GIVEN_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_40_FORMAT, givenName, GIVEN_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_40_LENGTH, givenName, GIVEN_NAME_FIELD);
-            response.setNombre(givenName);
-        }
+    private TrxPersonData buildPersonData(String conper) {
+        TrxPersonData data = new TrxPersonData();
+
+        data.setConper(conper);
+        data.setNombre("JUAN");
+        data.setPrimerApellido("PEREZ");
+        data.setSegundoApellido("GOMEZ");
+        data.setSexo("H");
+        data.setFechaNacimiento("1990-01-01");
+        data.setFechaExpedicion("2020-01-01");
+        data.setTipoIdentificacion("CC");
+        data.setNumeroIdentificacion("123456789");
+        data.setNumper("12345678");
+        data.setPaisExpedicion("COL");
+        data.setPaisNacimiento("COL");
+        data.setPaisDireccion("COL");
+        data.setNacionalidad("COL");
+        data.setCiudadExpedicion("05001");
+        data.setCiudadNacimiento("05001");
+        data.setCiudad("05001");
+        data.setDepartamento("05");
+        data.setTipoVia("CL");
+        data.setNombreVia("Calle 1");
+        data.setDescripcionDireccion("Direccion 2030-01-01");
+        data.setTelefono("6011234567");
+        data.setCelular("3001234567");
+        data.setPrecelular("57");
+        data.setEmail("test@test.com");
+        data.setUsualt("ODSCONS");
+        data.setAutorizoTelefono("true");
+        data.setAutorizacionEmail("true");
+
+        return data;
     }
 
-    private void processPutLastName(String lastName, BasicData response) {
-        if (lastName != null) {
-            errorService.isBlank(lastName, LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, lastName, LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, lastName, LAST_NAME_FIELD);
-            response.setPrimerApellido(lastName);
-        }
+    private Parameters buildParameters() {
+        Parameters parameters = new Parameters();
+
+        parameters.setStreetTypeDescription("Calle");
+        parameters.setCityStandard(new CodeNameDTO("05001", "MEDELLIN"));
+        parameters.setCountryDir(new CodeNameDTO("CO", "Colombia"));
+        parameters.setCityDepartment(new CodeNameDTO("05", "ANTIOQUIA"));
+        parameters.setCountryBirth(new CodeNameDTO("CO", "Colombia"));
+        parameters.setCityBirth(new CodeNameDTO("05", "ANTIOQUIA"));
+        parameters.setTown(new CodeNameDTO("05001", "MEDELLIN"));
+        parameters.setCountryNationality(new CodeNameDTO("CO", "Colombia"));
+        parameters.setDocumentTypeDescription("Cedula");
+        parameters.setCityExp(new CodeNameDTO("05", "ANTIOQUIA"));
+        parameters.setCountryExp(new CodeNameDTO("CO", "Colombia"));
+        parameters.setTownDocument(new CodeNameDTO("05001", "MEDELLIN"));
+
+        return parameters;
     }
-
-    private void processPutSecondLastName(String secondLastName, BasicData response) {
-        if (secondLastName != null) {
-            errorService.isBlank(secondLastName, SECOND_LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_FORMAT, secondLastName, SECOND_LAST_NAME_FIELD);
-            regexUtils.validateRegex(RegexTypes.TEXT_20_LENGTH, secondLastName, SECOND_LAST_NAME_FIELD);
-            response.setSegundoApellido(secondLastName);
-        }
-    }
-
-    private void processPutCountryOfBirth(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), PLACE_OF_BIRTH_COUNTRY_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var placeOfBirthCountry = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!placeOfBirthCountry.isPresent()) {
-                    var message = "'person.placeOfBirth.country.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisNacimiento(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
-    }
-
-    private void processPutTownName(String town, BasicData response, SecurityHeaders securityHeaders) {
-        if (town != null) {
-            errorService.isBlank(town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_FORMAT, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            regexUtils.validateRegex(RegexTypes.REGEX_TOWN_DESCRIPTION_LENGTH, town, PLACE_OF_BIRTH_TOWN_FIELD);
-            var towns = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), null, securityHeaders);
-
-            if (towns != null) {
-                var placeOfBirthTown = towns.stream().filter(x -> x.getDescription().equals(town)).map(DataListDTO::getCode).findAny();
-                if (!placeOfBirthTown.isPresent()) {
-                    var message = "'person.placeOfBirth.town': " + errorService.INVALID_VALUE;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-                response.setCiudadNacimiento(placeOfBirthTown.get());
-            }
-        }
-    }
-
-    private void processPutCountryOfResidence(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), COUNTRY_OF_RESIDENCE_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var countryOfResidence = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!countryOfResidence.isPresent()) {
-                    var message = "'person.countryOfResidence.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisDireccion(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
-    }
-
-    // FirstNationality
-    private void processPutFirstNationality(CodeNameDTO countryDTO, BasicData response, SecurityHeaders securityHeaders) {
-        if (countryDTO != null && countryDTO.getCode() != null) {
-            errorService.isBlank(countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, countryDTO.getCode(), FIRST_NATIONALITY_CODE_FIELD);
-
-            var country = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (country != null) {
-                var firstNationalityCountry = country.stream().filter(x -> x.getCode().equals(countryDTO.getCode())).findAny();
-
-                if (!firstNationalityCountry.isPresent()) {
-                    var message = "'person.firstNationality.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setNacionalidad(DataUtils.translateCountryToXXX(countryDTO.getCode()));
-            }
-        }
-    }
-
-    private void processPutDocuments(List<DocumentDTO> documents, BasicData response, SecurityHeaders securityHeaders) {
-        if (documents != null && !documents.isEmpty()) {
-            DocumentDTO firstDocument = documents.get(0);
-            if (firstDocument != null) {
-                processPutDocumentTypeCode(firstDocument.getDocumentTypeCode());
-                processPutDocumentNumber(firstDocument.getDocumentNumber());
-                processPutIssueDate(firstDocument.getIssueDate(), response);
-                processPutDocumentCountry(firstDocument.getCountry(), response, securityHeaders);
-            }
-        }
-    }
-
-    private void processPutDocumentTypeCode(String documentTypeCode) {
-        if (documentTypeCode != null) {
-            errorService.isBlank(documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.DOCUMENT_TYPE_FORMAT, documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.STRICT_CHAR_LENGTH_2, documentTypeCode, DOCUMENT_TYPE_CODE_FIELD);
-        }
-    }
-
-    private void processPutDocumentNumber(String documentNumber) {
-        if (documentNumber != null) {
-            errorService.isBlank(documentNumber, DOCUMENT_NUMBER_FIELD);
-            regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, documentNumber, DOCUMENT_NUMBER_FIELD);
-            regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_11, documentNumber, DOCUMENT_NUMBER_FIELD);
-        }
-    }
-
-    private void processPutIssueDate(String issueDate, BasicData response) {
-        if (issueDate != null) {
-            errorService.isBlank(issueDate, ISSUE_DATE_FIELD);
-            regexUtils.validateRegex(RegexTypes.BIRTHDAY_FORMAT, issueDate, ISSUE_DATE_FIELD);
-            errorService.isValidDate(issueDate, ISSUE_DATE_FIELD);
-            response.setFechaExpedicion(issueDate);
-        }
-    }
-
-    private void processPutDocumentCountry(CodeNameDTO country, BasicData response, SecurityHeaders securityHeaders) {
-        if (country != null && country.getCode() != null) {
-            errorService.isBlank(country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_FORMAT, country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.COUNTRY_LENGTH, country.getCode(), DOCUMENT_COUNTRY_CODE_FIELD);
-
-            var countryList = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), null, securityHeaders);
-
-            if (countryList != null) {
-                var documentCountry = countryList.stream().filter(x -> x.getCode().equals(country.getCode())).findAny();
-
-                if (!documentCountry.isPresent()) {
-                    var message = "'person.documents.country.code': " + errorService.CODE_NOT_EXIST;
-                    throw errorService.errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-                }
-
-                response.setPaisExpedicion(DataUtils.translateCountryToXXX(country.getCode()));
-            }
-        }
-    }
-
-    private void processPutContactPoint(ContactPointDTO contactPoint, BasicData response) {
-        if (contactPoint == null) {
-            return;
-        }
-
-        processPutPostalAddress(contactPoint.getPostalAddress(), response);
-        processPutPhoneAddress(contactPoint.getPhoneAddress(), response);
-        processPutEmailAddress(contactPoint.getElectronicAddress(), response);
-    }
-
-    private void processPutPostalAddress(PostalAddressDTO postalAddress, BasicData response) {
-        if (postalAddress == null) {
-            return;
-        }
-
-        if (postalAddress.getStreetTypeCode() != null) {
-            if (!postalAddress.getStreetTypeCode().isBlank()) {
-                regexUtils.validateRegex(RegexTypes.STRICT_CHAR_LENGTH_2, postalAddress.getStreetTypeCode(), "streetTypeCode");
-            }
-            response.setTipoVia(postalAddress.getStreetTypeCode());
-        }
-
-        if (postalAddress.getFullAddress() != null) {
-            response.setNombreVia(postalAddress.getFullAddress());
-        }
-
-        if (postalAddress.getTown() != null) {
-            response.setCiudad(postalAddress.getTown().getName());
-        }
-
-        if (postalAddress.getCountry() != null && postalAddress.getCountry().getCode() != null) {
-            errorService.isBlank(postalAddress.getCountry().getCode(), COD_PAID);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, postalAddress.getCountry().getCode(), COD_PAID);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, postalAddress.getCountry().getCode(), COD_PAID);
-            response.setCodpaip(postalAddress.getCountry().getCode());
-        }
-    }
-
-    public static String cleanAddress(String address) {
-        address = address.replace("#", " ");
-        address = address.replace("/", " ");
-        address = address.replace("-", " ");
-        address = address.replace("_", " ");
-        address = address.replace("&", " ");
-        address = address.replace("#", " ");
-        address = address.replace(".", " ");
-        address = address.replace(",", " ");
-        address = address.replace("°", " ");
-        address = address.replace(";", " ");
-        address = address.replace(":", " ");
-        address = address.replace("*", " ");
-        address = address.replace("+", " ");
-        address = address.replace("%", " ");
-        address = address.replace("$", " ");
-        address = address.replace("ñ", "n");
-        address = address.replace("Ñ", "N");
-        address = address.replace("á", "a");
-        address = address.replace("é", "e");
-        address = address.replace("í", "i");
-        address = address.replace("ó", "o");
-        address = address.replace("ú", "u");
-        address = address.replace("Á", "A");
-        address = address.replace("É", "E");
-        address = address.replace("Í", "I");
-        address = address.replace("Ó", "O");
-        address = address.replace("Ú", "U");
-        return address;
-    }
-
-    public static String replaceSpaces(String cadena) {
-        // Primero reemplazar espacios triples
-        Pattern patternTriples = Pattern.compile("\\s{3}");
-        Matcher matcherTriples = patternTriples.matcher(cadena);
-        String cadenaSinTriples = matcherTriples.replaceAll(" ");
-
-        // Luego reemplazar espacios dobles
-        Pattern patternDobles = Pattern.compile("\\s{2}");
-        Matcher matcherDobles = patternDobles.matcher(cadenaSinTriples);
-        return matcherDobles.replaceAll(" ").trim();
-    }
-
-    private void processPutPhoneAddress(PhoneAddressDTO phoneAddress, BasicData response) {
-        if (phoneAddress == null) {
-            return;
-        }
-
-        response.setIndicativo(phoneAddress.getInternationalCode());
-        if (phoneAddress.getInternationalCode() != null && !phoneAddress.getInternationalCode().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-        }
-
-        response.setTelefono(phoneAddress.getPhoneNumber());
-        if (phoneAddress.getPhoneNumber() != null && !phoneAddress.getPhoneNumber().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.PHONE_FORMAT, phoneAddress.getPhoneNumber(), "phoneNumber");
-            regexUtils.validateRegex(RegexTypes.PHONE_LENGTH, phoneAddress.getPhoneNumber(), "phoneNumber");
-        }
-
-        response.setPrecelular(phoneAddress.getInternationalCode());
-        if (phoneAddress.getInternationalCode() != null && !phoneAddress.getInternationalCode().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_FORMAT, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.INTERNATIONAL_CODE_LENGTH, phoneAddress.getInternationalCode(), INTERNATIONAL_CODE_FIELD);
-        }
-
-        response.setCelular(phoneAddress.getMobileNumber());
-        if (phoneAddress.getMobileNumber() != null && !phoneAddress.getMobileNumber().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.PHONE_FORMAT, phoneAddress.getMobileNumber(), "mobileNumber");
-            regexUtils.validateRegex(RegexTypes.PHONE_LENGTH, phoneAddress.getMobileNumber(), "mobileNumber");
-        }
-    }
-
-
-    private void processPutEmailAddress(ElectronicAddressDTO electronicAddress, BasicData response) {
-        if (electronicAddress == null) {
-            return;
-        }
-
-        response.setEmail(electronicAddress.getEmailAddress());
-        if (electronicAddress.getEmailAddress() != null && !electronicAddress.getEmailAddress().isBlank()) {
-            regexUtils.validateRegex(RegexTypes.EMAIL, electronicAddress.getEmailAddress(), "emailAddress");
-        }
-    }
-
-
-    public String usualtMapper(String usualt, String foreignTaxIndicator){
-
-        var localForeignTaxIndicator = foreignTaxIndicator != null && foreignTaxIndicator.contains("YES") ? foreignTaxIndicatorPositive : foreignTaxIndicatorNegative;
-
-        var localUsualt = usualt != null && usualt.length() > 2 ? usualt.substring(0, 3) : defaultChannel;
-
-        return localUsualt + localForeignTaxIndicator;
-    }
-}// class closure
+}

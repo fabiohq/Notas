@@ -1,498 +1,353 @@
+CustomerSevicerImplTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.service.impl;
-
 
 import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.TrxPersonService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.create.CreateCustomerRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.CustomerDetailsResponseDTO;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.response.*;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.DocumentDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.CustomerRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.update.UpdateProspectRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.BasicData;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.TrxPersonDataRequest;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.TrxPersonRequest;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonData;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonResponse;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.*;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.enums.ClientEnum;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDictionary;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.mappers.CustomerMapper;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.service.CustomerService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.CustomerMapperUtils;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.RegexUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import static com.santander.bnc.bsn049.bncbsn049mscustomer.utils.CustomerMapperUtils.isPenumperValid;
-import static com.santander.bnc.bsn049.bncbsn049mscustomer.utils.StringUtils.rightPad;
+import java.util.List;
 
-/**
- * @author Wilfredo Pena
- * This clas handle all main methods from MS-Customer
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class CustomerSevicerImpl implements CustomerService {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-    final TrxPersonService trxPersonService;
-    final RegexUtils regexUtils;
-    final CustomerMapper mapper;
-    final CustomerMapperUtils mapperUtils;
-    final ErrorService errorService;
-    private static final String DOCUMENT_NUMBER_FIELD = "person.documents.documentNumber";
-    private static final String DOCUMENT_TYPE_CODE_FIELD = "person.documents.documentTypeCode";
+@ExtendWith(MockitoExtension.class)
+class CustomerSevicerImplTest {
 
-    private String SOURCECODE_FIELD = "person.dataOrigins.sourceCode";
+    @Mock private TrxPersonService trxPersonService;
+    @Mock private RegexUtils regexUtils;
+    @Mock private CustomerMapper mapper;
+    @Mock private CustomerMapperUtils mapperUtils;
+    @Mock private ErrorService errorService;
 
-    @Value("${params.default-update-agrofic}")
-    private String DEFAULT_AGROFIC;
+    private CustomerSevicerImpl service;
+    private SecurityHeaders headers;
 
-    @Override
-    public CustomerDetailsResponseDTO getCustomerDetails(String customerId, SecurityHeaders securityHeaders) {
-        ObjectMapper mapResponse = new ObjectMapper();
-        log.info(GUtils.SLOG + "service get customer details {}", customerId);
-        TrxPersonResponse responseTrx;
-        CustomerDetailsResponseDTO customerDetailsResponseDTO;
+    @BeforeEach
+    void setUp() {
+        service = new CustomerSevicerImpl(
+                trxPersonService,
+                regexUtils,
+                mapper,
+                mapperUtils,
+                errorService
+        );
 
-        if (Boolean.FALSE.equals(isPenumperValid(customerId))) {
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.INVALID_CUSTOMER_ID);
-        }
-
-        responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, customerId), ClientEnum.PEF3);
-        customerDetailsResponseDTO = mapper.trxPersonToCustomerDetailsDTO(responseTrx, securityHeaders);
-
-        if (customerDetailsResponseDTO == null) {
-            throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.PERSON_IS_NOT_CLIENT);
-        }
-
-        // Manejo de ciudad de nacimiento y expedición en blanco
-        if (customerDetailsResponseDTO.getPerson().getPlaceOfBirth() != null && customerDetailsResponseDTO.getPerson().getPlaceOfBirth().getTown().isBlank()) {
-            customerDetailsResponseDTO.getPerson().getPlaceOfBirth().setTown(""); // Mantener el campo como vacío
-        }
-
-        for (DocumentDTO document : customerDetailsResponseDTO.getPerson().getDocuments()) {
-            if (document.getTown().isBlank()) {
-                document.setTown(""); // Mantener el campo como vacío
-            }
-        }
-
-        log.info(GUtils.ELOG + "service get customer details response={}", customerDetailsResponseDTO);
-        return customerDetailsResponseDTO;
-    }//method closure
-
-    /**
-     * Search customer by customerID
-     *
-     * @param customerRequestDTO
-     * @return
-     */
-    @Override
-    public CustomerSearchResponseDTO searchCustomer(CustomerRequestDTO customerRequestDTO, SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "service search person {}", customerRequestDTO.getPerson());
-
-        // Validar expresiones regulares para otros campos
-        errorService.isNull(customerRequestDTO.getPerson().getDocument().getDocumentNumber(), DOCUMENT_NUMBER_FIELD);
-        errorService.isBlank(customerRequestDTO.getPerson().getDocument().getDocumentNumber(), DOCUMENT_NUMBER_FIELD);
-        regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, customerRequestDTO.getPerson().getDocument().getDocumentNumber(), DOCUMENT_NUMBER_FIELD);
-        regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_11, customerRequestDTO.getPerson().getDocument().getDocumentNumber(), DOCUMENT_NUMBER_FIELD);
-
-        errorService.isNull(customerRequestDTO.getPerson().getDocument().getDocumentTypeCode(), DOCUMENT_TYPE_CODE_FIELD);
-        errorService.isBlank(customerRequestDTO.getPerson().getDocument().getDocumentTypeCode(), DOCUMENT_TYPE_CODE_FIELD);
-        regexUtils.validateRegex(RegexTypes.DOCUMENT_TYPE_FORMAT, customerRequestDTO.getPerson().getDocument().getDocumentTypeCode(), DOCUMENT_TYPE_CODE_FIELD);
-        regexUtils.validateRegex(RegexTypes.STRICT_CHAR_LENGTH_2, customerRequestDTO.getPerson().getDocument().getDocumentTypeCode(), DOCUMENT_TYPE_CODE_FIELD);
-
-        TrxPersonResponse responseTrx;
-        CustomerSearchResponseDTO customerResponseDTO;
-
-        try {
-            responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(customerRequestDTO, null), ClientEnum.PEF3);
-        } catch (ServiceException e) {
-            if (e.getMessage().equals(ErrorDictionary.CUSTOMER_NOT_FOUND)) {
-                return null;
-            }
-            throw e;
-        }
-
-        customerResponseDTO = mapper.trxPersonToCustomerSearchDTO(responseTrx, securityHeaders);
-        log.info(GUtils.ELOG + "service search person response={}", customerResponseDTO);
-        return customerResponseDTO;
-    }//method closure
-
-
-    @Override
-    public void updateCustomer(CreateCustomerRequestDTO customerRequestDTO, String customerId, SecurityHeaders securityHeaders) {
-        regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, customerId, "customerId");
-        regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_8, customerId, "customerId");
-
-        log.info(GUtils.SLOG + "service update prospect id {} data= {}", customerId, customerRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
-
-        // AQUI EL CACHE GET!!
-        log.info("Start to get customer {}", customerId);
-        responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, customerId), ClientEnum.PEF3);
-        TrxPersonData trxBasicData = responseTrx.getData().getDatosBasicos();
-
-        //VALIDA CONPER == NCL || CLI
-        if (CustomerMapperUtils.isNotCustomer(trxBasicData.getConper())) {
-            throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.PERSON_IS_NOT_CUSTOMER);
-        }
-        log.info("responseTrx = {}", responseTrx);
-
-        // Transformar PEF3 response (o caché) a Request PEF4
-        BasicData basicData = mapper.pef3ResponseToPef2Request(trxBasicData);
-        log.info("BasicData from pef3 = {}", basicData);
-
-        // Limpio datos que no quiero modificar en customer
-        customerRequestDTO = CustomerMapperUtils.cleanFieldsFromProspectUpdate(customerRequestDTO);
-        // Transformo el request del PATCH en BasicData
-        BasicData basicDataRequestPatch = mapper.prospectPatchToPef2Request(customerRequestDTO, securityHeaders, basicData.getTipoIdentificacion());
-        log.info("basicData request patch = {}", basicDataRequestPatch);
-        BeanUtils.copyProperties(basicDataRequestPatch, basicData, GUtils.getNullOrBlankPropertyNames(basicDataRequestPatch));
-
-        // Aquí se maneja la lógica específica para el campo town
-        if (basicData.getCiudadExpedicion() != null &&
-                basicData.getCiudadExpedicion().isEmpty()) {
-            basicData.setCiudadExpedicion("99999");
-        }
-        if (basicData.getCiudadNacimiento() != null &&
-                basicData.getCiudadNacimiento().isEmpty() && basicData.getTipoIdentificacion().equals("CC")) {
-            basicData.setCiudadNacimiento("99999");
-        }
-
-
-
-        String expirationDate = basicDataRequestPatch.getDescripcionDireccion();
-        String premiseCopia = trxBasicData.getDescripcionDireccion();
-
-        // Añade la validación y relleno si no tiene 60 caracteres
-        if (premiseCopia.length() != 60) {
-            premiseCopia = rightPad(premiseCopia.substring(0, premiseCopia.length() - 10), 50, ' ') + premiseCopia.substring(premiseCopia.length() - 10);
-            basicData.setDescripcionDireccion(premiseCopia);
-        }
-
-
-
-        if (premiseCopia.length() == 60 && expirationDate != null) {
-            // Construir premise + expirationDate
-            String finalPremise = premiseCopia.substring(0, premiseCopia.length() - 10) + expirationDate;
-            basicDataRequestPatch.setDescripcionDireccion(finalPremise);
-            basicData.setDescripcionDireccion(finalPremise);
-        }
-
-
-
-        var secondLastNameOld = basicDataRequestPatch.getSegundoApellido();
-        if (secondLastNameOld != null && secondLastNameOld.equals("")) {
-            basicData.setSegundoApellido("");
-        }
-
-        log.info("BasicData afterCopy = {}", basicData);
-
-        if (customerRequestDTO.getPerson() != null) {
-            basicData.setUsualt(mapper.usualtMapper(basicData.getUsualt(), customerRequestDTO.getPerson().getForeignTaxIndicator()));
-        } else {
-            basicData.setUsualt(mapper.usualtMapper(basicData.getUsualt(), null));
-        }
-
-        // removeCustomer
-        if (customerRequestDTO.getDataOrigins() != null &&
-                !customerRequestDTO.getDataOrigins().isEmpty() &&
-                customerRequestDTO.getDataOrigins().get(0) != null &&
-                customerRequestDTO.getDataOrigins().get(0).getSourceCode() != null) {
-
-            String sourceCode = customerRequestDTO.getDataOrigins().get(0).getSourceCode();
-
-            errorService.isBlank(sourceCode, SOURCECODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.DATAORIGIN_SOURCECODE_FORMAT, sourceCode, SOURCECODE_FIELD);
-            regexUtils.validateRegex(RegexTypes.DATAORIGIN_SOURCECODE_LENGTH, sourceCode, SOURCECODE_FIELD);
-
-            if (sourceCode.equals("OTRO")) {
-                basicData.setUsualt(mapperUtils.removeCustomer(trxBasicData));
-            }
-        }
-
-        if (basicData.getEstciv() != null) {
-            if (basicData.getEstciv().isBlank()) {
-                basicData.setEstciv("S");
-            } else if (basicData.getEstciv().equals("S")) {
-                basicData.setEstciv("C");
-            } else {
-                basicData.setEstciv("S");
-            }
-        } else {
-            basicData.setEstciv("S");
-        }
-
-        // Se setea valor por omisión para el campo agrofic al actualizar customer
-        basicData.setAgrofic(DEFAULT_AGROFIC);
-
-        TrxPersonRequest pef2Request = new TrxPersonRequest();
-        TrxPersonDataRequest trxPersonDataRequest = new TrxPersonDataRequest();
-        trxPersonDataRequest.setDatosBasicos(basicData);
-
-        pef2Request.setData(trxPersonDataRequest);
-
-        // UPDATE PROSPECT
-        trxPersonService.callPostTRX(pef2Request, ClientEnum.PEF2);
-        log.info(GUtils.ELOG + "service update prospect response");
+        ReflectionTestUtils.setField(service, "DEFAULT_AGROFIC", "0003");
+        headers = new SecurityHeaders();
     }
 
-
-
-    @Override
-    public void updateCustomersProspect(UpdateProspectRequestDTO customerRequestDTO, String customerId,SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "service update customer to prospect id {} data= {}",customerId, customerRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
-
-        // AQUI EL CACHE GET!!
-        log.info("Start to get customer {}",customerId);
-        responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, customerId)
-                , ClientEnum.PEF3);
-        TrxPersonData trxBasicData = responseTrx.getData().getDatosBasicos();
-
-//        VALIDA CONPER == PRO
-        if( CustomerMapperUtils.isNotCustomer(trxBasicData.getConper())){
-            log.info("Actualizo PRO a NCL {}",customerId);
-            trxBasicData.setConper("NCL");
-        } else {
-            log.info("Id ya es cliente {}",customerId);
-            throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.PERSON_IS_NOT_PROSPECT);
-        }
-
-        log.info("responseTrx = {}", responseTrx);
-        //Transformar PEF3 response (o caché) a Request PEF4
-        BasicData basicData =  mapper.pef3ResponseToPef2Request(trxBasicData);
-        log.info("BasicData   from pef3  = {}", basicData);
-        
-        //Transformo el request del PATCH en BasicData
-        BasicData basicDataRequestPatch = mapper.prospectPutToPef2Request(customerRequestDTO,securityHeaders);
-        log.info("basicData request patch = {}", basicDataRequestPatch);
-        //Copio propiedades que deseo modificar al nuevo objeto
-        BeanUtils.copyProperties(basicDataRequestPatch,basicData,GUtils.getNullOrBlankPropertyNames(basicDataRequestPatch));
-        log.info("BasicData  afterCopy    = {}", basicData);
-        if(basicData.getTipoIdentificacion().equals("CE")){
-            basicData.setCiudadNacimiento("");
-        }
-        
-        if(customerRequestDTO.getPerson() != null){
-            basicData.setUsualt(mapper.usualtMapper(basicData.getUsualt(), customerRequestDTO.getPerson().getForeignTaxIndicator() ));
-        } else {
-            basicData.setUsualt(mapper.usualtMapper(basicData.getUsualt(), null ));            
-        }
-
-        // Se setea valor por omisión para el campo agrofic al pasar de prospect a customer
-        basicData.setAgrofic(DEFAULT_AGROFIC);
-
-        TrxPersonRequest pef2Request = new TrxPersonRequest();
-        TrxPersonDataRequest trxPersonDataRequest = new TrxPersonDataRequest();
-        trxPersonDataRequest.setDatosBasicos(basicData);
-        pef2Request.setData(trxPersonDataRequest);
-        //UPDATE PROSPECT
-        trxPersonService.callPostTRX(pef2Request, ClientEnum.PEF2);
-        log.info(GUtils.ELOG + "service update prospect response");
-
+    @Test
+    void getCustomerDetailsShouldThrowWhenCustomerIdInvalid() {
+        assertThrows(ServiceException.class,
+                () -> service.getCustomerDetails("123", headers));
     }
 
-}//class closure
+    @Test
+    void getCustomerDetailsShouldThrowWhenMapperReturnsNull() {
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponse("CLI"));
 
+        when(mapper.trxPersonToCustomerDetailsDTO(any(), any()))
+                .thenReturn(null);
 
+        assertThrows(ServiceException.class,
+                () -> service.getCustomerDetails("12345678", headers));
+    }
 
+    @Test
+    void getCustomerDetailsShouldReturnResponseAndNormalizeBlankTowns() {
+        CustomerDetailsResponseDTO dto = new CustomerDetailsResponseDTO();
 
+        PersonDTO person = new PersonDTO();
+
+        PlaceOfBirthDTO place = new PlaceOfBirthDTO();
+        place.setTown("");
+
+        DocumentDTO document = new DocumentDTO();
+        document.setTown("");
+
+        person.setPlaceOfBirth(place);
+        person.setDocuments(List.of(document));
+        dto.setPerson(person);
+
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponse("CLI"));
+
+        when(mapper.trxPersonToCustomerDetailsDTO(any(), any()))
+                .thenReturn(dto);
+
+        CustomerDetailsResponseDTO result = service.getCustomerDetails("12345678", headers);
+
+        assertNotNull(result);
+        assertEquals("", result.getPerson().getPlaceOfBirth().getTown());
+        assertEquals("", result.getPerson().getDocuments().get(0).getTown());
+    }
+
+    @Test
+    void searchCustomerShouldReturnMappedResponse() {
+        CustomerRequestDTO request = buildSearchRequest();
+
+        CustomerSearchResponseDTO mapped = new CustomerSearchResponseDTO();
+
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponse("CLI"));
+
+        when(mapper.trxPersonToCustomerSearchDTO(any(), any()))
+                .thenReturn(mapped);
+
+        CustomerSearchResponseDTO result = service.searchCustomer(request, headers);
+
+        assertSame(mapped, result);
+        verify(regexUtils, atLeastOnce()).validateRegex(any(), anyString(), anyString());
+    }
+
+    @Test
+    void updateCustomerShouldThrowWhenCurrentPersonIsProspect() {
+        CreateCustomerRequestDTO request = new CreateCustomerRequestDTO();
+
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponse("PRO"));
+
+        assertThrows(ServiceException.class,
+                () -> service.updateCustomer(request, "12345678", headers));
+    }
+
+    @Test
+    void updateCustomerShouldCallUpdateTrx() {
+        CreateCustomerRequestDTO request = new CreateCustomerRequestDTO();
+        PersonDTO person = new PersonDTO();
+        person.setForeignTaxIndicator("YES");
+        request.setPerson(person);
+
+        TrxPersonData trxData = buildPersonData("CLI");
+        trxData.setDescripcionDireccion("CALLE 1                            2030-01-01");
+
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponseWithData(trxData));
+
+        BasicData basicData = new BasicData();
+        basicData.setTipoIdentificacion("CC");
+        basicData.setDescripcionDireccion(trxData.getDescripcionDireccion());
+        basicData.setUsualt("ODSCONN");
+        basicData.setEstciv("S");
+
+        BasicData patch = new BasicData();
+        patch.setDescripcionDireccion("2035-01-01");
+
+        when(mapper.pef3ResponseToPef2Request(any())).thenReturn(basicData);
+        when(mapper.prospectPatchToPef2Request(any(), any(), anyString())).thenReturn(patch);
+        when(mapper.usualtMapper(any(), any())).thenReturn("ODSCONS");
+
+        service.updateCustomer(request, "12345678", headers);
+
+        verify(trxPersonService, times(2)).callPostTRX(any(), any());
+        assertEquals("0003", basicData.getAgrofic());
+    }
+
+    @Test
+    void updateCustomersProspectShouldThrowWhenAlreadyCustomer() {
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponse("CLI"));
+
+        assertThrows(ServiceException.class,
+                () -> service.updateCustomersProspect(new UpdateProspectRequestDTO(), "12345678", headers));
+    }
+
+    @Test
+    void updateCustomersProspectShouldCallUpdateWhenProspect() {
+        UpdateProspectRequestDTO request = new UpdateProspectRequestDTO();
+        PersonDTO person = new PersonDTO();
+        person.setForeignTaxIndicator("NO");
+        request.setPerson(person);
+
+        TrxPersonData trxData = buildPersonData("PRO");
+
+        when(trxPersonService.callPostTRX(any(), any()))
+                .thenReturn(buildResponseWithData(trxData));
+
+        BasicData basicData = new BasicData();
+        basicData.setTipoIdentificacion("CE");
+        basicData.setUsualt("ODSCONS");
+
+        BasicData patch = new BasicData();
+
+        when(mapper.pef3ResponseToPef2Request(any())).thenReturn(basicData);
+        when(mapper.prospectPutToPef2Request(any(), any())).thenReturn(patch);
+        when(mapper.usualtMapper(any(), any())).thenReturn("ODSCONN");
+
+        service.updateCustomersProspect(request, "12345678", headers);
+
+        verify(trxPersonService, times(2)).callPostTRX(any(), any());
+        assertEquals("", basicData.getCiudadNacimiento());
+        assertEquals("0003", basicData.getAgrofic());
+    }
+
+    private CustomerRequestDTO buildSearchRequest() {
+        CustomerRequestDTO request = new CustomerRequestDTO();
+
+        PersonDTO person = new PersonDTO();
+        DocumentDTO document = new DocumentDTO();
+        document.setDocumentNumber("123456789");
+        document.setDocumentTypeCode("CC");
+        person.setDocument(document);
+
+        request.setPerson(person);
+        return request;
+    }
+
+    private TrxPersonResponse buildResponse(String conper) {
+        return buildResponseWithData(buildPersonData(conper));
+    }
+
+    private TrxPersonResponse buildResponseWithData(TrxPersonData data) {
+        TrxBasicData basic = new TrxBasicData();
+        basic.setDatosBasicos(data);
+
+        TrxPersonResponse response = new TrxPersonResponse();
+        response.setData(basic);
+
+        return response;
+    }
+
+    private TrxPersonData buildPersonData(String conper) {
+        TrxPersonData data = new TrxPersonData();
+        data.setConper(conper);
+        data.setDescripcionDireccion("CALLE 1                            2030-01-01");
+        return data;
+    }
+}
+ParamsServiceImplTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.service.impl;
 
-
 import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.ParameterApiService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.CodeNameDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.generic.Parameters;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonData;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters.DataListDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.enums.ParametersEnums;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.service.ParamService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.GUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 
-@Slf4j
-@Service
-public class ParamsServiceImpl implements ParamService {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
-    @Autowired
-    ParameterApiService parameterApiService;
+@ExtendWith(MockitoExtension.class)
+class ParamsServiceImplTest {
 
-    private final static String SPLIT_KEY = "split";
+    @Mock
+    private ParameterApiService parameterApiService;
 
-    private String getDocumentTypeDescription(TrxPersonData personData,SecurityHeaders securityHeaders) {
+    private ParamsServiceImpl service;
+    private SecurityHeaders headers;
 
-        if(personData.getTipoIdentificacion() != null && !personData.getTipoIdentificacion().isBlank()){
-            var parameterResponse = parameterApiService.getParameter(ParametersEnums.DOCU_TYPE.value(), personData.getTipoIdentificacion(),securityHeaders);
-
-            if( parameterResponse != null && !parameterResponse.isEmpty() ){
-                return parameterResponse.get(0).getDescription();
-            }
-            return "";
-        }
-
-        return "";        
+    @BeforeEach
+    void setUp() {
+        service = new ParamsServiceImpl();
+        ReflectionTestUtils.setField(service, "parameterApiService", parameterApiService);
+        headers = new SecurityHeaders();
     }
 
-    private String getWayTypeDescription(TrxPersonData personData, SecurityHeaders securityHeaders ){
-        if(personData.getTipoVia() != null && !personData.getTipoVia().isEmpty()){
+    @Test
+    void findParametersShouldMapAllParameters() {
+        when(parameterApiService.getParameter(eq("0112"), anyString(), any()))
+                .thenAnswer(invocation -> List.of(new DataListDTO("0112", invocation.getArgument(1), "COUNTRY")));
 
-            var parameterResponse =  parameterApiService.getParameter(ParametersEnums.WAY_TYPE.value(), personData.getTipoVia(),securityHeaders);
+        when(parameterApiService.getParameter(eq("0009"), anyString(), any()))
+                .thenAnswer(invocation -> List.of(new DataListDTO("0009", invocation.getArgument(1), "STATE")));
 
-            if(!parameterResponse.isEmpty()){
-                return parameterResponse.get(0).getDescription();
-            }
-            return "";
-        }
-        return "";
+        when(parameterApiService.getParameter(eq("0008"), anyString(), any()))
+                .thenAnswer(invocation -> List.of(new DataListDTO("0008", invocation.getArgument(1), "TOWN")));
+
+        when(parameterApiService.getParameter(eq("0314"), anyString(), any()))
+                .thenReturn(List.of(new DataListDTO("0314", "CL", "Calle")));
+
+        when(parameterApiService.getParameter(eq("0113"), anyString(), any()))
+                .thenReturn(List.of(new DataListDTO("0113", "CC", "Cedula")));
+
+        Parameters result = service.findParameters(buildPersonData(), headers);
+
+        assertNotNull(result);
+        assertEquals("COL", result.getCountryNationality().getCode());
+        assertEquals("COL", result.getCountryExp().getCode());
+        assertEquals("COL", result.getCountryBirth().getCode());
+        assertEquals("COL", result.getCountryDir().getCode());
+        assertEquals("05001", result.getCityStandard().getCode());
+        assertEquals("05", result.getCityDepartment().getCode());
+        assertEquals("05001", result.getTownDocument().getCode());
+        assertEquals("05001", result.getTown().getCode());
+        assertEquals("Calle", result.getStreetTypeDescription());
+        assertEquals("Cedula", result.getDocumentTypeDescription());
     }
 
-    private CodeNameDTO getCountry(String country,SecurityHeaders securityHeaders) {
-        CodeNameDTO countryObj = new CodeNameDTO();
+    @Test
+    void findParametersShouldReturnEmptyValuesWhenPersonHasBlankFields() {
+        TrxPersonData data = new TrxPersonData();
 
-        var parameterResponse = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), country,securityHeaders);
+        Parameters result = service.findParameters(data, headers);
 
-        if( parameterResponse != null && !parameterResponse.isEmpty() ) {
-            DataListDTO countryParameter = parameterResponse.get(0);    
-            
-            countryObj.setCode(countryParameter.getCode());
-            countryObj.setName(countryParameter.getDescription());
-        }
+        assertNotNull(result);
+        assertNotNull(result.getCountryNationality());
+        assertEquals("", result.getStreetTypeDescription());
+        assertEquals("", result.getDocumentTypeDescription());
+    }
 
-        return countryObj;
-    }//method closure
+    @Test
+    void findParametersShouldHandleEmptyParameterResponses() {
+        when(parameterApiService.getParameter(anyString(), anyString(), any()))
+                .thenReturn(List.of());
 
-    private CodeNameDTO getTown(String townCode,SecurityHeaders securityHeaders) {
-        
-        CodeNameDTO countryObj = new CodeNameDTO();
+        Parameters result = service.findParameters(buildPersonData(), headers);
 
-        var parameterResponse = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), townCode,securityHeaders);
+        assertNotNull(result);
+        assertEquals("", result.getCountryNationality().getCode());
+        assertEquals("", result.getStreetTypeDescription());
+        assertEquals("", result.getDocumentTypeDescription());
+    }
 
-        if(parameterResponse != null && !parameterResponse.isEmpty()){
-            DataListDTO countryParameter = parameterResponse.get(0);
+    private TrxPersonData buildPersonData() {
+        TrxPersonData data = new TrxPersonData();
 
-            countryObj.setCode(countryParameter.getCode());
-            countryObj.setName(countryParameter.getDescription());
-        }
+        data.setNacionalidad("COL");
+        data.setPaisExpedicion("COL");
+        data.setPaisNacimiento("COL");
+        data.setPaisDireccion("COL");
+        data.setCiudad("05001");
+        data.setDepartamento("05");
+        data.setCiudadExpedicion("05001");
+        data.setCiudadNacimiento("05001");
+        data.setTipoVia("CL");
+        data.setTipoIdentificacion("CC");
 
-        return countryObj;
-
-    }//method closure
-
-    private CodeNameDTO getCity(String city,SecurityHeaders securityHeaders) {
-        if (!city.isEmpty()) {
-            city = city.substring(0, 2);
-        }
-        CodeNameDTO cityObj = new CodeNameDTO();
-
-        var parameterResponse = parameterApiService.getParameter(ParametersEnums.STATES.value(), city,securityHeaders);
-
-        if(parameterResponse != null && !parameterResponse.isEmpty() ){
-            DataListDTO cityParameter = parameterResponse.get(0);
-
-            cityObj.setCode(cityParameter.getCode());
-            cityObj.setName(cityParameter.getDescription());
-
-        }
-
-        return cityObj;
-    }//method closure
-
-
-    public Parameters findParameters(TrxPersonData personData,SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "Find parameters");
-        String sNationality = personData.getNacionalidad();
-        String sExp = personData.getPaisExpedicion();
-        String sBirth = personData.getPaisNacimiento();
-        String sCountryDir = personData.getPaisDireccion();
-        String sCity = personData.getCiudad();
-        String sDepartment = personData.getDepartamento();
-        String sCityExp = personData.getCiudadExpedicion();
-        String sCityBirth = personData.getCiudadNacimiento();
-
-        List<CodeNameDTO> countries = getListParameterByGroup(new String[]{sNationality, sExp, sBirth, sCountryDir}, "Country",securityHeaders);
-        List<CodeNameDTO> cities = getListParameterByGroup(new String[]{sCity, sDepartment, sCityExp, sCityBirth}, "City",securityHeaders);
-
-        Parameters response = new Parameters();
-        response.setCountryNationality(getKey(countries, sNationality));
-        response.setCountryExp(getKey(countries, sExp));
-        response.setCountryBirth(getKey(countries, sBirth));
-        response.setCountryDir(getKey(countries, sCountryDir));
-        if(sCity != null && !sCity.isBlank()){
-            response.setCityStandard(getTown(sCity,securityHeaders));
-        }
-        response.setCityDepartment(getKey(cities, sDepartment));
-        if(sCityExp != null && !sCityExp.isBlank()){
-            response.setCityExp(getKey(cities, sCityExp));
-            response.setTownDocument(getTown(sCityExp, securityHeaders));
-        }
-        response.setCityBirth(getKey(cities, sCityBirth));
-        //Extras
-        if(sCityBirth != null && !sCityBirth.isBlank()){
-            response.setTown(getTown(sCityBirth,securityHeaders));
-        }
-        response.setStreetTypeDescription(getWayTypeDescription(personData,securityHeaders));
-        response.setDocumentTypeDescription(getDocumentTypeDescription(personData,securityHeaders));
-
-        log.info(GUtils.ELOG + "Return parameters = {} ", response);
-        return response;
-    }//method closure
-
-    private List<CodeNameDTO> getListParameterByGroup(String[] parameterGroup, String type,SecurityHeaders securityHeaders) {
-        log.info("    find {}'s = {} ", type, parameterGroup);
-        List<CodeNameDTO> listCodename = new ArrayList<>();
-        Map<String, Long> groupMap = Arrays.stream(parameterGroup).filter(Objects::nonNull).filter(param -> !param.isBlank())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        log.info("    look just for = " + groupMap);
-        groupMap.forEach((key, count) -> {
-                    if ("Country".equalsIgnoreCase(type)) {
-                        CodeNameDTO codeNameDTO = getCountry(key,securityHeaders);
-                        codeNameDTO.setCode(codeNameDTO.getCode() + SPLIT_KEY + key);
-                        listCodename.add(codeNameDTO);
-                    } else if ("City".equalsIgnoreCase(type)) {
-                        CodeNameDTO codeNameDTO = getCity(key,securityHeaders);
-                        codeNameDTO.setCode(codeNameDTO.getCode() + SPLIT_KEY + key);
-                        listCodename.add(codeNameDTO);
-                    }
-                }
-        );
-        return listCodename;
-    }//method closure
-
-    private CodeNameDTO getKey(List<CodeNameDTO> groupCodeNameList, String key) {
-                
-        CodeNameDTO responseC = groupCodeNameList.stream().filter(x -> x.getCode().split(SPLIT_KEY).length == 2)
-                                                        .findFirst().orElse(null);
-
-        if(responseC != null){
-            responseC = groupCodeNameList.stream().filter(x -> x.getCode().split(SPLIT_KEY)[1].equals(key))
-                .findFirst().orElse(null);
-        }
-        
-        
-        CodeNameDTO response = new CodeNameDTO();
-        if (responseC != null) {
-            String replaced = responseC.getCode().replaceAll(SPLIT_KEY + key, "");
-            response.setCode(replaced);
-            response.setName(responseC.getName());
-        }
-        return response;
-    }//method closure
-}//class closure
+        return data;
+    }
+}
+En CustomerSevicerImplTest, el nombre de la clase debe quedar igual a tu clase real: CustomerSevicerImpl está escrito con typo, no CustomerServiceImpl.

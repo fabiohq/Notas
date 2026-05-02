@@ -1,297 +1,212 @@
+Perfecto, estas clases son simples → aquí sí conviene tests directos, claros y completos (100% cobertura) sin reflection.
+✅ ContextRequestTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.context;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContextRequest {
-    private String key;
-    private Object value;
-    private String product;
+class ContextRequestTest {
 
-    public String getKey() {
-        return key;
-    }
+    @Test
+    void shouldCoverAll() {
+        ContextRequest dto = new ContextRequest();
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+        dto.setKey("k");
+        dto.setValue("value");
+        dto.setProduct("prod");
 
-    public Object getValue() {
-        return value;
-    }
+        assertEquals("k", dto.getKey());
+        assertEquals("value", dto.getValue());
+        assertEquals("prod", dto.getProduct());
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
+        ContextRequest allArgs = new ContextRequest("k2", "v2", "p2");
+        assertEquals("k2", allArgs.getKey());
+        assertEquals("v2", allArgs.getValue());
+        assertEquals("p2", allArgs.getProduct());
     }
 }
-
-
+✅ ContextResponseTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.context;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContextResponse {
-    private String key;
-    private Object value;
-    private String product;
+class ContextResponseTest {
 
-    public String getKey() {
-        return key;
-    }
+    @Test
+    void shouldCoverAll() {
+        ContextResponse dto = new ContextResponse();
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+        dto.setKey("k");
+        dto.setValue("value");
+        dto.setProduct("prod");
 
-    public Object getValue() {
-        return value;
-    }
+        assertEquals("k", dto.getKey());
+        assertEquals("value", dto.getValue());
+        assertEquals("prod", dto.getProduct());
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
+        ContextResponse allArgs = new ContextResponse("k2", "v2", "p2");
+        assertEquals("k2", allArgs.getKey());
+        assertEquals("v2", allArgs.getValue());
+        assertEquals("p2", allArgs.getProduct());
     }
 }
-
-
+✅ ApiEntryTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * params from properties.yml
- */
-@AllArgsConstructor
-@NoArgsConstructor
-public class ApiEntry {
-    private String integrationType;
-    private String host;
-    private String port;
-    private boolean https;
-    private String endpoint;
-    private Integer timeOutConn;
-    private Integer timeOutRead;
+class ApiEntryTest {
 
-    public String getIntegrationType() {
-        return integrationType;
-    }
+    @Test
+    void shouldCoverAll() {
+        ApiEntry dto = new ApiEntry();
 
-    public void setIntegrationType(String integrationType) {
-        this.integrationType = integrationType;
-    }
+        dto.setIntegrationType("REST");
+        dto.setHost("localhost");
+        dto.setPort("8080");
+        dto.setHttps(true);
+        dto.setEndpoint("/api");
+        dto.setTimeOutConn(1000);
+        dto.setTimeOutRead(2000);
 
-    public String getHost() {
-        return host;
-    }
+        assertEquals("REST", dto.getIntegrationType());
+        assertEquals("localhost", dto.getHost());
+        assertEquals("8080", dto.getPort());
+        assertTrue(dto.isHttps());
+        assertEquals("/api", dto.getEndpoint());
+        assertEquals(1000, dto.getTimeOutConn());
+        assertEquals(2000, dto.getTimeOutRead());
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+        ApiEntry allArgs = new ApiEntry("SOAP", "host", "9090", false, "/ep", 1, 2);
 
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public boolean isHttps() {
-        return https;
-    }
-
-    public void setHttps(boolean https) {
-        this.https = https;
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public Integer getTimeOutConn() {
-        return timeOutConn;
-    }
-
-    public void setTimeOutConn(Integer timeOutConn) {
-        this.timeOutConn = timeOutConn;
-    }
-
-    public Integer getTimeOutRead() {
-        return timeOutRead;
-    }
-
-    public void setTimeOutRead(Integer timeOutRead) {
-        this.timeOutRead = timeOutRead;
+        assertEquals("SOAP", allArgs.getIntegrationType());
+        assertEquals("host", allArgs.getHost());
+        assertEquals("9090", allArgs.getPort());
+        assertFalse(allArgs.isHttps());
     }
 }
-
-
+✅ SecurityHeadersTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class SecurityHeaders {
-    private String authorization;
-    private String xSantanderClientId;
+class SecurityHeadersTest {
 
-    public String getAuthorization() {
-        return authorization;
-    }
+    @Test
+    void shouldCoverAll() {
+        SecurityHeaders dto = new SecurityHeaders();
 
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
-    }
+        dto.setAuthorization("Bearer token");
+        dto.setxSantanderClientId("client");
 
-    public String getxSantanderClientId() {
-        return xSantanderClientId;
-    }
+        assertEquals("Bearer token", dto.getAuthorization());
+        assertEquals("client", dto.getxSantanderClientId());
 
-    public void setxSantanderClientId(String xSantanderClientId) {
-        this.xSantanderClientId = xSantanderClientId;
+        SecurityHeaders allArgs = new SecurityHeaders("auth", "id");
+
+        assertEquals("auth", allArgs.getAuthorization());
+        assertEquals("id", allArgs.getxSantanderClientId());
     }
 }
-
-
+✅ DataListDTOTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class DataListDTO {
-    private String listCode;
-    private String code;
-    private String description;
+class DataListDTOTest {
 
-    public String getListCode() {
-        return listCode;
-    }
+    @Test
+    void shouldCoverAll() {
+        DataListDTO dto = new DataListDTO();
 
-    public void setListCode(String listCode) {
-        this.listCode = listCode;
-    }
+        dto.setListCode("L");
+        dto.setCode("C");
+        dto.setDescription("Desc");
 
-    public String getCode() {
-        return code;
-    }
+        assertEquals("L", dto.getListCode());
+        assertEquals("C", dto.getCode());
+        assertEquals("Desc", dto.getDescription());
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+        DataListDTO built = DataListDTO.builder()
+                .listCode("L2")
+                .code("C2")
+                .description("D2")
+                .build();
 
-    public String getDescription() {
-        return description;
-    }
+        assertEquals("L2", built.getListCode());
 
-    public void setDescription(String description) {
-        this.description = description;
+        DataListDTO allArgs = new DataListDTO("L3", "C3", "D3");
+        assertEquals("L3", allArgs.getListCode());
     }
 }
-
-
+✅ GeographiesParametersResponseDTOTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
+import org.junit.jupiter.api.Test;
 import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
+class GeographiesParametersResponseDTOTest {
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class GeographiesParametersResponseDTO {
-    private List<DataListDTO> parameters;
+    @Test
+    void shouldCoverAll() {
+        List<DataListDTO> list = List.of(new DataListDTO());
 
-    public List<DataListDTO> getParameters() {
-        return parameters;
-    }
+        GeographiesParametersResponseDTO dto = new GeographiesParametersResponseDTO();
+        dto.setParameters(list);
 
-    public void setParameters(List<DataListDTO> parameters) {
-        this.parameters = parameters;
+        assertEquals(list, dto.getParameters());
+
+        GeographiesParametersResponseDTO built = GeographiesParametersResponseDTO.builder()
+                .parameters(list)
+                .build();
+
+        assertEquals(list, built.getParameters());
+
+        GeographiesParametersResponseDTO allArgs =
+                new GeographiesParametersResponseDTO(list);
+
+        assertEquals(list, allArgs.getParameters());
     }
 }
-
-
+✅ ClientEnumTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.enums;
 
-public enum ClientEnum {
-    PEF1("ingresoAltaPersonaNatural"),
-    PEF2("modificarMantencionPersonaNaturalDatosBasicos"),
-    PEF3("ConsultaDatosBasicosPNatural"),
-    PEFT("modificarMantencionPersonaNaturalReferencias"),
-    PEFP("modificarMantencionPersonaNaturalInfAdicional"),
-    PEFV("modificarMantencionPersonaNaturalInfAdicional"),
-    PE37("AltaPersonaNatural2"),
-    PEF4("modificarMantencionPersonaNaturalInfComplementariaDos"),
-    PEF8("modificarMantencionPersonaNaturalActivivadEconomica2"),
-    
-    MQROUTE("QCTFD");
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-    private final String path;
+class ClientEnumTest {
 
-    ClientEnum(String path) {
-        this.path = path;
-    }
-
-    public String value() {
-        return path;
+    @Test
+    void shouldCoverEnumValues() {
+        assertEquals("ingresoAltaPersonaNatural", ClientEnum.PEF1.value());
+        assertEquals("QCTFD", ClientEnum.MQROUTE.value());
     }
 }
-
-
+✅ ParametersEnumsTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.enums;
 
-public enum ParametersEnums {
-    TOWNS("0008"),
-    COUNTRY("0112"),
-    STATES("0009"),
-    WAY_TYPE("0314"),
-    CIVIL_STATE("0116"),
-    LIST_BCO_EXT("0026"),
-    DOCU_TYPE("0113");
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-    private final String code;
+class ParametersEnumsTest {
 
-    ParametersEnums(String path) {
-        this.code = path;
-    }
-
-    public String value() {
-        return code;
+    @Test
+    void shouldCoverEnumValues() {
+        assertEquals("0008", ParametersEnums.TOWNS.value());
+        assertEquals("0112", ParametersEnums.COUNTRY.value());
+        assertEquals("0113", ParametersEnums.DOCU_TYPE.value());
     }
 }
-
-

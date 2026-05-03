@@ -1,267 +1,254 @@
+Te dejo los tests separados clase por clase.
+1. ContextAPIImplTest
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.client.impl;
 
 import com.santander.bnc.bsn049.bncbsn049mscustomer.client.api.ContextAPI;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.ContextApiService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.context.ContextRequest;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.context.ContextResponse;
+import org.junit.jupiter.api.Test;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import java.io.IOException;
 
-import org.springframework.stereotype.Service;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
+class ContextAPIImplTest {
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ContextAPIImpl implements ContextApiService {
+    private final ContextAPI contextAPI = mock(ContextAPI.class);
+    private final ContextAPIImpl service = new ContextAPIImpl(contextAPI);
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ContextAPI contextAPI;
+    @Test
+    void putContextShouldCallApi() throws Exception {
+        Call<Void> call = mock(Call.class);
+        when(contextAPI.putCache(any(ContextRequest.class))).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(null));
 
-    private final String PRODUCT = "cdt";
+        service.putContext("key1", "value1");
 
-    @Override
-    public void putContext(String key, Object object) {
-        try{
-            log.info(GUtils.SLOG+"client putContext KEY={}",key);
-            ContextRequest request = new ContextRequest();
-            request.setProduct(PRODUCT);
-            request.setValue(object);
-            request.setKey(key);
-            contextAPI.putCache(request).execute();
-            log.info(GUtils.ELOG+"client putContext");
-        } catch (RuntimeException e){
-            log.error("Runtime Exception putting cache: {}", e.getMessage());            
-        } catch (IOException e){
-            log.error("IOException putting cache {}", e.getMessage());            
-        } catch (Exception e){
-            log.error("Unhandled exception putting cache. {}", e.getMessage());
-        }
+        verify(contextAPI).putCache(any(ContextRequest.class));
+        verify(call).execute();
+    }
 
-    }//method closure
+    @Test
+    void putContextShouldHandleIOException() throws Exception {
+        Call<Void> call = mock(Call.class);
+        when(contextAPI.putCache(any(ContextRequest.class))).thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("error"));
 
-    @Override
-    public Object getContext(String key) {
-        try{
-            log.info(GUtils.SLOG+"client getContext KEY={}",key);
-            return contextAPI.getCache(key,PRODUCT).execute().body().getValue();
-        } catch (RuntimeException e){
-            log.error("Runtime Exception getting cache: {}", e.getMessage());
-            return null;
-        } catch (IOException e){
-            log.error("IOException getting cache {}", e.getMessage());
-            return null;
-        } catch (Exception e){
-            log.error("Unhandled exception getting cache {}", e.getMessage());
-            return null;
-        }
-    }//method closure
-}//class closure
+        assertDoesNotThrow(() -> service.putContext("key1", "value1"));
+    }
 
+    @Test
+    void putContextShouldHandleRuntimeException() {
+        when(contextAPI.putCache(any(ContextRequest.class))).thenThrow(new RuntimeException("runtime"));
 
+        assertDoesNotThrow(() -> service.putContext("key1", "value1"));
+    }
 
+    @Test
+    void getContextShouldReturnValue() throws Exception {
+        ContextResponse contextResponse = new ContextResponse();
+        contextResponse.setKey("key1");
+        contextResponse.setProduct("cdt");
+        contextResponse.setValue("value1");
+
+        Call<ContextResponse> call = mock(Call.class);
+        when(contextAPI.getCache("key1", "cdt")).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(contextResponse));
+
+        Object result = service.getContext("key1");
+
+        assertEquals("value1", result);
+    }
+
+    @Test
+    void getContextShouldReturnNullWhenIOException() throws Exception {
+        Call<ContextResponse> call = mock(Call.class);
+        when(contextAPI.getCache("key1", "cdt")).thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("error"));
+
+        Object result = service.getContext("key1");
+
+        assertNull(result);
+    }
+
+    @Test
+    void getContextShouldReturnNullWhenRuntimeException() {
+        when(contextAPI.getCache("key1", "cdt")).thenThrow(new RuntimeException("runtime"));
+
+        Object result = service.getContext("key1");
+
+        assertNull(result);
+    }
+}
+2. ParameterAPIImplTest
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.client.impl;
 
 import com.santander.bnc.bsn049.bncbsn049mscustomer.client.api.ParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.ParameterApiService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters.DataListDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.parameters.GeographiesParametersResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDictionary;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.Test;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ParameterAPIImpl implements ParameterApiService {
+class ParameterAPIImplTest {
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ParametersAPI parametersAPI;
+    private final ParametersAPI parametersAPI = mock(ParametersAPI.class);
+    private final ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
 
+    private SecurityHeaders headers() {
+        return new SecurityHeaders("Bearer token", "client-id");
+    }
 
-    @Override
-    public List<DataListDTO> getParameter(String parameterId, String valueCode,SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "client get parameter id {} and valueCode {}", parameterId, valueCode);
+    @Test
+    void getParameterShouldReturnParameters() throws Exception {
+        GeographiesParametersResponseDTO body = new GeographiesParametersResponseDTO();
+        body.setParameters(List.of(new DataListDTO("0112", "CO", "Colombia")));
 
-        Response<GeographiesParametersResponseDTO> responseApi;
-        try {
-            responseApi = parametersAPI.getParameter(parameterId,valueCode,securityHeaders.getAuthorization(),securityHeaders.getxSantanderClientId()).execute();
-            if (!((responseApi.isSuccessful() || responseApi.code() == 204) && responseApi.body() != null)){
-                var error = ErrorCatalog.MS_PARAMETERS_RESPONSE;
-                error.setMessage(responseApi.message());
-                error.setDescription(ErrorDictionary.MS_NAME + " - " + responseApi);
-                throw new ServiceException(HttpStatus.BAD_REQUEST, error);
-            }
-            if(responseApi.body().getParameters().isEmpty()){
-                throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.MS_PARAMETERS_NO_ENTRY);
-            }
-        } catch(RuntimeException e){
-            log.error("Runtime Exception calling parameters: {}", e.getMessage()); 
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.MS_PARAMETERS_RESPONSE );        
-        } catch(IOException e){  
-            log.error("IOException calling parameters: {}", e.getMessage());           
-            throw new ServiceException(HttpStatus.SERVICE_UNAVAILABLE, ErrorCatalog.MS_PARAMETERS_NETWORK_CONNECTION);
-        } catch (Exception e){
-            log.info("Unhandled exception calling parameters: {}", e.getMessage());
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.MS_PARAMETERS_GENERAL);
-        }
-        log.info(GUtils.ELOG + "client get parameter id {}", parameterId);
-        return responseApi.body().getParameters();
-    }//method closure
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+        when(parametersAPI.getParameter("0112", "CO", "Bearer token", "client-id")).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
 
-}//class closure
+        List<DataListDTO> result = service.getParameter("0112", "CO", headers());
 
+        assertEquals(1, result.size());
+        assertEquals("CO", result.get(0).getCode());
+    }
+
+    @Test
+    void getParameterShouldThrowWhenBodyIsNull() throws Exception {
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString())).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(null));
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("0112", "CO", headers()));
+    }
+
+    @Test
+    void getParameterShouldThrowWhenParametersEmpty() throws Exception {
+        GeographiesParametersResponseDTO body = new GeographiesParametersResponseDTO();
+        body.setParameters(List.of());
+
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString())).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("0112", "CO", headers()));
+    }
+
+    @Test
+    void getParameterShouldThrowWhenIOException() throws Exception {
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString())).thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("network"));
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("0112", "CO", headers()));
+    }
+
+    @Test
+    void getParameterShouldThrowWhenRuntimeException() {
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString()))
+                .thenThrow(new RuntimeException("runtime"));
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("0112", "CO", headers()));
+    }
+}
+3. TrxPersonAPIImplTest
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.client.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.client.api.TrxPersonAPI;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.client.service.TrxPersonService;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.request.TrxPersonRequest;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.ErrorTrxDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.host.person.response.TrxPersonResponse;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.enums.ClientEnum;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorDictionary;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.GUtils;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.ClientUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * This class Handle pre-calls from Client
- * Retrofit 2
- *
- * @author Wilfredo Peña
- * @see 'restClientConfig component'
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class TrxPersonAPIImpl implements TrxPersonService {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    /**
-     * Person Retrofit Api
-     */
-    private final TrxPersonAPI trxPersonAPI; 
+class TrxPersonAPIImplTest {
 
-    @Value("${params.sanba.mqRoute}")
-    private String mqRoute;       
+    private final TrxPersonAPI trxPersonAPI = mock(TrxPersonAPI.class);
+    private TrxPersonAPIImpl service;
 
-    @Value("${params.sanba.channel}")
-    private String channel;
+    @BeforeEach
+    void setUp() {
+        service = new TrxPersonAPIImpl(trxPersonAPI, new ObjectMapper());
+        ReflectionTestUtils.setField(service, "mqRoute", "QCTFD");
+        ReflectionTestUtils.setField(service, "channel", "60");
+        ReflectionTestUtils.setField(service, "user", "@NETE781");
+    }
 
-    @Value("${params.sanba.user}")
-    private String user;
+    @Test
+    void callPostTRXShouldReturnResponseWhenSuccessful() throws Exception {
+        TrxPersonResponse body = new TrxPersonResponse();
+        body.setOk(true);
 
-    private final ObjectMapper objectMapper;
-    /**
-     * Generic method
-     * Build own PayloadHeader
-     *
-     * @param request
-     * @param action
-     * @return TrxPersonResponse DTO
-     */
-    @Override
-    public TrxPersonResponse callPostTRX(TrxPersonRequest request, ClientEnum action) {
-        String serviceRoute = action.value();
-        log.info(GUtils.SLOG + "client {}", serviceRoute);
-        request.setCabecera(ClientUtils.buildHeader(serviceRoute));
-        try {
+        Call<TrxPersonResponse> call = mock(Call.class);
+        when(trxPersonAPI.callPostTRX(any(), anyString(), anyString(), anyString())).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
 
-            request.getCabecera().setCanal(channel);
-            request.getCabecera().getSesion().setUsuario(user);
-            
-            try {
-    			String jsonRequest = objectMapper.writeValueAsString(request);
-    			StringBuilder sb = new StringBuilder();
-    			sb.append(" serviceRoute=").append(serviceRoute);
-    			sb.append(", idFormulario=").append(serviceRoute);
-    			sb.append(", mqRoute=").append(mqRoute);
-    			sb.append(", Request=").append(jsonRequest);
-    			log.info("**** Request ConsultaDatosBasicosPNatural {}", sb.toString());
-    		} catch (Exception e) {
-    			log.error("Error serializando payload");
-    		}
-            
-            
-            Response<TrxPersonResponse> responseApi = trxPersonAPI.callPostTRX(request, serviceRoute, serviceRoute, mqRoute).execute();
-            if (responseApi.isSuccessful()) {
-                TrxPersonResponse responseB = responseApi.body();
-                log.info(GUtils.ELOG + "client {}", responseB);
-                return responseB;
-            } else {
-                String errorBody = responseApi.errorBody().string();
-                ObjectMapper objm = new ObjectMapper();
-                TrxPersonResponse err = objm.readValue(errorBody,TrxPersonResponse.class);
-                log.info(GUtils.ELOG + "err {}", err.getErrores());
-                List<ErrorDTO> errosDtos = new ArrayList<>();
+        TrxPersonResponse result = service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF3);
 
-                for(ErrorTrxDTO dtoEr :err.getErrores()){
-                    ErrorDTO newDto  = new ErrorDTO();
-                    newDto.setCode(ErrorDictionary.MS_NAME + "-P-T-" + Integer.toString(responseApi.code()));
-                    newDto.setLevel(ErrorDictionary.ERROR_LEVEL);
-                    newDto.setDescription(ErrorDictionary.MS_NAME + " - " + dtoEr.getMensaje());
-                    newDto.setMessage(dtoEr.getMensaje());
-                    errosDtos.add(newDto);
-                }
+        assertNotNull(result);
+        assertTrue(result.getOk());
+    }
 
-                log.info(GUtils.ELOG + "SET {}", errosDtos);
+    @Test
+    void callPostTRXShouldThrowWhenIOException() throws Exception {
+        Call<TrxPersonResponse> call = mock(Call.class);
+        when(trxPersonAPI.callPostTRX(any(), anyString(), anyString(), anyString())).thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("network"));
 
-                throw new ServiceException(HttpStatus.CONFLICT, !errosDtos.isEmpty() ? errosDtos.get(0) : ErrorCatalog.MS_SANBA_TRX_ERROR);
-            }
-        } catch(RuntimeException e){
-            log.error("Error in TRX.: {}", e.toString());  
+        assertThrows(ServiceException.class,
+                () -> service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF3));
+    }
 
-            var error = ErrorCatalog.MS_SANBA_TRX_RUNTIME_ERROR;
-            error.setMessage(e.toString());                               
-            if(e.getMessage().equals("PERSONA INEXISTENTE") || e.getMessage().equals("EL CLIENTE REQUERIDO NO ES PERSONA FISICA.") ){                
-                throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.CUSTOMER_NOT_FOUND);     
-            }
-            throw new ServiceException(HttpStatus.BAD_REQUEST, error);     
-        } catch(IOException e){            
-            throw new ServiceException(HttpStatus.SERVICE_UNAVAILABLE, ErrorCatalog.MS_SANBA_NETWORK_CONNECTION);
-        } catch (Exception e){
-            log.info("Error in TRX..: {}", e.toString());  
-            var error = ErrorCatalog.MS_SANBA_TRX_ERROR;
-            error.setMessage(e.toString());          
-            throw new ServiceException(HttpStatus.CONFLICT, error);
-        }
-    }//method closure
-}//class closure
+    @Test
+    void callPostTRXShouldThrowWhenRuntimeException() {
+        when(trxPersonAPI.callPostTRX(any(), anyString(), anyString(), anyString()))
+                .thenThrow(new RuntimeException("runtime"));
 
+        assertThrows(ServiceException.class,
+                () -> service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF3));
+    }
 
+    @Test
+    void callPostTRXShouldThrowCustomerNotFoundWhenPersonDoesNotExist() {
+        when(trxPersonAPI.callPostTRX(any(), anyString(), anyString(), anyString()))
+                .thenThrow(new RuntimeException("PERSONA INEXISTENTE"));
 
-************
-
+        assertThrows(ServiceException.class,
+                () -> service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF3));
+    }
+}
+4. CustomerControllerTest
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -270,251 +257,122 @@ import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.customer.res
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.request.CustomerRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.search.response.CustomerSearchResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.customer.update.UpdateProspectRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.SecurityHeaders;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.exception.error.ErrorCatalog;
 import com.santander.bnc.bsn049.bncbsn049mscustomer.service.CustomerService;
-import com.santander.bnc.bsn049.bncbsn049mscustomer.utils.*;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@RestController
-@RequiredArgsConstructor
-public class CustomerController {
+class CustomerControllerTest {
 
-    final CustomerService customerService;
-    private final ObjectMapper objectMapper;
+    private final CustomerService customerService = mock(CustomerService.class);
+    private final CustomerController controller = new CustomerController(customerService, new ObjectMapper());
 
-    /**
-     * Customer search
-     * @param request
-     * @return
-     */
-    @PostMapping(ServiceDirectory.CUSTOMERS_SEARCH)
-    public ResponseEntity<CustomerSearchResponseDTO> searchCustomers(
-           @Valid @RequestBody(required = true) CustomerRequestDTO request,
-           @RequestHeader(required = true, name = "Authorization") String authorization,
-           @RequestHeader(required = true, name = "x-santander-client-id") String xSantanderClientId) {
+    @Test
+    void searchCustomersShouldReturnOk() {
+        CustomerSearchResponseDTO responseDTO = new CustomerSearchResponseDTO();
 
-    	try {
-			String jsonRequest = objectMapper.writeValueAsString(request);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", payload=").append(jsonRequest);
-			log.info("*** INIT (POST) /v3/customers/search..= {} >>> ", sb.toString());
-		} catch (Exception e) {
-			log.error("Error serializando payload");
-		}
-    	
-        log.info(GUtils.SLOG + "endpoint search customers by person={}", request.getPerson());
-        CustomerSearchResponseDTO response = customerService.searchCustomer(request, new SecurityHeaders(authorization, xSantanderClientId));
-        
-        try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", Response=").append(jsonResponse);
-			log.info("*** FIN (POST) /v3/customers/search= {} >>> ", sb.toString());
-		} catch (Exception e) {
-			log.error("Error serializando response payload");
-		}
-        
-        if(response == null){
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-        }
-               
-        log.info(GUtils.ELOG + "endpoint search customers {}", response);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }//method closure
+        when(customerService.searchCustomer(any(), any())).thenReturn(responseDTO);
 
-    /**
-     * Customer Details
-     * @param customerId
-     * @return
-     */
-    @GetMapping(ServiceDirectory.CUSTOMERS + "/{customerId}")
-    public ResponseEntity<CustomerDetailsResponseDTO> getCustomers(@PathVariable(required = true, name = "customerId") String customerId,
-                                                                   @RequestHeader(required = true, name = "Authorization") String authorization,
-                                                                   @RequestHeader(required = true, name = "x-santander-client-id") String xSantanderClientId) {
-        log.info(GUtils.SLOG + "endpoint get customers by customerId={}", customerId);
+        ResponseEntity<CustomerSearchResponseDTO> response =
+                controller.searchCustomers(new CustomerRequestDTO(), "auth", "client");
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(" clientId=").append(xSantanderClientId);
-		log.info("*** INIT. (GET) /v3/customers/{} - {}>>> ", customerId,sb.toString());
-        
-        CustomerDetailsResponseDTO response = customerService.getCustomerDetails(customerId,new SecurityHeaders(authorization,xSantanderClientId));
-        try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sbr = new StringBuilder();
-			sbr.append(" clientId=").append(xSantanderClientId);
-			sbr.append(", Response=").append(jsonResponse);
-			log.info("***... FIN (GET) /v3/customers/{} - {} >>> ",customerId, sbr.toString());
-		} catch (Exception e) {
-			log.error("Error serializando response payload");
-		}
-        
-        if(response == null){
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.PERSON_IS_NOT_CLIENT);
-        }
-        log.info(GUtils.ELOG + "endpoint. get customers");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }//method closure
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(responseDTO, response.getBody());
+    }
 
-    /**
-     * PATCH PROSPECT
-     * Until no DTO definition left Object.class
-     *
-     * @return null
-     */
-    @PatchMapping(ServiceDirectory.CUSTOMERS + "/{customerId}")
-    public ResponseEntity<Object> updateCustomers(@PathVariable(name = "customerId") String customerId,
-                                                  @RequestBody CreateCustomerRequestDTO request,
-                                                  @RequestHeader(required = true, name = "Authorization") String authorization,
-                                                  @RequestHeader(required = true, name = "x-santander-client-id") String xSantanderClientId){
-        log.info(GUtils.SLOG + "endpoint update customer {}", customerId);
-        
-        try {
-			String jsonRequest = objectMapper.writeValueAsString(request);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", payload=").append(jsonRequest);
-			log.info("*** INIT (PATCH) /v3/customers/{} - {}>>> ",customerId, sb.toString());
-		} catch (Exception e) {
-			log.error("Error serializando payload");
-		}
-        
-        customerService.updateCustomer(request,customerId,new SecurityHeaders(authorization, xSantanderClientId));
-        log.info(GUtils.ELOG + "endpoint update customer.");
-        
-        ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", Response=").append(jsonResponse);
-			log.info("*** FIN (PATCH) /v3/customers/{} - {}>>> ",customerId, sb.toString());
-		} catch (Exception e) {
-			log.error("Error response serializando payload");
-		}
-        
-        return response;
-    }//method closure
+    @Test
+    void searchCustomersShouldReturnNoContentWhenNull() {
+        when(customerService.searchCustomer(any(), any())).thenReturn(null);
 
-    /**
-     * PUT CUSTOMER FROM PROSPECT
-     * @param customerId
-     * @return null
-     */
-    @PutMapping(ServiceDirectory.CUSTOMERS + "/{customerId}")
-    public ResponseEntity<Object> updateCustomersProspect(@PathVariable(name = "customerId") String customerId,
-                                                  @RequestBody UpdateProspectRequestDTO request,
-                                                  @RequestHeader(required = true, name = "Authorization") String authorization,
-                                                  @RequestHeader(required = true, name = "x-santander-client-id") String xSantanderClientId){
-        log.info(GUtils.SLOG + "endpoint update customer to prospect {}", customerId);
-        
-        try {
-			String jsonRequest = objectMapper.writeValueAsString(request);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", payload=").append(jsonRequest);
-			log.info("*** INIT (PUT) /v3/customers/{} - {}>>> ",customerId, sb.toString());
-		} catch (Exception e) {
-			log.error("Error serializando payload");
-		}
-        
-        customerService.updateCustomersProspect(request,customerId,new SecurityHeaders(authorization, xSantanderClientId));
-        ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        
-        log.info(GUtils.ELOG + "endpoint update customer to prospect.");
-        
-        try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sb = new StringBuilder();
-			sb.append(" clientId=").append(xSantanderClientId);
-			sb.append(", Response=").append(jsonResponse);
-			log.info("*** FIN (PUT) /v3/customers/{} - {}>>> ",customerId, sb.toString());
-		} catch (Exception e) {
-			log.error("Error response serializando payload");
-		}
-        
-        return response;
-    }//method closure
+        ResponseEntity<CustomerSearchResponseDTO> response =
+                controller.searchCustomers(new CustomerRequestDTO(), "auth", "client");
 
-}//class closure
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNull(response.getBody());
+    }
 
+    @Test
+    void getCustomersShouldReturnOk() {
+        CustomerDetailsResponseDTO responseDTO = new CustomerDetailsResponseDTO();
 
+        when(customerService.getCustomerDetails(anyString(), any())).thenReturn(responseDTO);
 
+        ResponseEntity<CustomerDetailsResponseDTO> response =
+                controller.getCustomers("12345678", "auth", "client");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertSame(responseDTO, response.getBody());
+    }
+
+    @Test
+    void updateCustomersShouldReturnNoContent() {
+        ResponseEntity<Object> response =
+                controller.updateCustomers("12345678", new CreateCustomerRequestDTO(), "auth", "client");
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(customerService).updateCustomer(any(), eq("12345678"), any());
+    }
+
+    @Test
+    void updateCustomersProspectShouldReturnNoContent() {
+        ResponseEntity<Object> response =
+                controller.updateCustomersProspect("12345678", new UpdateProspectRequestDTO(), "auth", "client");
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(customerService).updateCustomersProspect(any(), eq("12345678"), any());
+    }
+}
+5. IntegrationDataConfigurationTest
+Java
 package com.santander.bnc.bsn049.bncbsn049mscustomer.config;
 
 import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.ApiEntry;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-@Data
-@Component
-@ConfigurationProperties(prefix = "integration")
-public class IntegrationDataConfiguration {
-    @Getter
-    private List<ApiEntry> catalogue;
-    private Map<String, ApiEntry> catalogueMap;
+import static org.junit.jupiter.api.Assertions.*;
 
-    private void loadCatalogueMap() {
-        catalogueMap = catalogue.stream().collect(
-                Collectors.toMap(ApiEntry::getIntegrationType, Function.identity()));
+class IntegrationDataConfigurationTest {
+
+    @Test
+    void getByApiShouldReturnApiEntry() {
+        ApiEntry entry = new ApiEntry();
+        entry.setIntegrationType("parameters");
+        entry.setHost("localhost");
+        entry.setPort("8080");
+        entry.setEndpoint("/test");
+        entry.setHttps(false);
+        entry.setTimeOutConn(1000);
+        entry.setTimeOutRead(2000);
+
+        IntegrationDataConfiguration config = new IntegrationDataConfiguration();
+        config.setCatalogue(List.of(entry));
+
+        ApiEntry result = config.getByApi("parameters");
+
+        assertNotNull(result);
+        assertEquals("parameters", result.getIntegrationType());
+        assertEquals("localhost", result.getHost());
     }
-    public ApiEntry getByApi(String integrationType){
-        if(catalogueMap == null){
-            loadCatalogueMap();
-        }
-        return catalogueMap.get(integrationType);
-    }
-}
 
+    @Test
+    void getByApiShouldReturnNullWhenNotFound() {
+        ApiEntry entry = new ApiEntry();
+        entry.setIntegrationType("parameters");
 
+        IntegrationDataConfiguration config = new IntegrationDataConfiguration();
+        config.setCatalogue(List.of(entry));
 
-package com.santander.bnc.bsn049.bncbsn049mscustomer.config;
+        ApiEntry result = config.getByApi("trx_person");
 
-import com.santander.bnc.bsn049.bncbsn049mscustomer.domain.integration.ApiEntry;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-@Data
-@Component
-@ConfigurationProperties(prefix = "integration")
-public class IntegrationDataConfiguration {
-    @Getter
-    private List<ApiEntry> catalogue;
-    private Map<String, ApiEntry> catalogueMap;
-
-    private void loadCatalogueMap() {
-        catalogueMap = catalogue.stream().collect(
-                Collectors.toMap(ApiEntry::getIntegrationType, Function.identity()));
-    }
-    public ApiEntry getByApi(String integrationType){
-        if(catalogueMap == null){
-            loadCatalogueMap();
-        }
-        return catalogueMap.get(integrationType);
+        assertNull(result);
     }
 }
+Ojo: en TrxPersonAPIImplTest, si tu constructor generado por Lombok tiene otro orden, ajusta esta línea:
+Java
+service = new TrxPersonAPIImpl(trxPersonAPI, new ObjectMapper());

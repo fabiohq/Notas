@@ -1,535 +1,213 @@
-2026-05-05 14:52:57.068 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [ERROR] [co.com.bsnc.motortramas.services.MotorTramasV01] [transaccion:65]: Error al procesar la solicitud
-com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2936)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2726)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2554)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2377)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.business.MotorTramasImpl.procesar(Unknown Source)
-	at co.com.bsnc.motortramas.services.MotorTramasV01.transaccion(MotorTramasV01.java:56)
-	at sun.reflect.GeneratedMethodAccessor95.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:106)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:888)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:523)
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:590)
-	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:65)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter.doFilter(ExceptionLoggingFilter.java:50)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:82)
-	at org.springframework.cloud.sleuth.instrument.web.LazyTracingFilter.doFilter(TraceWebServletAutoConfiguration.java:138)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:108)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
-	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
-	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
-	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
-	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
-	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2009;AMQ9206: Error sending data to host 'mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp)'. [1=java.net.SocketException[Socket closed],3=mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp),4=TCP,5=OutputStream.write]
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1717)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.wrapSend(RemoteConnection.java:2937)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.sendTSH(RemoteConnection.java:2703)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:792)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:708)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTagPool.getTags(RemoteTagPool.java:255)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.querySyncDelivery(RemoteFAP.java:854)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.jmqiPutMessageWithProps(RemoteFAP.java:7858)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.MQPUT1(RemoteFAP.java:6923)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.doPut1(InterceptedJmqiImpl.java:1158)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.MQPUT1(InterceptedJmqiImpl.java:958)
-	at com.ibm.mq.ese.jmqi.ESEJMQI.MQPUT1(ESEJMQI.java:527)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2929)
-	... 80 common frames omitted
-Caused by: java.net.SocketException: Socket closed
-	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:118)
-	at java.net.SocketOutputStream.write(SocketOutputStream.java:155)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1656)
-	... 92 common frames omitted
-2026-05-05 14:52:57.068 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.web.servlet.FrameworkServlet] [logResult:1098]: Failed to complete request
-com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2936)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2726)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2554)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2377)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.business.MotorTramasImpl.procesar(Unknown Source)
-	at co.com.bsnc.motortramas.services.MotorTramasV01.transaccion(MotorTramasV01.java:56)
-	at sun.reflect.GeneratedMethodAccessor95.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:106)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:888)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:523)
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:590)
-	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:65)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter.doFilter(ExceptionLoggingFilter.java:50)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:82)
-	at org.springframework.cloud.sleuth.instrument.web.LazyTracingFilter.doFilter(TraceWebServletAutoConfiguration.java:138)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:108)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
-	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
-	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
-	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
-	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
-	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2009;AMQ9206: Error sending data to host 'mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp)'. [1=java.net.SocketException[Socket closed],3=mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp),4=TCP,5=OutputStream.write]
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1717)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.wrapSend(RemoteConnection.java:2937)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.sendTSH(RemoteConnection.java:2703)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:792)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:708)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTagPool.getTags(RemoteTagPool.java:255)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.querySyncDelivery(RemoteFAP.java:854)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.jmqiPutMessageWithProps(RemoteFAP.java:7858)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.MQPUT1(RemoteFAP.java:6923)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.doPut1(InterceptedJmqiImpl.java:1158)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.MQPUT1(InterceptedJmqiImpl.java:958)
-	at com.ibm.mq.ese.jmqi.ESEJMQI.MQPUT1(ESEJMQI.java:527)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2929)
-	... 80 common frames omitted
-Caused by: java.net.SocketException: Socket closed
-	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:118)
-	at java.net.SocketOutputStream.write(SocketOutputStream.java:155)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1656)
-	... 92 common frames omitted
-2026-05-05 14:52:57.068 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.web.filter.RequestContextFilter] [doFilterInternal:105]: Cleared thread-bound request context: HttpServletRequestImpl [ POST /cxf/frame-engine/V01/transaccion/PEF1 ]
-2026-05-05 14:52:57.068 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [ERROR] [org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter] [doFilter:54]: Uncaught exception thrown
-org.springframework.web.util.NestedServletException: Request processing failed; nested exception is com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:523)
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:590)
-	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:65)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter.doFilter(ExceptionLoggingFilter.java:50)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:82)
-	at org.springframework.cloud.sleuth.instrument.web.LazyTracingFilter.doFilter(TraceWebServletAutoConfiguration.java:138)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:108)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
-	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
-	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
-	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
-	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
-	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-Caused by: com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2936)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2726)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2554)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2377)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.business.MotorTramasImpl.procesar(Unknown Source)
-	at co.com.bsnc.motortramas.services.MotorTramasV01.transaccion(MotorTramasV01.java:56)
-	at sun.reflect.GeneratedMethodAccessor95.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:106)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:888)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
-	... 61 common frames omitted
-Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2009;AMQ9206: Error sending data to host 'mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp)'. [1=java.net.SocketException[Socket closed],3=mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp),4=TCP,5=OutputStream.write]
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1717)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.wrapSend(RemoteConnection.java:2937)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.sendTSH(RemoteConnection.java:2703)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:792)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:708)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTagPool.getTags(RemoteTagPool.java:255)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.querySyncDelivery(RemoteFAP.java:854)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.jmqiPutMessageWithProps(RemoteFAP.java:7858)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.MQPUT1(RemoteFAP.java:6923)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.doPut1(InterceptedJmqiImpl.java:1158)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.MQPUT1(InterceptedJmqiImpl.java:958)
-	at com.ibm.mq.ese.jmqi.ESEJMQI.MQPUT1(ESEJMQI.java:527)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2929)
-	... 80 common frames omitted
-Caused by: java.net.SocketException: Socket closed
-	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:118)
-	at java.net.SocketOutputStream.write(SocketOutputStream.java:155)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1656)
-	... 92 common frames omitted
-2026-05-05 14:52:57.069 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.cloud.sleuth.log.Slf4jScopeDecorator] [log:234]: Closing scope for span: eacf569d0eed4145/eacf569d0eed4145
-2026-05-05 14:52:57.069 [correlation-id: ] [frame-engine,,] [DEBUG] [org.jboss.logging.DelegatingBasicLogger] [debugf:424]: Setting error code 500 for exchange HttpServerExchange{ POST /cxf/frame-engine/V01/transaccion/PEF1}
-java.lang.RuntimeException: null
-	at io.undertow.server.HttpServerExchange.setStatusCode(HttpServerExchange.java:1410)
-	at io.undertow.servlet.spec.HttpServletResponseImpl.setStatus(HttpServletResponseImpl.java:318)
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:119)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
-	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
-	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
-	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
-	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
-	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-2026-05-05 14:52:57.069 [correlation-id: ] [frame-engine,,] [ERROR] [io.undertow.servlet.api.LoggingExceptionHandler] [handleThrowable:80]: UT005023: Exception handling request to /cxf/frame-engine/V01/transaccion/PEF1
-org.springframework.web.util.NestedServletException: Request processing failed; nested exception is com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:523)
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:590)
-	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:65)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter.doFilter(ExceptionLoggingFilter.java:50)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:82)
-	at org.springframework.cloud.sleuth.instrument.web.LazyTracingFilter.doFilter(TraceWebServletAutoConfiguration.java:138)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:108)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:132)
-	at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
-	at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
-	at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
-	at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
-	at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-Caused by: com.ibm.mq.MQException: MQJE001: Completion Code '2', Reason '2009'.
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2936)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2726)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2554)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2377)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.C.A.C.A(Unknown Source)
-	at co.com.bsnc.motortramas.business.MotorTramasImpl.procesar(Unknown Source)
-	at co.com.bsnc.motortramas.services.MotorTramasV01.transaccion(MotorTramasV01.java:56)
-	at sun.reflect.GeneratedMethodAccessor95.invoke(Unknown Source)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:498)
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:106)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:888)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
-	... 61 common frames omitted
-Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2009;AMQ9206: Error sending data to host 'mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp)'. [1=java.net.SocketException[Socket closed],3=mwmtcilo21con01.ilm.mx.co.pre.corp/180.193.141.24:3638 (mwmtcilo21con01.ilm.mx.co.pre.corp),4=TCP,5=OutputStream.write]
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1717)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.wrapSend(RemoteConnection.java:2937)
-	at com.ibm.mq.jmqi.remote.impl.RemoteConnection.sendTSH(RemoteConnection.java:2703)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:792)
-	at com.ibm.mq.jmqi.remote.impl.RemoteSession.sendTSH(RemoteSession.java:708)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTagPool.getTags(RemoteTagPool.java:255)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.querySyncDelivery(RemoteFAP.java:854)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.jmqiPutMessageWithProps(RemoteFAP.java:7858)
-	at com.ibm.mq.jmqi.remote.api.RemoteFAP.MQPUT1(RemoteFAP.java:6923)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.doPut1(InterceptedJmqiImpl.java:1158)
-	at com.ibm.mq.ese.jmqi.InterceptedJmqiImpl.MQPUT1(InterceptedJmqiImpl.java:958)
-	at com.ibm.mq.ese.jmqi.ESEJMQI.MQPUT1(ESEJMQI.java:527)
-	at com.ibm.mq.MQQueueManager.put(MQQueueManager.java:2929)
-	... 80 common frames omitted
-Caused by: java.net.SocketException: Socket closed
-	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:118)
-	at java.net.SocketOutputStream.write(SocketOutputStream.java:155)
-	at com.ibm.mq.jmqi.remote.impl.RemoteTCPConnection.send(RemoteTCPConnection.java:1656)
-	... 92 common frames omitted
-2026-05-05 14:52:57.069 [correlation-id: ] [frame-engine,,] [DEBUG] [org.jboss.logging.DelegatingBasicLogger] [debugf:424]: Setting error code 500 for exchange HttpServerExchange{ POST /cxf/frame-engine/V01/transaccion/PEF1}
-java.lang.RuntimeException: null
-	at io.undertow.server.HttpServerExchange.setStatusCode(HttpServerExchange.java:1410)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:299)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-2026-05-05 14:52:57.069 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.cloud.sleuth.log.Slf4jScopeDecorator] [log:234]: Starting scope for span: eacf569d0eed4145/eacf569d0eed4145
-2026-05-05 14:52:57.069 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.core.log.LogFormatUtils] [traceDebug:88]: "ERROR" dispatch for POST "/error?throwExceptionOnFailure=false", parameters={masked}, headers={masked} in DispatcherServlet 'dispatcherServlet'
-2026-05-05 14:52:57.070 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.web.servlet.handler.AbstractHandlerMethodMapping] [lookupHandlerMethod:402]: 2 matching mappings: [{ /error}, { /error, produces [text/html]}]
-2026-05-05 14:52:57.070 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.beans.factory.support.AbstractBeanFactory] [doGetBean:257]: Returning cached instance of singleton bean 'basicErrorController'
-2026-05-05 14:52:57.070 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.web.servlet.handler.AbstractHandlerMapping] [getHandler:409]: Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-05-05 14:52:57.070 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [TRACE] [org.springframework.web.method.support.InvocableHandlerMethod] [invokeForRequest:136]: Arguments: [HttpServletRequestImpl [ POST /error ]]
-2026-05-05 14:52:57.070 [correlation-id: eacf569d0eed4145] [frame-engine,eacf569d0eed4145,eacf569d0eed4145] [DEBUG] [org.jboss.logging.DelegatingBasicLogger] [debugf:424]: Setting error code 500 for exchange HttpServerExchange{ POST /error}
-java.lang.RuntimeException: null
-	at io.undertow.server.HttpServerExchange.setStatusCode(HttpServerExchange.java:1410)
-	at io.undertow.servlet.spec.HttpServletResponseImpl.setStatus(HttpServletResponseImpl.java:318)
-	at org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor.handleReturnValue(HttpEntityMethodProcessor.java:206)
-	at org.springframework.web.method.support.HandlerMethodReturnValueHandlerComposite.handleReturnValue(HandlerMethodReturnValueHandlerComposite.java:82)
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:124)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:888)
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:523)
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:590)
-	at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:74)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:129)
-	at org.springframework.cloud.sleuth.instrument.web.ExceptionLoggingFilter.doFilter(ExceptionLoggingFilter.java:50)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at brave.servlet.TracingFilter.doFilter(TracingFilter.java:65)
-	at org.springframework.cloud.sleuth.instrument.web.LazyTracingFilter.doFilter(TraceWebServletAutoConfiguration.java:138)
-	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61)
-	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131)
-	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84)
-	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
-	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68)
-	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
-	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:251)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchToPath(ServletInitialHandler.java:186)
-	at io.undertow.servlet.spec.RequestDispatcherImpl.error(RequestDispatcherImpl.java:501)
-	at io.undertow.servlet.spec.RequestDispatcherImpl.error(RequestDispatcherImpl.java:427)
-	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:308)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133)
-	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130)
-	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
-	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
-	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249)
-	at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:78)
-	at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:99)
-	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:376)
-	at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:830)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
+PROCESO CREAR PROSPECTO PASO 2 DATOS DE CONTACTO
+Microservicio: ms-prospects-cdt
+TRX: PEF1("ingresoAltaPersonaNatural")
+Api: POST 'https://ms-prospects-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v1/prospects' 
+curl --location --request POST 'https://ms-prospects-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v1/prospects' \
+--header 'Content-Type: application/json' \
+--header 'x-santander-client-id: 1234' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJvZHMiLCJhdWQiOiJPbmJvYXJkaW5nIiwic2NvcGUiOiJPbmJvYXJkaW5nIiwiaXNzIjoib2RzIiwiaWF0IjoxNzAxNDQyNDg4LCJleHAiOjE3MDE0NDI3ODgsImp0aSI6IiIsIm5iZiI6MTcwMTQ0MjQ4OCwiY2lkIjoiNjM0ZWExZDYwY2YyNmUxMjAxOGFhNWZkIiwiYXR0UGVyc29uTnVtYmVyVHlwZSI6IiIsImF0dFBlcnNvbk51bWJlckNvZGUiOiIiLCJhY3IiOiIwIn0.o-mwPhCCPWLICyBvebFC2XOkEI8f975ET3dsKn6dePgJ1iALcYWVUb8-zMI_pmqzB024JeiPB6-oDqMUBR42-cFv_Hq3uWe8sOCpJ4kGXqm7YJIonvC6fNJJ5vXUiQzEW1BuzqNjSyuVPI55G58oGaluJVlCGK5E7G2N1S4TgPab1z8JcfeHjtecrb3pTTODrv3Dzpcp49y_6XB-V4243AJNB9hcRQawYsuWvXILZCz-pIldUKXWRdDETq4xrvfPb8J4LkrRbKF9lOZ9P6KbhBk7u-IgTC-GlA7XQLAP07-JzpANFF__kaM8Pp9QRTYuZ96AG8328SseeVvnlinXSA' \
+--header 'Cookie: 98f1d649826a69aae0025c63772eaf9c=4ef578c28a3b930044782e937321e7b1' \
+--data-raw '{
+    "person": {
+        "personName": {
+            "givenName": "PRUEBAA",
+            "lastName": "BITHDATEE",
+            "secondLastName": "SOURCECODEEW"
+        },
+        "birthDate": "1987-11-06",
+        "documents": [
+            {
+                "documentTypeCode": "CC",
+                "documentNumber": "2700001216"
+            }
+        ]
+    },
+    "contactPoints": [
+        {
+            "phoneAddress": {
+                "mobileNumber": "3017857724",
+                "internationalCode": "57",
+                "phoneNumber": "3017857724"
+            },
+            "electronicAddress": {
+                "emailAddress": "LMHJ235@GMAIL.COM"
+            }
+        }
+    ]
+}'
+
+
+Internamente consume la API  del ms-serviceengine-cdt 
+curl --location --request POST 'http://ms-serviceengine-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/service-engine/procesar/ingresoAltaPersonaNatural?idFormulario=ingresoAltaPersonaNatural' \
+--header 'x-santander-client-id: 123' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NzY3ODEzMDcsIm5iZiI6MTc3Njc4MTMwNiwiZXhwIjoxNzc2NzgxODc3LCJqdGkiOiIyNjE1MWExNC04Y2YyLTRlOTUtYWFjNy0zNjQzYjdiNDhiZTgiLCJpc3MiOiJDT19PRFMiLCJhZ2VudFVzZXJJRCI6IiIsImNpZCI6ImI1YmM1ZDEyLWUzNmUtNDc0Zi1hZDU0LTAzYTNhZGFkZTNhZCIsImFjciI6IjUiLCJjbGllbnRfaWQiOiIyNjNlYzE0NiIsImF1ZCI6Ik9uYm9hcmRpbmciLCJzY29wZSI6Ik9uYm9hcmRpbmciLCJjaWRfdHAiOiJiNWJjNWQxMi1lMzZlLTQ3NGYtYWQ1NC0wM2EzYWRhZGUzYWQifQ.e9du69EzDaK8EHfG6tKhOIBbAy-LzJd7hZI0ceAa85teATb2xDkWwdfKWzmkqrr82DjJBQRVXsuBWkZip1kll9UwO8iD4JVXaq7NiwW7xCoTqlc9R8z4qf74OKXEAH8Dy00a0xQcOWL8Y-ZxFRoIRR2oCiTEWT_EgRa7QWu_BaqPHuSm7ZXtca8vYjoMTs8s-yoRXqlud9jJ2rGr9TFgB82D0BBAmjOTz7XlWyjqAp4i-ZyzYzRWUX_yfo7Ic5J2iuzqQE8iIDlCtBdB6WxhVcARx9yCfWPu4PyEU699YhsxkoJJfOhmFTwnycxLMvN1aaYv0AkcjHVzfLQkpsxwcQ' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: fdca9cc6f868512630d4a1c1deb3d2a0=b60ca17b812cf171a7848096203b2353' \
+--data-raw '{
+    "cabecera": {
+        "rutaServicio": "ingresoAltaPersonaNatural",
+        "sesion": {
+            "usuario": "@NETE781",
+            "terminal": "",
+            "horaConexion": "2026-05-05T16:07",
+            "entorno": "N",
+            "perfil": "GCAJASTL",
+            "sucursal": "0100",
+            "entidad": "0065",
+            "diasRestantesCambioClave": "29",
+            "fechaContable": "2026-05-05",
+            "turno": ""
+        },
+        "funcion": "Intro",
+        "secuencia": 44204,
+        "canal": "60"
+    },
+    "data": {
+        "datosBasicos": {
+            "tipoIdentificacion": "CC",
+            "numeroIdentificacion": "2700001216",
+            "nombre": "PRUEBAA",
+            "primerApellido": "BITHDATEE",
+            "segundoApellido": "SOURCECODEEW",
+            "paisExpedicion": "COL",
+            "ciudadExpedicion": "99999",
+            "lugardeExpDescripcion": "",
+            "fechaExpedicion": "2026-05-05",
+            "paisNacimiento": "COL",
+            "nacionalidad": "COL",
+            "ciudadNacimiento": "05101",
+            "lugardeNacimiento": "",
+            "fechaNacimiento": "1987-11-06",
+            "sexo": "M",
+            "paisDireccion": "COL",
+            "departamento": "05",
+            "ciudad": "05101",
+            "tipoVia": "NN",
+            "nombreVia": "No informado",
+            "descripcionDireccion": "NO INFORMADO",
+            "clase": "004",
+            "indicativo": "57",
+            "telefono": "3017857724",
+            "precelular": "57",
+            "celular": "3017857724",
+            "email": "LMHJ235@GMAIL.COM",
+            "autorizoTelefono": false,
+            "autorizacionEmail": false,
+            "agrofic": "10000001",
+            "codact": "",
+            "codpaip": "COL",
+            "conper": "",
+            "domant": "",
+            "entpre": "",
+            "estciv": "",
+            "estper": "",
+            "estrat": "",
+            "fecalt": "2024-01-09",
+            "fecfal": "9999-12-31",
+            "hstamp": "",
+            "hstamp2": "",
+            "hstamp3": "",
+            "hstamp4": "",
+            "hstamp5": "",
+            "logdomp": "",
+            "logtelp": "",
+            "numper": "",
+            "profes": "",
+            "seccel": "",
+            "secdoc": "",
+            "secdomp": "",
+            "secdotc": "",
+            "secdotp": "",
+            "secema": "",
+            "sectelp": "",
+            "sucadm": "0100",
+            "sucmod": "",
+            "termod": "",
+            "tipdomp": "PRI",
+            "tipper": "F",
+            "tiptelp": "001",
+            "usualt": "",
+            "usumod": ""
+        }
+    }
+}'
+
+Y el ms-serviceengine-cdt consume ms-frameengine-cdt, este ms es el encargado de consumir IBM MQ (Colas) para llegar hasta Altair, esto genera que el usuario sea creado como prospecto como respuesta se recibe prospectId o penumper
+
+
+paso de PRO(Prospecto) a NCL(No Cliente) PASO 6 DATOS ECONOMICOS KYC
+micorservicio ms-customer-cdt 
+trx: PEF2(modificarMantencionPersonaNaturalDatosBasicos)
+Api: PUT 'https://ms-customer-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v3/customers/{penumper}
+
+este cambio de estado de PRO(Prospecto) a NCL(No Cliente). se realiza despues de consumir KYC y que el prospecto cumple con las politicas de no encontrarse en listas restrictcivas 
+consumiendo el api PUT pasando el penumper en el path y en el body solo los datos personales y entregando como codigo http de respuesta un 204
+curl --location --request PUT 'https://ms-customer-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v3/customers/{penumper}' \
+--header 'x-santander-client-id: asdasdasd' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJwcnVlYmEiLCJpYXQiOjE3NzQzNjQ5NjZ9.Eh8wIYix4sm54YFpYyXUaRKkT_2_zCv9JGSPpetQ9TZXk1jaSM9P9YBHXM_zyGaOGnYKuVRE0bcUrC3X4rDqjtCv5cdi88Scw5vuBtXgdlrRfQqufLj7Qx6XcT1wt8kriNIadDXNws6XwWF82KeXNg_ZauC-dLLJzSX-ynw37SkAY99YfwJ9Y_OKnj69OdCpyszFzlUs3HMcR5jp8CYKtSUDHZUs7jGniE_SpNBBzC5KVqllMk4U5pinjGuRZ7ZpmGivmOXDFJu48zR6jfHUT44Q4ln0HfWKhdRL9TsveUr3aEae6PIdmjqpPh0oAQZvWCOB07Lc1AkxT16LOqOk9Q' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: 32fc4d3da987d1e0dac88fb09efe02e8=0005d3c3dce8fda1506513aade5a444f' \
+--data-raw '{
+    "person": {
+        "personName": {
+            "givenName": "PRUEBA",
+            "lastName": "BITHDATE",
+            "secondLastName": "SOURCECODE",
+            "fullName": "PRUEBA BITHDATE SOURCECODE"
+        }
+    }
+}'
+
+al consultar ese penumper en prospect yo no le debe enconytrar al contrario si lo consultamos en customer nos debe arrojar que una respuesta con los datos de ese cliente 
+
+
+paso de NCL(No Cliente) a CL(Cliente) PASO 7 APERTURA CDT
+
+para pasar de No cliente a cliente se debe constituir un CDT por lo tanto primero se simula el CDT consumiendo la api 
+
+curl --location --request POST 'https://ms-termdeposits-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v1/term_deposits/simulate_placement' \
+--header 'x-santander-client-id: a1b30a84-7bf3-442e-84a0-e935d8163b5a' \
+--header 'Authorization: Bearer 1234' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: e0305693345d185b10ad1ab38a9b0d40=ae939511b032b8560f8eeb24f2333002' \
+--data-raw '
+{
+    "product": {
+        "productCode": "04",
+        "subproduct": {
+            "subproductId": "0250"
+        }
+    },
+    "amount": {
+        "amount": "26032026,00"
+    },
+    "periodicity": {
+        "frequency": "90",
+        "periodTypeCode": "D"
+    },
+    "settlementConditionCode": "V"
+}'
+
+y posterios se crea el CDT 
+
+Microservicio: ms-term-deposit-funds
+TRX: trxBP14
+Api: 'https://ms-termdepositfunds-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v1/term_deposit_funds/00650100000040727988/placements/00001-00000/manage_funds
+Asta api 
+curl --location --request POST 'https://ms-termdepositfunds-cdt-core-dev.apps.ocp4-preprod.cosanpre.corp/v1/term_deposit_funds/00650100000040727988/placements/00001-00000/manage_funds' \
+--header 'x-santander-client-id: test' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer test' \
+--header 'Cookie: 0fdf38693accbb57cb4d268f7ccb19bb=486479adef30b3db96f60331a82fdd80' \
+--data-raw '{
+    "sourceFunds": {
+        "otherSource": {
+            "paymentReference": "999876"
+        }
+    }
+}'
+
+Al quedar constituido el cdt al cliente pasa de no cliente a cliente, este proceso no involucra procesos batch todo se realiza en linea 
+
+
+

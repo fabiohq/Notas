@@ -1,150 +1,166 @@
-Java
-class ElectronicAddressRequestDTOTest {
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.request;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class PostalAddressRequestDTOTest {
+
     @Test
     void shouldSetAndGetAllFields() {
-        ElectronicAddressRequestDTO dto = new ElectronicAddressRequestDTO();
-        dto.setEmailAddress("test@mail.com");
+        PostalAddressRequestDTO dto = new PostalAddressRequestDTO();
 
-        assertEquals("test@mail.com", dto.getEmailAddress());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        ElectronicAddressRequestDTO dto = new ElectronicAddressRequestDTO("test@mail.com");
-
-        assertEquals("test@mail.com", dto.getEmailAddress());
-    }
-}
-Java
-class PlaceOfRegistrationRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        PlaceOfRegistrationRequestDTO dto = new PlaceOfRegistrationRequestDTO();
-        CountryRequestDTO country = new CountryRequestDTO("CO");
         StateRequestDTO state = new StateRequestDTO("11");
+        ProvinceRequestDTO province = new ProvinceRequestDTO("25");
+        RegionIdentificationRequestDTO region = new RegionIdentificationRequestDTO("REG");
+        CountyIdentificationRequestDTO county = new CountyIdentificationRequestDTO("COUNTY");
+        CountryRequestDTO country = new CountryRequestDTO("CO");
+        List<String> foreignLines = List.of("line1", "line2");
 
-        dto.setCountry(country);
+        dto.setFullAddress("CL 1 # 2-3");
+        dto.setFormatCode("FMT");
+        dto.setStreetTypeCode("CL");
+        dto.setStreetName("1");
+        dto.setSecondaryStreetName("2");
+        dto.setStreetBuildingIdentification("3");
+        dto.setBuildingName("BUILDING");
+        dto.setFloor("5");
+        dto.setDetailCode("APT");
+        dto.setUnitType("AP");
+        dto.setUnitNumber("501");
+        dto.setPremise("PREMISE");
+        dto.setAlternativePremise("ALT");
+        dto.setMailingInstructions("MAIL");
+        dto.setPostCodeIdentification("110111");
+        dto.setTownName("BOGOTA");
+        dto.setMailDeliverySubLocation("SUB");
         dto.setState(state);
-        dto.setTown("BOGOTA");
+        dto.setDistrictName("DIST");
+        dto.setSecondaryDistrictName("DIST2");
+        dto.setProvince(province);
+        dto.setRegionIdentification(region);
+        dto.setCountyIdentification(county);
+        dto.setCountry(country);
+        dto.setMilitary("MIL");
+        dto.setPostOfficeBox("BOX");
+        dto.setPostBoxTypeCode("PBOX");
+        dto.setForeignAddressLines(foreignLines);
+        dto.setZipCode("110111");
+        dto.setZip4Code("1234");
+        dto.setRuralTypeCode("RUR");
+        dto.setRuralNumber("99");
 
-        assertSame(country, dto.getCountry());
+        assertEquals("CL 1 # 2-3", dto.getFullAddress());
+        assertEquals("FMT", dto.getFormatCode());
+        assertEquals("CL", dto.getStreetTypeCode());
+        assertEquals("1", dto.getStreetName());
+        assertEquals("2", dto.getSecondaryStreetName());
+        assertEquals("3", dto.getStreetBuildingIdentification());
+        assertEquals("BUILDING", dto.getBuildingName());
+        assertEquals("5", dto.getFloor());
+        assertEquals("APT", dto.getDetailCode());
+        assertEquals("AP", dto.getUnitType());
+        assertEquals("501", dto.getUnitNumber());
+        assertEquals("PREMISE", dto.getPremise());
+        assertEquals("ALT", dto.getAlternativePremise());
+        assertEquals("MAIL", dto.getMailingInstructions());
+        assertEquals("110111", dto.getPostCodeIdentification());
+        assertEquals("BOGOTA", dto.getTownName());
+        assertEquals("SUB", dto.getMailDeliverySubLocation());
         assertSame(state, dto.getState());
-        assertEquals("BOGOTA", dto.getTown());
+        assertEquals("DIST", dto.getDistrictName());
+        assertEquals("DIST2", dto.getSecondaryDistrictName());
+        assertSame(province, dto.getProvince());
+        assertSame(region, dto.getRegionIdentification());
+        assertSame(county, dto.getCountyIdentification());
+        assertSame(country, dto.getCountry());
+        assertEquals("MIL", dto.getMilitary());
+        assertEquals("BOX", dto.getPostOfficeBox());
+        assertEquals("PBOX", dto.getPostBoxTypeCode());
+        assertEquals(foreignLines, dto.getForeignAddressLines());
+        assertEquals("110111", dto.getZipCode());
+        assertEquals("1234", dto.getZip4Code());
+        assertEquals("RUR", dto.getRuralTypeCode());
+        assertEquals("99", dto.getRuralNumber());
     }
 
     @Test
     void shouldBuildWithAllArgsConstructor() {
-        CountryRequestDTO country = new CountryRequestDTO("CO");
         StateRequestDTO state = new StateRequestDTO("11");
+        ProvinceRequestDTO province = new ProvinceRequestDTO("25");
+        RegionIdentificationRequestDTO region = new RegionIdentificationRequestDTO("REG");
+        CountyIdentificationRequestDTO county = new CountyIdentificationRequestDTO("COUNTY");
+        CountryRequestDTO country = new CountryRequestDTO("CO");
+        List<String> foreignLines = List.of("line1", "line2");
 
-        PlaceOfRegistrationRequestDTO dto =
-                new PlaceOfRegistrationRequestDTO(country, state, "BOGOTA");
+        PostalAddressRequestDTO dto = new PostalAddressRequestDTO(
+                "CL 1 # 2-3",
+                "FMT",
+                "CL",
+                "1",
+                "2",
+                "3",
+                "BUILDING",
+                "5",
+                "APT",
+                "AP",
+                "501",
+                "PREMISE",
+                "ALT",
+                "MAIL",
+                "110111",
+                "BOGOTA",
+                "SUB",
+                state,
+                "DIST",
+                "DIST2",
+                province,
+                region,
+                county,
+                country,
+                "MIL",
+                "BOX",
+                "PBOX",
+                foreignLines,
+                "110111",
+                "1234",
+                "RUR",
+                "99"
+        );
 
-        assertSame(country, dto.getCountry());
+        assertEquals("CL 1 # 2-3", dto.getFullAddress());
+        assertEquals("FMT", dto.getFormatCode());
+        assertEquals("CL", dto.getStreetTypeCode());
+        assertEquals("1", dto.getStreetName());
+        assertEquals("2", dto.getSecondaryStreetName());
+        assertEquals("3", dto.getStreetBuildingIdentification());
+        assertEquals("BUILDING", dto.getBuildingName());
+        assertEquals("5", dto.getFloor());
+        assertEquals("APT", dto.getDetailCode());
+        assertEquals("AP", dto.getUnitType());
+        assertEquals("501", dto.getUnitNumber());
+        assertEquals("PREMISE", dto.getPremise());
+        assertEquals("ALT", dto.getAlternativePremise());
+        assertEquals("MAIL", dto.getMailingInstructions());
+        assertEquals("110111", dto.getPostCodeIdentification());
+        assertEquals("BOGOTA", dto.getTownName());
+        assertEquals("SUB", dto.getMailDeliverySubLocation());
         assertSame(state, dto.getState());
-        assertEquals("BOGOTA", dto.getTown());
+        assertEquals("DIST", dto.getDistrictName());
+        assertEquals("DIST2", dto.getSecondaryDistrictName());
+        assertSame(province, dto.getProvince());
+        assertSame(region, dto.getRegionIdentification());
+        assertSame(county, dto.getCountyIdentification());
+        assertSame(country, dto.getCountry());
+        assertEquals("MIL", dto.getMilitary());
+        assertEquals("BOX", dto.getPostOfficeBox());
+        assertEquals("PBOX", dto.getPostBoxTypeCode());
+        assertEquals(foreignLines, dto.getForeignAddressLines());
+        assertEquals("110111", dto.getZipCode());
+        assertEquals("1234", dto.getZip4Code());
+        assertEquals("RUR", dto.getRuralTypeCode());
+        assertEquals("99", dto.getRuralNumber());
     }
 }
-Java
-class PreferredLanguageRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        PreferredLanguageRequestDTO dto = new PreferredLanguageRequestDTO();
-        dto.setCode("ES");
-
-        assertEquals("ES", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        PreferredLanguageRequestDTO dto = new PreferredLanguageRequestDTO("ES");
-
-        assertEquals("ES", dto.getCode());
-    }
-}
-Java
-class ProvinceRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        ProvinceRequestDTO dto = new ProvinceRequestDTO();
-        dto.setCode("11");
-
-        assertEquals("11", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        ProvinceRequestDTO dto = new ProvinceRequestDTO("11");
-
-        assertEquals("11", dto.getCode());
-    }
-}
-Java
-class RegionIdentificationRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        RegionIdentificationRequestDTO dto = new RegionIdentificationRequestDTO();
-        dto.setCode("REG");
-
-        assertEquals("REG", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        RegionIdentificationRequestDTO dto = new RegionIdentificationRequestDTO("REG");
-
-        assertEquals("REG", dto.getCode());
-    }
-}
-Java
-class SecondNationalityRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        SecondNationalityRequestDTO dto = new SecondNationalityRequestDTO();
-        dto.setCode("CO");
-
-        assertEquals("CO", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        SecondNationalityRequestDTO dto = new SecondNationalityRequestDTO("CO");
-
-        assertEquals("CO", dto.getCode());
-    }
-}
-Java
-class StateRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        StateRequestDTO dto = new StateRequestDTO();
-        dto.setCode("11");
-
-        assertEquals("11", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        StateRequestDTO dto = new StateRequestDTO("11");
-
-        assertEquals("11", dto.getCode());
-    }
-}
-Java
-class UseTypeRequestDTOTest {
-    @Test
-    void shouldSetAndGetAllFields() {
-        UseTypeRequestDTO dto = new UseTypeRequestDTO();
-        dto.setCode("PRI");
-
-        assertEquals("PRI", dto.getCode());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        UseTypeRequestDTO dto = new UseTypeRequestDTO("PRI");
-
-        assertEquals("PRI", dto.getCode());
-    }
-}
-PostalAddressRequestDTO es larga; te la dejo aparte para que no se mezcle.

@@ -1,36 +1,35 @@
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class Document2RequestDTOTest {
-
+Java
+class ElectronicAddressRequestDTOTest {
     @Test
     void shouldSetAndGetAllFields() {
-        Document2RequestDTO dto = new Document2RequestDTO();
+        ElectronicAddressRequestDTO dto = new ElectronicAddressRequestDTO();
+        dto.setEmailAddress("test@mail.com");
 
-        CountryRequestDTO country = new CountryRequestDTO();
-        country.setCode("CO");
+        assertEquals("test@mail.com", dto.getEmailAddress());
+    }
 
-        StateRequestDTO state = new StateRequestDTO();
-        state.setCode("11");
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        ElectronicAddressRequestDTO dto = new ElectronicAddressRequestDTO("test@mail.com");
 
-        dto.setDocumentTypeCode("CC");
-        dto.setDocumentNumber("123456789");
-        dto.setIssueDate("2024-01-01");
-        dto.setExpirationDate("2030-01-01");
-        dto.setIssuerEntity("REGISTRADURIA");
+        assertEquals("test@mail.com", dto.getEmailAddress());
+    }
+}
+Java
+class PlaceOfRegistrationRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        PlaceOfRegistrationRequestDTO dto = new PlaceOfRegistrationRequestDTO();
+        CountryRequestDTO country = new CountryRequestDTO("CO");
+        StateRequestDTO state = new StateRequestDTO("11");
+
         dto.setCountry(country);
         dto.setState(state);
+        dto.setTown("BOGOTA");
 
-        assertEquals("CC", dto.getDocumentTypeCode());
-        assertEquals("123456789", dto.getDocumentNumber());
-        assertEquals("2024-01-01", dto.getIssueDate());
-        assertEquals("2030-01-01", dto.getExpirationDate());
-        assertEquals("REGISTRADURIA", dto.getIssuerEntity());
         assertSame(country, dto.getCountry());
         assertSame(state, dto.getState());
+        assertEquals("BOGOTA", dto.getTown());
     }
 
     @Test
@@ -38,23 +37,114 @@ class Document2RequestDTOTest {
         CountryRequestDTO country = new CountryRequestDTO("CO");
         StateRequestDTO state = new StateRequestDTO("11");
 
-        Document2RequestDTO dto = new Document2RequestDTO(
-                "CE",
-                "987654321",
-                "2023-05-10",
-                "2029-05-10",
-                "MIGRACION",
-                country,
-                state
-        );
+        PlaceOfRegistrationRequestDTO dto =
+                new PlaceOfRegistrationRequestDTO(country, state, "BOGOTA");
 
-        assertEquals("CE", dto.getDocumentTypeCode());
-        assertEquals("987654321", dto.getDocumentNumber());
-        assertEquals("2023-05-10", dto.getIssueDate());
-        assertEquals("2029-05-10", dto.getExpirationDate());
-        assertEquals("MIGRACION", dto.getIssuerEntity());
         assertSame(country, dto.getCountry());
         assertSame(state, dto.getState());
+        assertEquals("BOGOTA", dto.getTown());
     }
 }
+Java
+class PreferredLanguageRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        PreferredLanguageRequestDTO dto = new PreferredLanguageRequestDTO();
+        dto.setCode("ES");
 
+        assertEquals("ES", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        PreferredLanguageRequestDTO dto = new PreferredLanguageRequestDTO("ES");
+
+        assertEquals("ES", dto.getCode());
+    }
+}
+Java
+class ProvinceRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        ProvinceRequestDTO dto = new ProvinceRequestDTO();
+        dto.setCode("11");
+
+        assertEquals("11", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        ProvinceRequestDTO dto = new ProvinceRequestDTO("11");
+
+        assertEquals("11", dto.getCode());
+    }
+}
+Java
+class RegionIdentificationRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        RegionIdentificationRequestDTO dto = new RegionIdentificationRequestDTO();
+        dto.setCode("REG");
+
+        assertEquals("REG", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        RegionIdentificationRequestDTO dto = new RegionIdentificationRequestDTO("REG");
+
+        assertEquals("REG", dto.getCode());
+    }
+}
+Java
+class SecondNationalityRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        SecondNationalityRequestDTO dto = new SecondNationalityRequestDTO();
+        dto.setCode("CO");
+
+        assertEquals("CO", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        SecondNationalityRequestDTO dto = new SecondNationalityRequestDTO("CO");
+
+        assertEquals("CO", dto.getCode());
+    }
+}
+Java
+class StateRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        StateRequestDTO dto = new StateRequestDTO();
+        dto.setCode("11");
+
+        assertEquals("11", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        StateRequestDTO dto = new StateRequestDTO("11");
+
+        assertEquals("11", dto.getCode());
+    }
+}
+Java
+class UseTypeRequestDTOTest {
+    @Test
+    void shouldSetAndGetAllFields() {
+        UseTypeRequestDTO dto = new UseTypeRequestDTO();
+        dto.setCode("PRI");
+
+        assertEquals("PRI", dto.getCode());
+    }
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        UseTypeRequestDTO dto = new UseTypeRequestDTO("PRI");
+
+        assertEquals("PRI", dto.getCode());
+    }
+}
+PostalAddressRequestDTO es larga; te la dejo aparte para que no se mezcle.

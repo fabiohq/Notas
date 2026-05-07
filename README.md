@@ -1,236 +1,244 @@
+Aquí van los tests que faltan.
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CiudadComparisonRequest {
-    private String ciudadIngresada;
-    private String ciudadServicio;
-    
-    public String getCiudadIngresada() {
-        return ciudadIngresada;
-    }
-    public void setCiudadIngresada(String ciudadIngresada) {
-        this.ciudadIngresada = ciudadIngresada;
-    }
-    public String getCiudadServicio() {
-        return ciudadServicio;
-    }
-    public void setCiudadServicio(String ciudadServicio) {
-        this.ciudadServicio = ciudadServicio;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class CiudadComparisonRequestTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        CiudadComparisonRequest dto = new CiudadComparisonRequest();
+
+        dto.setCiudadIngresada("Bogota");
+        dto.setCiudadServicio("Bogotá");
+
+        assertEquals("Bogota", dto.getCiudadIngresada());
+        assertEquals("Bogotá", dto.getCiudadServicio());
     }
 
-    
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        CiudadComparisonRequest dto = new CiudadComparisonRequest("Cali", "Cali");
+
+        assertEquals("Cali", dto.getCiudadIngresada());
+        assertEquals("Cali", dto.getCiudadServicio());
+    }
+
+    @Test
+    void shouldBuildWithBuilder() {
+        CiudadComparisonRequest dto = CiudadComparisonRequest.builder()
+                .ciudadIngresada("Medellin")
+                .ciudadServicio("Medellín")
+                .build();
+
+        assertEquals("Medellin", dto.getCiudadIngresada());
+        assertEquals("Medellín", dto.getCiudadServicio());
+    }
 }
-
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.client.impl;
 
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.ContextAPI;
-import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ContextApiService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.context.ContextRequest;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.context.ContextResponse;
-import com.santander.bnc.bsn049.bncbsn049msprospects.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
 
-import org.springframework.stereotype.Service;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
+class ContextAPIImplTest {
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ContextAPIImpl implements ContextApiService {
+    @Mock
+    private ContextAPI contextAPI;
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ContextAPI contextAPI;
+    @Mock
+    private Call<ContextResponse> call;
 
-    public static final String PRODUCT = "cdt";
+    @InjectMocks
+    private ContextAPIImpl contextAPIImpl;
 
-    @Override
-    public void putContext(String key, Object object) {
-        try{
-            log.info(GUtils.SLOG+"client putContext KEY={}",key);
-            ContextRequest request = new ContextRequest();
-            request.setProduct(PRODUCT);
-            request.setValue(object);
-            request.setKey(key);
-            contextAPI.putCache(request).enqueue(new Callback<ContextResponse>() {
+    @Test
+    void putContextShouldSendRequestWithProductKeyAndValue() {
+        when(contextAPI.putCache(any(ContextRequest.class))).thenReturn(call);
 
-                @Override
-                public void onResponse(Call<ContextResponse> call, Response<ContextResponse> response) {
-                    log.info("put cache ok");
-                }
+        contextAPIImpl.putContext("key-1", "value-1");
 
-                @Override
-                public void onFailure(Call<ContextResponse> call, Throwable t) {
-                    log.info("error put cache: {}", t.getMessage());
-                }
-                
-            });
-            log.info(GUtils.ELOG+"client putContext");
-        } catch (RuntimeException e){
-            log.error("Runtime Exception putting cache: {}", e.getMessage());            
-        } catch (IOException e){
-            log.error("IOException putting cache {}", e.getMessage());            
-        } catch (Exception e){
-            log.error("Unhandled exception putting cache. {}", e.getMessage());
-        }
+        ArgumentCaptor<ContextRequest> captor = ArgumentCaptor.forClass(ContextRequest.class);
+        verify(contextAPI).putCache(captor.capture());
+        verify(call).enqueue(any());
 
-    }//method closure
+        ContextRequest request = captor.getValue();
+        assertEquals("key-1", request.getKey());
+        assertEquals("value-1", request.getValue());
+        assertEquals(ContextAPIImpl.PRODUCT, request.getProduct());
+    }
 
-    @Override
-    public Object getContext(String key) {
-        try{
-            log.info(GUtils.SLOG+"client getContext KEY={}",key);
-            return contextAPI.getCache(key,PRODUCT).execute().body().getValue();
-        } catch (RuntimeException e){
-            log.error("Runtime Exception getting cache: {}", e.getMessage());
-            return null;
-        } catch (IOException e){
-            log.error("IOException getting cache {}", e.getMessage());
-            return null;
-        } catch (Exception e){
-            log.error("Unhandled exception getting cache {}", e.getMessage());
-            return null;
-        }
-    }//method closure
-}//class closure
+    @Test
+    void putContextShouldNotThrowWhenRuntimeExceptionOccurs() {
+        when(contextAPI.putCache(any(ContextRequest.class))).thenThrow(new RuntimeException("error"));
 
+        assertDoesNotThrow(() -> contextAPIImpl.putContext("key", "value"));
 
+        verify(contextAPI).putCache(any(ContextRequest.class));
+    }
 
+    @Test
+    void getContextShouldReturnValueWhenResponseIsOk() throws IOException {
+        ContextResponse responseBody = new ContextResponse();
+        responseBody.setKey("key-1");
+        responseBody.setProduct(ContextAPIImpl.PRODUCT);
+        responseBody.setValue("cached-value");
 
+        when(contextAPI.getCache("key-1", ContextAPIImpl.PRODUCT)).thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(responseBody));
 
+        Object result = contextAPIImpl.getContext("key-1");
+
+        assertEquals("cached-value", result);
+        verify(contextAPI).getCache("key-1", ContextAPIImpl.PRODUCT);
+    }
+
+    @Test
+    void getContextShouldReturnNullWhenIOExceptionOccurs() throws IOException {
+        when(contextAPI.getCache("key-1", ContextAPIImpl.PRODUCT)).thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("io error"));
+
+        Object result = contextAPIImpl.getContext("key-1");
+
+        assertNull(result);
+    }
+
+    @Test
+    void getContextShouldReturnNullWhenRuntimeExceptionOccurs() {
+        when(contextAPI.getCache("key-1", ContextAPIImpl.PRODUCT))
+                .thenThrow(new RuntimeException("runtime error"));
+
+        Object result = contextAPIImpl.getContext("key-1");
+
+        assertNull(result);
+    }
+}
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.client.impl;
 
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.ParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ParameterApiService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.parameters.DataListDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.parameters.GeographiesParametersResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorDictionary;
-import com.santander.bnc.bsn049.bncbsn049msprospects.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ParameterAPIImpl implements ParameterApiService {
+@ExtendWith(MockitoExtension.class)
+class ParameterAPIImplTest {
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ParametersAPI parametersAPI;
+    @Mock
+    private ParametersAPI parametersAPI;
 
+    @Mock
+    private Call<GeographiesParametersResponseDTO> call;
 
-    @Override
-    public List<DataListDTO> getParameter(String parameterId, String valueCode,String authorization,String xSantanderClientId) {
-       Response<GeographiesParametersResponseDTO> responseApi;
-        try {
-            responseApi = parametersAPI.getParameter(parameterId,valueCode,authorization,xSantanderClientId).execute();
-            if (!((responseApi.isSuccessful() || responseApi.code() == 204) && responseApi.body() != null)){
-                var error = ErrorCatalog.getMsParametersResponse();
-                error.setMessage(responseApi.message());
-                error.setDescription(ErrorDictionary.getMsName() + " - " + responseApi);
-                throw new ServiceException(HttpStatus.BAD_REQUEST, error);
-            }
-            if(responseApi.body().getParameters().isEmpty()){
-                throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersNoEntry());
-            }
-        } catch(RuntimeException e){
-            log.error("Runtime Exception calling parameters: {}", e.getMessage()); 
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersResponse() );        
-        } catch(IOException e){  
-            log.error("IOException calling parameters: {}", e.getMessage());           
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersNetworkConnection());        
-        } catch (Exception e){
-            log.info("Unhandled exception calling parameters: {}", e.getMessage());
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersGeneral());
-        }
-        log.info(GUtils.ELOG + "client get parameter id {}", parameterId);
-        return responseApi.body().getParameters();
-    }//method closure
+    @InjectMocks
+    private ParameterAPIImpl parameterAPIImpl;
 
-}//class closure
+    @Test
+    void getParameterShouldReturnParametersWhenResponseIsSuccessful() throws IOException {
+        DataListDTO data = DataListDTO.builder()
+                .listCode("0008")
+                .code("11001")
+                .description("BOGOTA")
+                .build();
 
+        GeographiesParametersResponseDTO body = GeographiesParametersResponseDTO.builder()
+                .parameters(List.of(data))
+                .build();
 
+        when(parametersAPI.getParameter("0008", "11001", "Bearer token", "client-id"))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
 
-package com.santander.bnc.bsn049.bncbsn049msprospects.client.impl;
+        List<DataListDTO> result = parameterAPIImpl.getParameter(
+                "0008",
+                "11001",
+                "Bearer token",
+                "client-id"
+        );
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.ParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ParameterApiService;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.parameters.DataListDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.parameters.GeographiesParametersResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorDictionary;
-import com.santander.bnc.bsn049.bncbsn049msprospects.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import retrofit2.Response;
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("11001", result.get(0).getCode());
+        assertEquals("BOGOTA", result.get(0).getDescription());
+    }
 
-import java.io.IOException;
-import java.util.List;
+    @Test
+    void getParameterShouldThrowServiceExceptionWhenResponseBodyIsNull() throws IOException {
+        when(parametersAPI.getParameter("0008", "11001", "Bearer token", "client-id"))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(null));
 
+        assertThrows(ServiceException.class, () ->
+                parameterAPIImpl.getParameter("0008", "11001", "Bearer token", "client-id")
+        );
+    }
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ParameterAPIImpl implements ParameterApiService {
+    @Test
+    void getParameterShouldThrowServiceExceptionWhenParametersAreEmpty() throws IOException {
+        GeographiesParametersResponseDTO body = GeographiesParametersResponseDTO.builder()
+                .parameters(List.of())
+                .build();
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ParametersAPI parametersAPI;
+        when(parametersAPI.getParameter("0008", "11001", "Bearer token", "client-id"))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
 
+        assertThrows(ServiceException.class, () ->
+                parameterAPIImpl.getParameter("0008", "11001", "Bearer token", "client-id")
+        );
+    }
 
-    @Override
-    public List<DataListDTO> getParameter(String parameterId, String valueCode,String authorization,String xSantanderClientId) {
-       Response<GeographiesParametersResponseDTO> responseApi;
-        try {
-            responseApi = parametersAPI.getParameter(parameterId,valueCode,authorization,xSantanderClientId).execute();
-            if (!((responseApi.isSuccessful() || responseApi.code() == 204) && responseApi.body() != null)){
-                var error = ErrorCatalog.getMsParametersResponse();
-                error.setMessage(responseApi.message());
-                error.setDescription(ErrorDictionary.getMsName() + " - " + responseApi);
-                throw new ServiceException(HttpStatus.BAD_REQUEST, error);
-            }
-            if(responseApi.body().getParameters().isEmpty()){
-                throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersNoEntry());
-            }
-        } catch(RuntimeException e){
-            log.error("Runtime Exception calling parameters: {}", e.getMessage()); 
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersResponse() );        
-        } catch(IOException e){  
-            log.error("IOException calling parameters: {}", e.getMessage());           
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersNetworkConnection());        
-        } catch (Exception e){
-            log.info("Unhandled exception calling parameters: {}", e.getMessage());
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersGeneral());
-        }
-        log.info(GUtils.ELOG + "client get parameter id {}", parameterId);
-        return responseApi.body().getParameters();
-    }//method closure
+    @Test
+    void getParameterShouldThrowServiceExceptionWhenIOExceptionOccurs() throws IOException {
+        when(parametersAPI.getParameter("0008", "11001", "Bearer token", "client-id"))
+                .thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("io error"));
 
-}//class closure
+        assertThrows(ServiceException.class, () ->
+                parameterAPIImpl.getParameter("0008", "11001", "Bearer token", "client-id")
+        );
+    }
+
+    @Test
+    void getParameterShouldThrowServiceExceptionWhenRuntimeExceptionOccurs() {
+        when(parametersAPI.getParameter("0008", "11001", "Bearer token", "client-id"))
+                .thenThrow(new RuntimeException("runtime error"));
+
+        assertThrows(ServiceException.class, () ->
+                parameterAPIImpl.getParameter("0008", "11001", "Bearer token", "client-id")
+        );
+    }
+}
+Ojo: pegaste ParameterAPIImpl dos veces; deja solo un ParameterAPIImplTest.

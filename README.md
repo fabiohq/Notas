@@ -1,657 +1,264 @@
+Te dejo los tests faltantes, separados clase por clase.
+ProspectCreatedResponseDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProspectCreatedResponseDTO {
-    private String prospectId;
+import static org.junit.jupiter.api.Assertions.*;
 
-    public String getProspectId() {
-        return prospectId;
+class ProspectCreatedResponseDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        ProspectCreatedResponseDTO dto = new ProspectCreatedResponseDTO();
+
+        dto.setProspectId("12345678");
+
+        assertEquals("12345678", dto.getProspectId());
     }
 
-    public void setProspectId(String prospectId) {
-        this.prospectId = prospectId;
-    }   
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        ProspectCreatedResponseDTO dto = new ProspectCreatedResponseDTO("87654321");
+
+        assertEquals("87654321", dto.getProspectId());
+    }
+
+    @Test
+    void shouldBuildWithBuilder() {
+        ProspectCreatedResponseDTO dto = ProspectCreatedResponseDTO.builder()
+                .prospectId("99999999")
+                .build();
+
+        assertEquals("99999999", dto.getProspectId());
+    }
 }
-
-
+PaginationCommonDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.pagination;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PaginationCommonDTO {
-    private String offset;
-    private String limit;
-    
-    public String getOffset() {
-        return offset;
+class PaginationCommonDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        PaginationCommonDTO dto = new PaginationCommonDTO();
+
+        dto.setOffset("0");
+        dto.setLimit("10");
+
+        assertEquals("0", dto.getOffset());
+        assertEquals("10", dto.getLimit());
     }
-    public void setOffset(String offset) {
-        this.offset = offset;
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        PaginationCommonDTO dto = new PaginationCommonDTO("5", "20");
+
+        assertEquals("5", dto.getOffset());
+        assertEquals("20", dto.getLimit());
     }
-    public String getLimit() {
-        return limit;
+
+    @Test
+    void shouldBuildWithBuilder() {
+        PaginationCommonDTO dto = PaginationCommonDTO.builder()
+                .offset("1")
+                .limit("50")
+                .build();
+
+        assertEquals("1", dto.getOffset());
+        assertEquals("50", dto.getLimit());
     }
-    public void setLimit(String limit) {
-        this.limit = limit;
-    }    
 }
-
-********>>>>>
+PaginationDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.pagination;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PaginationDTO {
-    private PaginationCommonDTO first;
-    private PaginationCommonDTO prev;
-    private PaginationCommonDTO next;
-    private PaginationCommonDTO last;
-    private PaginationCommonDTO self;
-    
-    public PaginationCommonDTO getFirst() {
-        return first;
+class PaginationDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        PaginationCommonDTO first = new PaginationCommonDTO("0", "10");
+        PaginationCommonDTO prev = new PaginationCommonDTO("0", "10");
+        PaginationCommonDTO next = new PaginationCommonDTO("10", "10");
+        PaginationCommonDTO last = new PaginationCommonDTO("90", "10");
+        PaginationCommonDTO self = new PaginationCommonDTO("0", "10");
+
+        PaginationDTO dto = new PaginationDTO();
+
+        dto.setFirst(first);
+        dto.setPrev(prev);
+        dto.setNext(next);
+        dto.setLast(last);
+        dto.setSelf(self);
+
+        assertSame(first, dto.getFirst());
+        assertSame(prev, dto.getPrev());
+        assertSame(next, dto.getNext());
+        assertSame(last, dto.getLast());
+        assertSame(self, dto.getSelf());
     }
-    public void setFirst(PaginationCommonDTO first) {
-        this.first = first;
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        PaginationCommonDTO common = new PaginationCommonDTO("0", "10");
+
+        PaginationDTO dto = new PaginationDTO(common, common, common, common, common);
+
+        assertSame(common, dto.getFirst());
+        assertSame(common, dto.getPrev());
+        assertSame(common, dto.getNext());
+        assertSame(common, dto.getLast());
+        assertSame(common, dto.getSelf());
     }
-    public PaginationCommonDTO getPrev() {
-        return prev;
-    }
-    public void setPrev(PaginationCommonDTO prev) {
-        this.prev = prev;
-    }
-    public PaginationCommonDTO getNext() {
-        return next;
-    }
-    public void setNext(PaginationCommonDTO next) {
-        this.next = next;
-    }
-    public PaginationCommonDTO getLast() {
-        return last;
-    }
-    public void setLast(PaginationCommonDTO last) {
-        this.last = last;
-    }
-    public PaginationCommonDTO getSelf() {
-        return self;
-    }
-    public void setSelf(PaginationCommonDTO self) {
-        this.self = self;
+
+    @Test
+    void shouldBuildWithBuilder() {
+        PaginationCommonDTO common = PaginationCommonDTO.builder()
+                .offset("1")
+                .limit("25")
+                .build();
+
+        PaginationDTO dto = PaginationDTO.builder()
+                .first(common)
+                .prev(common)
+                .next(common)
+                .last(common)
+                .self(common)
+                .build();
+
+        assertSame(common, dto.getFirst());
+        assertSame(common, dto.getPrev());
+        assertSame(common, dto.getNext());
+        assertSame(common, dto.getLast());
+        assertSame(common, dto.getSelf());
     }
 }
-
+BankDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BankDTO {
-    private String bankId;
-    private String bankName;
-    
-    public String getBankId() {
-        return bankId;
+class BankDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        BankDTO dto = new BankDTO();
+
+        dto.setBankId("0065");
+        dto.setBankName("Santander");
+
+        assertEquals("0065", dto.getBankId());
+        assertEquals("Santander", dto.getBankName());
     }
-    public void setBankId(String bankId) {
-        this.bankId = bankId;
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        BankDTO dto = new BankDTO("001", "Bank");
+
+        assertEquals("001", dto.getBankId());
+        assertEquals("Bank", dto.getBankName());
     }
-    public String getBankName() {
-        return bankName;
+
+    @Test
+    void shouldBuildWithBuilder() {
+        BankDTO dto = BankDTO.builder()
+                .bankId("002")
+                .bankName("Test Bank")
+                .build();
+
+        assertEquals("002", dto.getBankId());
+        assertEquals("Test Bank", dto.getBankName());
     }
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }    
 }
-
+CodeNameDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CodeNameDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
+class CodeNameDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        CodeNameDTO dto = new CodeNameDTO();
+
+        dto.setCode("CO");
+        dto.setName("Colombia");
+
+        assertEquals("CO", dto.getCode());
+        assertEquals("Colombia", dto.getName());
     }
-    public void setCode(String code) {
-        this.code = code;
+
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        CodeNameDTO dto = new CodeNameDTO("ES", "España");
+
+        assertEquals("ES", dto.getCode());
+        assertEquals("España", dto.getName());
     }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
+
+    @Test
+    void shouldBuildWithBuilder() {
+        CodeNameDTO dto = CodeNameDTO.builder()
+                .code("US")
+                .name("Estados Unidos")
+                .build();
+
+        assertEquals("US", dto.getCode());
+        assertEquals("Estados Unidos", dto.getName());
     }
 }
-
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DocumentDTO {
-    private String documentTypeCode;
-    private String documentTypeDescription;
-    private String documentNumber;
-    private String issueDate;
-    private String expirationDate;
-    private String issuerEntity;
-    private CodeNameDTO country;
-    private CodeNameDTO state;
-    private String town;
-    
-    public String getDocumentTypeCode() {
-        return documentTypeCode;
-    }
-    public void setDocumentTypeCode(String documentTypeCode) {
-        this.documentTypeCode = documentTypeCode;
-    }
-    public String getDocumentTypeDescription() {
-        return documentTypeDescription;
-    }
-    public void setDocumentTypeDescription(String documentTypeDescription) {
-        this.documentTypeDescription = documentTypeDescription;
-    }
-    public String getDocumentNumber() {
-        return documentNumber;
-    }
-    public void setDocumentNumber(String documentNumber) {
-        this.documentNumber = documentNumber;
-    }
-    public String getIssueDate() {
-        return issueDate;
-    }
-    public void setIssueDate(String issueDate) {
-        this.issueDate = issueDate;
-    }
-    public String getExpirationDate() {
-        return expirationDate;
-    }
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-    public String getIssuerEntity() {
-        return issuerEntity;
-    }
-    public void setIssuerEntity(String issuerEntity) {
-        this.issuerEntity = issuerEntity;
-    }
-    public CodeNameDTO getCountry() {
-        return country;
-    }
-    public void setCountry(CodeNameDTO country) {
-        this.country = country;
-    }
-    public CodeNameDTO getState() {
-        return state;
-    }
-    public void setState(CodeNameDTO state) {
-        this.state = state;
-    }
-    public String getTown() {
-        return town;
-    }
-    public void setTown(String town) {
-        this.town = town;
-    }    
-}
-
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Parameters {
-    private CodeNameDTO countryNationality;
-    private CodeNameDTO countryExp;
-    private CodeNameDTO countryBirth;
-    private CodeNameDTO countryDir;
-    private CodeNameDTO cityStandard;
-    private CodeNameDTO cityDepartment;
-    private CodeNameDTO cityExp;
-    private CodeNameDTO cityBirth;
-    private CodeNameDTO town;
-    private CodeNameDTO townDocument;
-    private String documentTypeDescription;
-    private String streetTypeDescription; //Way Type
-    
-    public CodeNameDTO getCountryNationality() {
-        return countryNationality;
-    }
-    public void setCountryNationality(CodeNameDTO countryNationality) {
-        this.countryNationality = countryNationality;
-    }
-    public CodeNameDTO getCountryExp() {
-        return countryExp;
-    }
-    public void setCountryExp(CodeNameDTO countryExp) {
-        this.countryExp = countryExp;
-    }
-    public CodeNameDTO getCountryBirth() {
-        return countryBirth;
-    }
-    public void setCountryBirth(CodeNameDTO countryBirth) {
-        this.countryBirth = countryBirth;
-    }
-    public CodeNameDTO getCountryDir() {
-        return countryDir;
-    }
-    public void setCountryDir(CodeNameDTO countryDir) {
-        this.countryDir = countryDir;
-    }
-    public CodeNameDTO getCityStandard() {
-        return cityStandard;
-    }
-    public void setCityStandard(CodeNameDTO cityStandard) {
-        this.cityStandard = cityStandard;
-    }
-    public CodeNameDTO getCityDepartment() {
-        return cityDepartment;
-    }
-    public void setCityDepartment(CodeNameDTO cityDepartment) {
-        this.cityDepartment = cityDepartment;
-    }
-    public CodeNameDTO getCityExp() {
-        return cityExp;
-    }
-    public void setCityExp(CodeNameDTO cityExp) {
-        this.cityExp = cityExp;
-    }
-    public CodeNameDTO getCityBirth() {
-        return cityBirth;
-    }
-    public void setCityBirth(CodeNameDTO cityBirth) {
-        this.cityBirth = cityBirth;
-    }
-    public CodeNameDTO getTown() {
-        return town;
-    }
-    public void setTown(CodeNameDTO town) {
-        this.town = town;
-    }
-    public String getDocumentTypeDescription() {
-        return documentTypeDescription;
-    }
-    public void setDocumentTypeDescription(String documentTypeDescription) {
-        this.documentTypeDescription = documentTypeDescription;
-    }
-    public String getStreetTypeDescription() {
-        return streetTypeDescription;
-    }
-    public void setStreetTypeDescription(String streetTypeDescription) {
-        this.streetTypeDescription = streetTypeDescription;
-    }
-    public CodeNameDTO getTownDocument() {
-        return townDocument;
-    }
-    public void setTownDocument(CodeNameDTO townDocument) {
-        this.townDocument = townDocument;
-    }    
-}
-
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PostalAddressDTO {
-    private String fullAddress;
-    private String formatCode;
-    private String formatDescription;
-    private Boolean isAddressValidated;
-    private String matchId;
-    private String streetTypeCode;
-    private String streetTypeDescription;
-    private String streetName;
-    private String secondaryStreetName;
-    private String streetBuildingIdentification;
-    private String mailDeliverySubLocation;
-    private String buildingName;
-    private String floor;
-    private String detailCode;
-    private String unitType;
-    private String unitNumber;
-    private String premise;
-    private String alternativePremise;
-    private String department;
-    private String subDepartment;
-    private String postCodeIdentification;
-    private CodeNameDTO town;
-    private CodeNameDTO state;
-    private String districtName;
-    private String secondaryDistrictName;
-    private String mailingInstructions;
-    private CodeNameDTO province;
-    private CodeNameDTO regionIdentification;
-    private CodeNameDTO countyIdentification;
-    private CodeNameDTO country;
-    private String military;
-    private String postOfficeBox;
-    private String postBoxTypeCode;
-    private String postBoxTypeDescription;
-    private List<String> foreignAddressLines;
-    private String zipCode;
-    private String zip4Code;
-    private String ruralTypeCode;
-    private String ruralTypeDescription;
-    private String ruralNumber;
-    
-    public String getFullAddress() {
-        return fullAddress;
-    }
-    public void setFullAddress(String fullAddress) {
-        this.fullAddress = fullAddress;
-    }
-    public String getFormatCode() {
-        return formatCode;
-    }
-    public void setFormatCode(String formatCode) {
-        this.formatCode = formatCode;
-    }
-    public String getFormatDescription() {
-        return formatDescription;
-    }
-    public void setFormatDescription(String formatDescription) {
-        this.formatDescription = formatDescription;
-    }
-    public Boolean getIsAddressValidated() {
-        return isAddressValidated;
-    }
-    public void setIsAddressValidated(Boolean isAddressValidated) {
-        this.isAddressValidated = isAddressValidated;
-    }
-    public String getMatchId() {
-        return matchId;
-    }
-    public void setMatchId(String matchId) {
-        this.matchId = matchId;
-    }
-    public String getStreetTypeCode() {
-        return streetTypeCode;
-    }
-    public void setStreetTypeCode(String streetTypeCode) {
-        this.streetTypeCode = streetTypeCode;
-    }
-    public String getStreetTypeDescription() {
-        return streetTypeDescription;
-    }
-    public void setStreetTypeDescription(String streetTypeDescription) {
-        this.streetTypeDescription = streetTypeDescription;
-    }
-    public String getStreetName() {
-        return streetName;
-    }
-    public void setStreetName(String streetName) {
-        this.streetName = streetName;
-    }
-    public String getSecondaryStreetName() {
-        return secondaryStreetName;
-    }
-    public void setSecondaryStreetName(String secondaryStreetName) {
-        this.secondaryStreetName = secondaryStreetName;
-    }
-    public String getStreetBuildingIdentification() {
-        return streetBuildingIdentification;
-    }
-    public void setStreetBuildingIdentification(String streetBuildingIdentification) {
-        this.streetBuildingIdentification = streetBuildingIdentification;
-    }
-    public String getMailDeliverySubLocation() {
-        return mailDeliverySubLocation;
-    }
-    public void setMailDeliverySubLocation(String mailDeliverySubLocation) {
-        this.mailDeliverySubLocation = mailDeliverySubLocation;
-    }
-    public String getBuildingName() {
-        return buildingName;
-    }
-    public void setBuildingName(String buildingName) {
-        this.buildingName = buildingName;
-    }
-    public String getFloor() {
-        return floor;
-    }
-    public void setFloor(String floor) {
-        this.floor = floor;
-    }
-    public String getDetailCode() {
-        return detailCode;
-    }
-    public void setDetailCode(String detailCode) {
-        this.detailCode = detailCode;
-    }
-    public String getUnitType() {
-        return unitType;
-    }
-    public void setUnitType(String unitType) {
-        this.unitType = unitType;
-    }
-    public String getUnitNumber() {
-        return unitNumber;
-    }
-    public void setUnitNumber(String unitNumber) {
-        this.unitNumber = unitNumber;
-    }
-    public String getPremise() {
-        return premise;
-    }
-    public void setPremise(String premise) {
-        this.premise = premise;
-    }
-    public String getAlternativePremise() {
-        return alternativePremise;
-    }
-    public void setAlternativePremise(String alternativePremise) {
-        this.alternativePremise = alternativePremise;
-    }
-    public String getDepartment() {
-        return department;
-    }
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-    public String getSubDepartment() {
-        return subDepartment;
-    }
-    public void setSubDepartment(String subDepartment) {
-        this.subDepartment = subDepartment;
-    }
-    public String getPostCodeIdentification() {
-        return postCodeIdentification;
-    }
-    public void setPostCodeIdentification(String postCodeIdentification) {
-        this.postCodeIdentification = postCodeIdentification;
-    }
-    public CodeNameDTO getTown() {
-        return town;
-    }
-    public void setTown(CodeNameDTO town) {
-        this.town = town;
-    }
-    public CodeNameDTO getState() {
-        return state;
-    }
-    public void setState(CodeNameDTO state) {
-        this.state = state;
-    }
-    public String getDistrictName() {
-        return districtName;
-    }
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-    public String getSecondaryDistrictName() {
-        return secondaryDistrictName;
-    }
-    public void setSecondaryDistrictName(String secondaryDistrictName) {
-        this.secondaryDistrictName = secondaryDistrictName;
-    }
-    public String getMailingInstructions() {
-        return mailingInstructions;
-    }
-    public void setMailingInstructions(String mailingInstructions) {
-        this.mailingInstructions = mailingInstructions;
-    }
-    public CodeNameDTO getProvince() {
-        return province;
-    }
-    public void setProvince(CodeNameDTO province) {
-        this.province = province;
-    }
-    public CodeNameDTO getRegionIdentification() {
-        return regionIdentification;
-    }
-    public void setRegionIdentification(CodeNameDTO regionIdentification) {
-        this.regionIdentification = regionIdentification;
-    }
-    public CodeNameDTO getCountyIdentification() {
-        return countyIdentification;
-    }
-    public void setCountyIdentification(CodeNameDTO countyIdentification) {
-        this.countyIdentification = countyIdentification;
-    }
-    public CodeNameDTO getCountry() {
-        return country;
-    }
-    public void setCountry(CodeNameDTO country) {
-        this.country = country;
-    }
-    public String getMilitary() {
-        return military;
-    }
-    public void setMilitary(String military) {
-        this.military = military;
-    }
-    public String getPostOfficeBox() {
-        return postOfficeBox;
-    }
-    public void setPostOfficeBox(String postOfficeBox) {
-        this.postOfficeBox = postOfficeBox;
-    }
-    public String getPostBoxTypeCode() {
-        return postBoxTypeCode;
-    }
-    public void setPostBoxTypeCode(String postBoxTypeCode) {
-        this.postBoxTypeCode = postBoxTypeCode;
-    }
-    public String getPostBoxTypeDescription() {
-        return postBoxTypeDescription;
-    }
-    public void setPostBoxTypeDescription(String postBoxTypeDescription) {
-        this.postBoxTypeDescription = postBoxTypeDescription;
-    }
-    public List<String> getForeignAddressLines() {
-        return foreignAddressLines;
-    }
-    public void setForeignAddressLines(List<String> foreignAddressLines) {
-        this.foreignAddressLines = foreignAddressLines;
-    }
-    public String getZipCode() {
-        return zipCode;
-    }
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-    public String getZip4Code() {
-        return zip4Code;
-    }
-    public void setZip4Code(String zip4Code) {
-        this.zip4Code = zip4Code;
-    }
-    public String getRuralTypeCode() {
-        return ruralTypeCode;
-    }
-    public void setRuralTypeCode(String ruralTypeCode) {
-        this.ruralTypeCode = ruralTypeCode;
-    }
-    public String getRuralTypeDescription() {
-        return ruralTypeDescription;
-    }
-    public void setRuralTypeDescription(String ruralTypeDescription) {
-        this.ruralTypeDescription = ruralTypeDescription;
-    }
-    public String getRuralNumber() {
-        return ruralNumber;
-    }
-    public void setRuralNumber(String ruralNumber) {
-        this.ruralNumber = ruralNumber;
-    }    
-}
-
->>>>>>>>>>>>>>>>>>>>>>
+AuditDTOTest
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuditDTO {
-    private String creationDate;
-    private String lastUpdateDate;
-    
-    public String getCreationDate() {
-        return creationDate;
-    }
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-    public String getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-    public void setLastUpdateDate(String lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
+class AuditDTOTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+        AuditDTO dto = new AuditDTO();
+
+        dto.setCreationDate("2026-05-07");
+        dto.setLastUpdateDate("2026-05-08");
+
+        assertEquals("2026-05-07", dto.getCreationDate());
+        assertEquals("2026-05-08", dto.getLastUpdateDate());
     }
 
-    
+    @Test
+    void shouldBuildWithAllArgsConstructor() {
+        AuditDTO dto = new AuditDTO("2026-01-01", "2026-01-02");
+
+        assertEquals("2026-01-01", dto.getCreationDate());
+        assertEquals("2026-01-02", dto.getLastUpdateDate());
+    }
+
+    @Test
+    void shouldBuildWithBuilder() {
+        AuditDTO dto = AuditDTO.builder()
+                .creationDate("2026-02-01")
+                .lastUpdateDate("2026-02-02")
+                .build();
+
+        assertEquals("2026-02-01", dto.getCreationDate());
+        assertEquals("2026-02-02", dto.getLastUpdateDate());
+    }
 }

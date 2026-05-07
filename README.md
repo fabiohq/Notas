@@ -1,164 +1,160 @@
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.context;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContextRequest {
-    private String key;
-    private Object value;
-    private String product;
-    
-    public String getKey() {
-        return key;
-    }
-    public void setKey(String key) {
-        this.key = key;
-    }
-    public Object getValue() {
-        return value;
-    }
-    public void setValue(Object value) {
-        this.value = value;
-    }
-    public String getProduct() {
-        return product;
-    }
-    public void setProduct(String product) {
-        this.product = product;
+import static org.junit.jupiter.api.Assertions.*;
+
+class ContextRequestTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        ContextRequest dto = new ContextRequest();
+
+        dto.setKey("KEY_01");
+        dto.setValue("VALUE_01");
+        dto.setProduct("cdt");
+
+        assertEquals("KEY_01", dto.getKey());
+        assertEquals("VALUE_01", dto.getValue());
+        assertEquals("cdt", dto.getProduct());
     }
 
-    
+    @Test
+    void shouldCreateUsingAllArgsConstructor() {
+
+        ContextRequest dto = new ContextRequest(
+                "KEY_02",
+                "VALUE_02",
+                "loan"
+        );
+
+        assertEquals("KEY_02", dto.getKey());
+        assertEquals("VALUE_02", dto.getValue());
+        assertEquals("loan", dto.getProduct());
+    }
 }
-
-
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.context;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContextResponse {
-    private String key;
-    private Object value;
-    private String product;
-    
-    public String getKey() {
-        return key;
-    }
-    public void setKey(String key) {
-        this.key = key;
-    }
-    public Object getValue() {
-        return value;
-    }
-    public void setValue(Object value) {
-        this.value = value;
-    }
-    public String getProduct() {
-        return product;
-    }
-    public void setProduct(String product) {
-        this.product = product;
+class ContextResponseTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        ContextResponse dto = new ContextResponse();
+
+        dto.setKey("KEY_01");
+        dto.setValue("VALUE_01");
+        dto.setProduct("cdt");
+
+        assertEquals("KEY_01", dto.getKey());
+        assertEquals("VALUE_01", dto.getValue());
+        assertEquals("cdt", dto.getProduct());
     }
 
-    
+    @Test
+    void shouldCreateUsingAllArgsConstructor() {
+
+        ContextResponse dto = new ContextResponse(
+                "KEY_02",
+                "VALUE_02",
+                "loan"
+        );
+
+        assertEquals("KEY_02", dto.getKey());
+        assertEquals("VALUE_02", dto.getValue());
+        assertEquals("loan", dto.getProduct());
+    }
 }
-
-
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-/**
- * params from properties.yml
- */
+import static org.junit.jupiter.api.Assertions.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
-public class ApiEntry {
-    private String integrationType;
-    private String host;
-    private String port;
-    private boolean https;
-    private String endpoint;
-    private Integer timeOutConn;
-    private Integer timeOutRead;
-    
-    public String getIntegrationType() {
-        return integrationType;
-    }
-    public void setIntegrationType(String integrationType) {
-        this.integrationType = integrationType;
-    }
-    public String getHost() {
-        return host;
-    }
-    public void setHost(String host) {
-        this.host = host;
-    }
-    public String getPort() {
-        return port;
-    }
-    public void setPort(String port) {
-        this.port = port;
-    }
-    public boolean isHttps() {
-        return https;
-    }
-    public void setHttps(boolean https) {
-        this.https = https;
-    }
-    public String getEndpoint() {
-        return endpoint;
-    }
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-    public Integer getTimeOutConn() {
-        return timeOutConn;
-    }
-    public void setTimeOutConn(Integer timeOutConn) {
-        this.timeOutConn = timeOutConn;
-    }
-    public Integer getTimeOutRead() {
-        return timeOutRead;
-    }
-    public void setTimeOutRead(Integer timeOutRead) {
-        this.timeOutRead = timeOutRead;
+class ApiEntryTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        ApiEntry dto = new ApiEntry();
+
+        dto.setIntegrationType("SANBA");
+        dto.setHost("localhost");
+        dto.setPort("8080");
+        dto.setHttps(true);
+        dto.setEndpoint("/api/test");
+        dto.setTimeOutConn(5000);
+        dto.setTimeOutRead(10000);
+
+        assertEquals("SANBA", dto.getIntegrationType());
+        assertEquals("localhost", dto.getHost());
+        assertEquals("8080", dto.getPort());
+        assertTrue(dto.isHttps());
+        assertEquals("/api/test", dto.getEndpoint());
+        assertEquals(5000, dto.getTimeOutConn());
+        assertEquals(10000, dto.getTimeOutRead());
     }
 
-    
+    @Test
+    void shouldCreateUsingAllArgsConstructor() {
+
+        ApiEntry dto = new ApiEntry(
+                "PARAMS",
+                "127.0.0.1",
+                "9090",
+                false,
+                "/params",
+                3000,
+                6000
+        );
+
+        assertEquals("PARAMS", dto.getIntegrationType());
+        assertEquals("127.0.0.1", dto.getHost());
+        assertEquals("9090", dto.getPort());
+        assertFalse(dto.isHttps());
+        assertEquals("/params", dto.getEndpoint());
+        assertEquals(3000, dto.getTimeOutConn());
+        assertEquals(6000, dto.getTimeOutRead());
+    }
 }
-
-
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-@NoArgsConstructor
-@AllArgsConstructor
-public class SecurityHeaders {
-    private String authorization;
-    private String xSantanderClientId;
-    
-    public String getAuthorization() {
-        return authorization;
-    }
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
-    }
-    public String getxSantanderClientId() {
-        return xSantanderClientId;
-    }
-    public void setxSantanderClientId(String xSantanderClientId) {
-        this.xSantanderClientId = xSantanderClientId;
+import static org.junit.jupiter.api.Assertions.*;
+
+class SecurityHeadersTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        SecurityHeaders dto = new SecurityHeaders();
+
+        dto.setAuthorization("Bearer token");
+        dto.setxSantanderClientId("client-001");
+
+        assertEquals("Bearer token", dto.getAuthorization());
+        assertEquals("client-001", dto.getxSantanderClientId());
     }
 
-    
+    @Test
+    void shouldCreateUsingAllArgsConstructor() {
+
+        SecurityHeaders dto = new SecurityHeaders(
+                "Bearer abc123",
+                "client-999"
+        );
+
+        assertEquals("Bearer abc123", dto.getAuthorization());
+        assertEquals("client-999", dto.getxSantanderClientId());
+    }
 }

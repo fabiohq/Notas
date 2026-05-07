@@ -1,148 +1,5 @@
-Te dejo los tests faltantes, separados clase por clase.
-ProspectCreatedResponseDTOTest
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.response;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ProspectCreatedResponseDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        ProspectCreatedResponseDTO dto = new ProspectCreatedResponseDTO();
-
-        dto.setProspectId("12345678");
-
-        assertEquals("12345678", dto.getProspectId());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        ProspectCreatedResponseDTO dto = new ProspectCreatedResponseDTO("87654321");
-
-        assertEquals("87654321", dto.getProspectId());
-    }
-
-    @Test
-    void shouldBuildWithBuilder() {
-        ProspectCreatedResponseDTO dto = ProspectCreatedResponseDTO.builder()
-                .prospectId("99999999")
-                .build();
-
-        assertEquals("99999999", dto.getProspectId());
-    }
-}
-PaginationCommonDTOTest
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.pagination;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PaginationCommonDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PaginationCommonDTO dto = new PaginationCommonDTO();
-
-        dto.setOffset("0");
-        dto.setLimit("10");
-
-        assertEquals("0", dto.getOffset());
-        assertEquals("10", dto.getLimit());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        PaginationCommonDTO dto = new PaginationCommonDTO("5", "20");
-
-        assertEquals("5", dto.getOffset());
-        assertEquals("20", dto.getLimit());
-    }
-
-    @Test
-    void shouldBuildWithBuilder() {
-        PaginationCommonDTO dto = PaginationCommonDTO.builder()
-                .offset("1")
-                .limit("50")
-                .build();
-
-        assertEquals("1", dto.getOffset());
-        assertEquals("50", dto.getLimit());
-    }
-}
-PaginationDTOTest
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.pagination;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PaginationDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PaginationCommonDTO first = new PaginationCommonDTO("0", "10");
-        PaginationCommonDTO prev = new PaginationCommonDTO("0", "10");
-        PaginationCommonDTO next = new PaginationCommonDTO("10", "10");
-        PaginationCommonDTO last = new PaginationCommonDTO("90", "10");
-        PaginationCommonDTO self = new PaginationCommonDTO("0", "10");
-
-        PaginationDTO dto = new PaginationDTO();
-
-        dto.setFirst(first);
-        dto.setPrev(prev);
-        dto.setNext(next);
-        dto.setLast(last);
-        dto.setSelf(self);
-
-        assertSame(first, dto.getFirst());
-        assertSame(prev, dto.getPrev());
-        assertSame(next, dto.getNext());
-        assertSame(last, dto.getLast());
-        assertSame(self, dto.getSelf());
-    }
-
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        PaginationCommonDTO common = new PaginationCommonDTO("0", "10");
-
-        PaginationDTO dto = new PaginationDTO(common, common, common, common, common);
-
-        assertSame(common, dto.getFirst());
-        assertSame(common, dto.getPrev());
-        assertSame(common, dto.getNext());
-        assertSame(common, dto.getLast());
-        assertSame(common, dto.getSelf());
-    }
-
-    @Test
-    void shouldBuildWithBuilder() {
-        PaginationCommonDTO common = PaginationCommonDTO.builder()
-                .offset("1")
-                .limit("25")
-                .build();
-
-        PaginationDTO dto = PaginationDTO.builder()
-                .first(common)
-                .prev(common)
-                .next(common)
-                .last(common)
-                .self(common)
-                .build();
-
-        assertSame(common, dto.getFirst());
-        assertSame(common, dto.getPrev());
-        assertSame(common, dto.getNext());
-        assertSame(common, dto.getLast());
-        assertSame(common, dto.getSelf());
-    }
-}
-BankDTOTest
+Aquí van las 3 que faltan, separadas.
+DocumentDTOTest
 Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
 
@@ -150,39 +7,93 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BankDTOTest {
+class DocumentDTOTest {
 
     @Test
     void shouldSetAndGetAllFields() {
-        BankDTO dto = new BankDTO();
+        CodeNameDTO country = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO state = new CodeNameDTO("11", "Bogotá");
 
-        dto.setBankId("0065");
-        dto.setBankName("Santander");
+        DocumentDTO dto = new DocumentDTO();
 
-        assertEquals("0065", dto.getBankId());
-        assertEquals("Santander", dto.getBankName());
+        dto.setDocumentTypeCode("CC");
+        dto.setDocumentTypeDescription("Cédula");
+        dto.setDocumentNumber("123456789");
+        dto.setIssueDate("2026-01-01");
+        dto.setExpirationDate("2030-01-01");
+        dto.setIssuerEntity("Registraduría");
+        dto.setCountry(country);
+        dto.setState(state);
+        dto.setTown("Bogotá");
+
+        assertEquals("CC", dto.getDocumentTypeCode());
+        assertEquals("Cédula", dto.getDocumentTypeDescription());
+        assertEquals("123456789", dto.getDocumentNumber());
+        assertEquals("2026-01-01", dto.getIssueDate());
+        assertEquals("2030-01-01", dto.getExpirationDate());
+        assertEquals("Registraduría", dto.getIssuerEntity());
+        assertSame(country, dto.getCountry());
+        assertSame(state, dto.getState());
+        assertEquals("Bogotá", dto.getTown());
     }
 
     @Test
     void shouldBuildWithAllArgsConstructor() {
-        BankDTO dto = new BankDTO("001", "Bank");
+        CodeNameDTO country = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO state = new CodeNameDTO("05", "Antioquia");
 
-        assertEquals("001", dto.getBankId());
-        assertEquals("Bank", dto.getBankName());
+        DocumentDTO dto = new DocumentDTO(
+                "CE",
+                "Cédula extranjería",
+                "987654321",
+                "2025-01-01",
+                "2029-01-01",
+                "Migración",
+                country,
+                state,
+                "Medellín"
+        );
+
+        assertEquals("CE", dto.getDocumentTypeCode());
+        assertEquals("Cédula extranjería", dto.getDocumentTypeDescription());
+        assertEquals("987654321", dto.getDocumentNumber());
+        assertEquals("2025-01-01", dto.getIssueDate());
+        assertEquals("2029-01-01", dto.getExpirationDate());
+        assertEquals("Migración", dto.getIssuerEntity());
+        assertSame(country, dto.getCountry());
+        assertSame(state, dto.getState());
+        assertEquals("Medellín", dto.getTown());
     }
 
     @Test
     void shouldBuildWithBuilder() {
-        BankDTO dto = BankDTO.builder()
-                .bankId("002")
-                .bankName("Test Bank")
+        CodeNameDTO country = CodeNameDTO.builder().code("ES").name("España").build();
+        CodeNameDTO state = CodeNameDTO.builder().code("MD").name("Madrid").build();
+
+        DocumentDTO dto = DocumentDTO.builder()
+                .documentTypeCode("PP")
+                .documentTypeDescription("Pasaporte")
+                .documentNumber("ABC123")
+                .issueDate("2024-01-01")
+                .expirationDate("2034-01-01")
+                .issuerEntity("Entidad")
+                .country(country)
+                .state(state)
+                .town("Madrid")
                 .build();
 
-        assertEquals("002", dto.getBankId());
-        assertEquals("Test Bank", dto.getBankName());
+        assertEquals("PP", dto.getDocumentTypeCode());
+        assertEquals("Pasaporte", dto.getDocumentTypeDescription());
+        assertEquals("ABC123", dto.getDocumentNumber());
+        assertEquals("2024-01-01", dto.getIssueDate());
+        assertEquals("2034-01-01", dto.getExpirationDate());
+        assertEquals("Entidad", dto.getIssuerEntity());
+        assertSame(country, dto.getCountry());
+        assertSame(state, dto.getState());
+        assertEquals("Madrid", dto.getTown());
     }
 }
-CodeNameDTOTest
+ParametersTest
 Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
 
@@ -190,75 +101,315 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CodeNameDTOTest {
+class ParametersTest {
 
     @Test
     void shouldSetAndGetAllFields() {
-        CodeNameDTO dto = new CodeNameDTO();
+        CodeNameDTO countryNationality = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO countryExp = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO countryBirth = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO countryDir = new CodeNameDTO("CO", "Colombia");
+        CodeNameDTO cityStandard = new CodeNameDTO("11001", "Bogotá");
+        CodeNameDTO cityDepartment = new CodeNameDTO("11", "Bogotá D.C.");
+        CodeNameDTO cityExp = new CodeNameDTO("11001", "Bogotá");
+        CodeNameDTO cityBirth = new CodeNameDTO("05001", "Medellín");
+        CodeNameDTO town = new CodeNameDTO("05001", "Medellín");
+        CodeNameDTO townDocument = new CodeNameDTO("11001", "Bogotá");
 
-        dto.setCode("CO");
-        dto.setName("Colombia");
+        Parameters dto = new Parameters();
 
-        assertEquals("CO", dto.getCode());
-        assertEquals("Colombia", dto.getName());
+        dto.setCountryNationality(countryNationality);
+        dto.setCountryExp(countryExp);
+        dto.setCountryBirth(countryBirth);
+        dto.setCountryDir(countryDir);
+        dto.setCityStandard(cityStandard);
+        dto.setCityDepartment(cityDepartment);
+        dto.setCityExp(cityExp);
+        dto.setCityBirth(cityBirth);
+        dto.setTown(town);
+        dto.setTownDocument(townDocument);
+        dto.setDocumentTypeDescription("Cédula");
+        dto.setStreetTypeDescription("Calle");
+
+        assertSame(countryNationality, dto.getCountryNationality());
+        assertSame(countryExp, dto.getCountryExp());
+        assertSame(countryBirth, dto.getCountryBirth());
+        assertSame(countryDir, dto.getCountryDir());
+        assertSame(cityStandard, dto.getCityStandard());
+        assertSame(cityDepartment, dto.getCityDepartment());
+        assertSame(cityExp, dto.getCityExp());
+        assertSame(cityBirth, dto.getCityBirth());
+        assertSame(town, dto.getTown());
+        assertSame(townDocument, dto.getTownDocument());
+        assertEquals("Cédula", dto.getDocumentTypeDescription());
+        assertEquals("Calle", dto.getStreetTypeDescription());
     }
 
     @Test
     void shouldBuildWithAllArgsConstructor() {
-        CodeNameDTO dto = new CodeNameDTO("ES", "España");
+        CodeNameDTO value = new CodeNameDTO("CO", "Colombia");
 
-        assertEquals("ES", dto.getCode());
-        assertEquals("España", dto.getName());
+        Parameters dto = new Parameters(
+                value,
+                value,
+                value,
+                value,
+                value,
+                value,
+                value,
+                value,
+                value,
+                value,
+                "Pasaporte",
+                "Carrera"
+        );
+
+        assertSame(value, dto.getCountryNationality());
+        assertSame(value, dto.getCountryExp());
+        assertSame(value, dto.getCountryBirth());
+        assertSame(value, dto.getCountryDir());
+        assertSame(value, dto.getCityStandard());
+        assertSame(value, dto.getCityDepartment());
+        assertSame(value, dto.getCityExp());
+        assertSame(value, dto.getCityBirth());
+        assertSame(value, dto.getTown());
+        assertSame(value, dto.getTownDocument());
+        assertEquals("Pasaporte", dto.getDocumentTypeDescription());
+        assertEquals("Carrera", dto.getStreetTypeDescription());
     }
 
     @Test
     void shouldBuildWithBuilder() {
-        CodeNameDTO dto = CodeNameDTO.builder()
-                .code("US")
-                .name("Estados Unidos")
+        CodeNameDTO value = CodeNameDTO.builder()
+                .code("11")
+                .name("Bogotá")
                 .build();
 
-        assertEquals("US", dto.getCode());
-        assertEquals("Estados Unidos", dto.getName());
+        Parameters dto = Parameters.builder()
+                .countryNationality(value)
+                .countryExp(value)
+                .countryBirth(value)
+                .countryDir(value)
+                .cityStandard(value)
+                .cityDepartment(value)
+                .cityExp(value)
+                .cityBirth(value)
+                .town(value)
+                .townDocument(value)
+                .documentTypeDescription("Cédula ciudadanía")
+                .streetTypeDescription("Avenida")
+                .build();
+
+        assertSame(value, dto.getCountryNationality());
+        assertSame(value, dto.getCountryExp());
+        assertSame(value, dto.getCountryBirth());
+        assertSame(value, dto.getCountryDir());
+        assertSame(value, dto.getCityStandard());
+        assertSame(value, dto.getCityDepartment());
+        assertSame(value, dto.getCityExp());
+        assertSame(value, dto.getCityBirth());
+        assertSame(value, dto.getTown());
+        assertSame(value, dto.getTownDocument());
+        assertEquals("Cédula ciudadanía", dto.getDocumentTypeDescription());
+        assertEquals("Avenida", dto.getStreetTypeDescription());
     }
 }
-AuditDTOTest
+PostalAddressDTOTest
 Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response;
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class AuditDTOTest {
+class PostalAddressDTOTest {
 
     @Test
     void shouldSetAndGetAllFields() {
-        AuditDTO dto = new AuditDTO();
+        CodeNameDTO town = new CodeNameDTO("11001", "Bogotá");
+        CodeNameDTO state = new CodeNameDTO("11", "Bogotá D.C.");
+        CodeNameDTO province = new CodeNameDTO("PROV", "Provincia");
+        CodeNameDTO region = new CodeNameDTO("REG", "Región");
+        CodeNameDTO county = new CodeNameDTO("COUNTY", "Condado");
+        CodeNameDTO country = new CodeNameDTO("CO", "Colombia");
+        List<String> foreignAddressLines = List.of("line1", "line2");
 
-        dto.setCreationDate("2026-05-07");
-        dto.setLastUpdateDate("2026-05-08");
+        PostalAddressDTO dto = new PostalAddressDTO();
 
-        assertEquals("2026-05-07", dto.getCreationDate());
-        assertEquals("2026-05-08", dto.getLastUpdateDate());
-    }
+        dto.setFullAddress("Calle 1 # 2-3");
+        dto.setFormatCode("FMT");
+        dto.setFormatDescription("Formato");
+        dto.setIsAddressValidated(Boolean.TRUE);
+        dto.setMatchId("MATCH");
+        dto.setStreetTypeCode("CL");
+        dto.setStreetTypeDescription("Calle");
+        dto.setStreetName("1");
+        dto.setSecondaryStreetName("2");
+        dto.setStreetBuildingIdentification("3");
+        dto.setMailDeliverySubLocation("Sub");
+        dto.setBuildingName("Edificio");
+        dto.setFloor("5");
+        dto.setDetailCode("DET");
+        dto.setUnitType("APT");
+        dto.setUnitNumber("501");
+        dto.setPremise("Premise");
+        dto.setAlternativePremise("Alt");
+        dto.setDepartment("Dept");
+        dto.setSubDepartment("SubDept");
+        dto.setPostCodeIdentification("110111");
+        dto.setTown(town);
+        dto.setState(state);
+        dto.setDistrictName("Distrito");
+        dto.setSecondaryDistrictName("Distrito 2");
+        dto.setMailingInstructions("Instrucciones");
+        dto.setProvince(province);
+        dto.setRegionIdentification(region);
+        dto.setCountyIdentification(county);
+        dto.setCountry(country);
+        dto.setMilitary("MIL");
+        dto.setPostOfficeBox("POBOX");
+        dto.setPostBoxTypeCode("PBT");
+        dto.setPostBoxTypeDescription("Post box");
+        dto.setForeignAddressLines(foreignAddressLines);
+        dto.setZipCode("110111");
+        dto.setZip4Code("0001");
+        dto.setRuralTypeCode("RUR");
+        dto.setRuralTypeDescription("Rural");
+        dto.setRuralNumber("10");
 
-    @Test
-    void shouldBuildWithAllArgsConstructor() {
-        AuditDTO dto = new AuditDTO("2026-01-01", "2026-01-02");
-
-        assertEquals("2026-01-01", dto.getCreationDate());
-        assertEquals("2026-01-02", dto.getLastUpdateDate());
+        assertEquals("Calle 1 # 2-3", dto.getFullAddress());
+        assertEquals("FMT", dto.getFormatCode());
+        assertEquals("Formato", dto.getFormatDescription());
+        assertTrue(dto.getIsAddressValidated());
+        assertEquals("MATCH", dto.getMatchId());
+        assertEquals("CL", dto.getStreetTypeCode());
+        assertEquals("Calle", dto.getStreetTypeDescription());
+        assertEquals("1", dto.getStreetName());
+        assertEquals("2", dto.getSecondaryStreetName());
+        assertEquals("3", dto.getStreetBuildingIdentification());
+        assertEquals("Sub", dto.getMailDeliverySubLocation());
+        assertEquals("Edificio", dto.getBuildingName());
+        assertEquals("5", dto.getFloor());
+        assertEquals("DET", dto.getDetailCode());
+        assertEquals("APT", dto.getUnitType());
+        assertEquals("501", dto.getUnitNumber());
+        assertEquals("Premise", dto.getPremise());
+        assertEquals("Alt", dto.getAlternativePremise());
+        assertEquals("Dept", dto.getDepartment());
+        assertEquals("SubDept", dto.getSubDepartment());
+        assertEquals("110111", dto.getPostCodeIdentification());
+        assertSame(town, dto.getTown());
+        assertSame(state, dto.getState());
+        assertEquals("Distrito", dto.getDistrictName());
+        assertEquals("Distrito 2", dto.getSecondaryDistrictName());
+        assertEquals("Instrucciones", dto.getMailingInstructions());
+        assertSame(province, dto.getProvince());
+        assertSame(region, dto.getRegionIdentification());
+        assertSame(county, dto.getCountyIdentification());
+        assertSame(country, dto.getCountry());
+        assertEquals("MIL", dto.getMilitary());
+        assertEquals("POBOX", dto.getPostOfficeBox());
+        assertEquals("PBT", dto.getPostBoxTypeCode());
+        assertEquals("Post box", dto.getPostBoxTypeDescription());
+        assertSame(foreignAddressLines, dto.getForeignAddressLines());
+        assertEquals("110111", dto.getZipCode());
+        assertEquals("0001", dto.getZip4Code());
+        assertEquals("RUR", dto.getRuralTypeCode());
+        assertEquals("Rural", dto.getRuralTypeDescription());
+        assertEquals("10", dto.getRuralNumber());
     }
 
     @Test
     void shouldBuildWithBuilder() {
-        AuditDTO dto = AuditDTO.builder()
-                .creationDate("2026-02-01")
-                .lastUpdateDate("2026-02-02")
+        CodeNameDTO codeName = CodeNameDTO.builder()
+                .code("CO")
+                .name("Colombia")
                 .build();
 
-        assertEquals("2026-02-01", dto.getCreationDate());
-        assertEquals("2026-02-02", dto.getLastUpdateDate());
+        PostalAddressDTO dto = PostalAddressDTO.builder()
+                .fullAddress("Address")
+                .formatCode("FMT")
+                .formatDescription("Format description")
+                .isAddressValidated(Boolean.FALSE)
+                .matchId("MATCH")
+                .streetTypeCode("CL")
+                .streetTypeDescription("Calle")
+                .streetName("Street")
+                .secondaryStreetName("Second")
+                .streetBuildingIdentification("BuildingId")
+                .mailDeliverySubLocation("SubLocation")
+                .buildingName("Building")
+                .floor("2")
+                .detailCode("Detail")
+                .unitType("Unit")
+                .unitNumber("202")
+                .premise("Premise")
+                .alternativePremise("Alternative")
+                .department("Department")
+                .subDepartment("SubDepartment")
+                .postCodeIdentification("PostCode")
+                .town(codeName)
+                .state(codeName)
+                .districtName("District")
+                .secondaryDistrictName("SecondaryDistrict")
+                .mailingInstructions("Mailing")
+                .province(codeName)
+                .regionIdentification(codeName)
+                .countyIdentification(codeName)
+                .country(codeName)
+                .military("Military")
+                .postOfficeBox("Box")
+                .postBoxTypeCode("BoxType")
+                .postBoxTypeDescription("Box description")
+                .foreignAddressLines(List.of("line"))
+                .zipCode("Zip")
+                .zip4Code("Zip4")
+                .ruralTypeCode("RuralType")
+                .ruralTypeDescription("Rural description")
+                .ruralNumber("RuralNumber")
+                .build();
+
+        assertEquals("Address", dto.getFullAddress());
+        assertEquals("FMT", dto.getFormatCode());
+        assertEquals("Format description", dto.getFormatDescription());
+        assertFalse(dto.getIsAddressValidated());
+        assertEquals("MATCH", dto.getMatchId());
+        assertEquals("CL", dto.getStreetTypeCode());
+        assertEquals("Calle", dto.getStreetTypeDescription());
+        assertEquals("Street", dto.getStreetName());
+        assertEquals("Second", dto.getSecondaryStreetName());
+        assertEquals("BuildingId", dto.getStreetBuildingIdentification());
+        assertEquals("SubLocation", dto.getMailDeliverySubLocation());
+        assertEquals("Building", dto.getBuildingName());
+        assertEquals("2", dto.getFloor());
+        assertEquals("Detail", dto.getDetailCode());
+        assertEquals("Unit", dto.getUnitType());
+        assertEquals("202", dto.getUnitNumber());
+        assertEquals("Premise", dto.getPremise());
+        assertEquals("Alternative", dto.getAlternativePremise());
+        assertEquals("Department", dto.getDepartment());
+        assertEquals("SubDepartment", dto.getSubDepartment());
+        assertEquals("PostCode", dto.getPostCodeIdentification());
+        assertSame(codeName, dto.getTown());
+        assertSame(codeName, dto.getState());
+        assertEquals("District", dto.getDistrictName());
+        assertEquals("SecondaryDistrict", dto.getSecondaryDistrictName());
+        assertEquals("Mailing", dto.getMailingInstructions());
+        assertSame(codeName, dto.getProvince());
+        assertSame(codeName, dto.getRegionIdentification());
+        assertSame(codeName, dto.getCountyIdentification());
+        assertSame(codeName, dto.getCountry());
+        assertEquals("Military", dto.getMilitary());
+        assertEquals("Box", dto.getPostOfficeBox());
+        assertEquals("BoxType", dto.getPostBoxTypeCode());
+        assertEquals("Box description", dto.getPostBoxTypeDescription());
+        assertEquals(List.of("line"), dto.getForeignAddressLines());
+        assertEquals("Zip", dto.getZipCode());
+        assertEquals("Zip4", dto.getZip4Code());
+        assertEquals("RuralType", dto.getRuralTypeCode());
+        assertEquals("Rural description", dto.getRuralTypeDescription());
+        assertEquals("RuralNumber", dto.getRuralNumber());
     }
 }

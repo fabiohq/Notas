@@ -1,5 +1,3 @@
-Sí. Para cubrir esas clases DTO, lo más directo es un test por clase, usando setters/getters. Empieza con estos:
-AdditionalInfoTest.java
 Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
 
@@ -7,84 +5,131 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AdditionalInfoTest {
+class ComplementaryInfoTest {
 
     @Test
     void shouldSetAndGetAllFields() {
-        AdditionalInfo dto = new AdditionalInfo();
 
-        dto.setPaisResidenciaFiscal1("CO");
+        ComplementaryInfo dto = new ComplementaryInfo();
+
+        dto.setEstadoCivil("S");
+        dto.setTipoVivienda("CASA");
+        dto.setEstrato("3");
+        dto.setAnios("10");
+        dto.setMes("5");
+        dto.setAnios2("2");
+        dto.setNivelEstudios("UNIVERSITARIO");
+        dto.setPersonasCargo("2");
+        dto.setNumHijos("1");
+        dto.setHstamp1("H1");
+        dto.setHstamp2("H2");
+        dto.setLugnac("11001");
+        dto.setNumper2("123456");
+        dto.setNumintp("999");
+        dto.setSeccel("1");
+        dto.setSecdoc("2");
+        dto.setSecdotc("3");
+        dto.setSecdotp("4");
+        dto.setSecema("5");
+        dto.setSectelp("6");
+        dto.setTipdoc("CC");
+
+        assertEquals("S", dto.getEstadoCivil());
+        assertEquals("CASA", dto.getTipoVivienda());
+        assertEquals("3", dto.getEstrato());
+        assertEquals("10", dto.getAnios());
+        assertEquals("5", dto.getMes());
+        assertEquals("2", dto.getAnios2());
+        assertEquals("UNIVERSITARIO", dto.getNivelEstudios());
+        assertEquals("2", dto.getPersonasCargo());
+        assertEquals("1", dto.getNumHijos());
+        assertEquals("H1", dto.getHstamp1());
+        assertEquals("H2", dto.getHstamp2());
+        assertEquals("11001", dto.getLugnac());
+        assertEquals("123456", dto.getNumper2());
+        assertEquals("999", dto.getNumintp());
+        assertEquals("1", dto.getSeccel());
+        assertEquals("2", dto.getSecdoc());
+        assertEquals("3", dto.getSecdotc());
+        assertEquals("4", dto.getSecdotp());
+        assertEquals("5", dto.getSecema());
+        assertEquals("6", dto.getSectelp());
+        assertEquals("CC", dto.getTipdoc());
+    }
+}
+Java
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class EconomyActivityTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        EconomyActivity dto = new EconomyActivity();
+
+        dto.setCargo("DEV");
+        dto.setDescCargo("Developer");
+        dto.setTipoVia("CL");
+        dto.setDepartamento("11");
+        dto.setTipoContrato("FIJO");
+        dto.setPais("COL");
         dto.setPaisDescripcion("Colombia");
-        dto.setPaisResidenciaFiscal2("US");
-        dto.setPaisDescripcion2("USA");
-        dto.setClasificacionFATCA("FATCA");
-        dto.setClasificacionCRS("CRS");
-        dto.setValidacionFATCA(true);
-        dto.setSalario(true);
-        dto.setPensiones(false);
-        dto.setPrestacionesServicio(true);
-        dto.setArrendamientos(false);
-        dto.setDonacionHerencia(true);
-        dto.setHonorarios(false);
-        dto.setMesada(true);
-        dto.setActividadIndependiente(false);
-        dto.setOtro(true);
-        dto.setNumIdentiTributaria1("123");
-        dto.setNumIdentiTributaria2("456");
-        dto.setPreFormalizacion("PRE");
-        dto.setValidacionCRS(true);
-        dto.setSelfCertificacion(false);
-        dto.setContribuyenteVentaColombia(true);
-        dto.setReportable(false);
-        dto.setAutorizoEnvioInformacion(true);
-        dto.setCanalVenta("WEB");
-        dto.setOficial("OFI");
-        dto.setSucursal("001");
-        dto.setuNeg("NEG");
-        dto.setSitCliente("ACTIVO");
-        dto.setfAltaCliente("2026-05-07");
-        dto.setNumdoc("123456");
-        dto.setNumper("87654321");
+        dto.setCiudad("11001");
+        dto.setCiudadDescripcion("Bogota");
+        dto.setOcupacion("ING");
+        dto.setDescOcupacion("Ingeniero");
+        dto.setActiEconomica("6201");
+        dto.setDescActiEconomica("Software");
+        dto.setAntiguedadAnio("5");
+        dto.setAntiguedadMes("6");
+        dto.setNombreEmpresa("Santander");
+        dto.setNit("123456");
+        dto.setFechaIngreso("2020-01-01");
+        dto.setFecha2("2021-01-01");
+        dto.setNombreVia("Calle 1");
+        dto.setDescripcionDireccion("Apto 101");
+        dto.setIndicativo("57");
+        dto.setTelefono("3001234567");
+        dto.setOpcionActividad("EMP");
+        dto.setNumdoc("123");
+        dto.setNumper("999");
         dto.setSecdoc("1");
         dto.setTipdoc("CC");
 
-        assertEquals("CO", dto.getPaisResidenciaFiscal1());
+        assertEquals("DEV", dto.getCargo());
+        assertEquals("Developer", dto.getDescCargo());
+        assertEquals("CL", dto.getTipoVia());
+        assertEquals("11", dto.getDepartamento());
+        assertEquals("FIJO", dto.getTipoContrato());
+        assertEquals("COL", dto.getPais());
         assertEquals("Colombia", dto.getPaisDescripcion());
-        assertEquals("US", dto.getPaisResidenciaFiscal2());
-        assertEquals("USA", dto.getPaisDescripcion2());
-        assertEquals("FATCA", dto.getClasificacionFATCA());
-        assertEquals("CRS", dto.getClasificacionCRS());
-        assertTrue(dto.getValidacionFATCA());
-        assertTrue(dto.getSalario());
-        assertFalse(dto.getPensiones());
-        assertTrue(dto.getPrestacionesServicio());
-        assertFalse(dto.getArrendamientos());
-        assertTrue(dto.getDonacionHerencia());
-        assertFalse(dto.getHonorarios());
-        assertTrue(dto.getMesada());
-        assertFalse(dto.getActividadIndependiente());
-        assertTrue(dto.getOtro());
-        assertEquals("123", dto.getNumIdentiTributaria1());
-        assertEquals("456", dto.getNumIdentiTributaria2());
-        assertEquals("PRE", dto.getPreFormalizacion());
-        assertTrue(dto.getValidacionCRS());
-        assertFalse(dto.getSelfCertificacion());
-        assertTrue(dto.getContribuyenteVentaColombia());
-        assertFalse(dto.getReportable());
-        assertTrue(dto.getAutorizoEnvioInformacion());
-        assertEquals("WEB", dto.getCanalVenta());
-        assertEquals("OFI", dto.getOficial());
-        assertEquals("001", dto.getSucursal());
-        assertEquals("NEG", dto.getuNeg());
-        assertEquals("ACTIVO", dto.getSitCliente());
-        assertEquals("2026-05-07", dto.getfAltaCliente());
-        assertEquals("123456", dto.getNumdoc());
-        assertEquals("87654321", dto.getNumper());
+        assertEquals("11001", dto.getCiudad());
+        assertEquals("Bogota", dto.getCiudadDescripcion());
+        assertEquals("ING", dto.getOcupacion());
+        assertEquals("Ingeniero", dto.getDescOcupacion());
+        assertEquals("6201", dto.getActiEconomica());
+        assertEquals("Software", dto.getDescActiEconomica());
+        assertEquals("5", dto.getAntiguedadAnio());
+        assertEquals("6", dto.getAntiguedadMes());
+        assertEquals("Santander", dto.getNombreEmpresa());
+        assertEquals("123456", dto.getNit());
+        assertEquals("2020-01-01", dto.getFechaIngreso());
+        assertEquals("2021-01-01", dto.getFecha2());
+        assertEquals("Calle 1", dto.getNombreVia());
+        assertEquals("Apto 101", dto.getDescripcionDireccion());
+        assertEquals("57", dto.getIndicativo());
+        assertEquals("3001234567", dto.getTelefono());
+        assertEquals("EMP", dto.getOpcionActividad());
+        assertEquals("123", dto.getNumdoc());
+        assertEquals("999", dto.getNumper());
         assertEquals("1", dto.getSecdoc());
         assertEquals("CC", dto.getTipdoc());
     }
 }
-BasicDataTest.java
 Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
 
@@ -92,250 +137,234 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BasicDataTest {
+class FinancialInformationTest {
 
     @Test
     void shouldSetAndGetAllFields() {
-        BasicData dto = new BasicData();
 
-        dto.setTipoIdentificacion("CC");
-        dto.setNumeroIdentificacion("123");
-        dto.setNombre("Fabio");
-        dto.setPrimerApellido("Perez");
-        dto.setSegundoApellido("Lopez");
-        dto.setPaisExpedicion("COL");
-        dto.setPaisExpedicionDesc("Colombia");
-        dto.setCiudadExpedicion("11001");
-        dto.setLugardeExpDescripcion("Bogota");
-        dto.setFechaExpedicion("2020-01-01");
-        dto.setPaisNacimiento("COL");
-        dto.setPaisNacimientoDesc("Colombia");
-        dto.setNacionalidad("COL");
-        dto.setNacionalidadDesc("Colombiano");
-        dto.setCiudadNacimiento("11001");
-        dto.setLugardeNacimiento("Bogota");
-        dto.setFechaNacimiento("1990-01-01");
-        dto.setSexo("H");
-        dto.setPaisDireccion("COL");
-        dto.setPaisDireccionDesc("Colombia");
-        dto.setDepartamento("11");
-        dto.setCiudad("11001");
-        dto.setCiudadDescripcion("Bogota");
-        dto.setTipoVia("CL");
-        dto.setNombreVia("Calle 1");
-        dto.setDescripcionDireccion("Apto 101");
-        dto.setClase("004");
-        dto.setIndicativo("57");
-        dto.setTelefono("6011234567");
-        dto.setPrecelular("57");
-        dto.setCelular("3001234567");
-        dto.setEmail("test@test.com");
-        dto.setAutorizoTelefono(true);
-        dto.setAutorizacionEmail(false);
-        dto.setAgrofic("0003");
-        dto.setCodact("ACT");
-        dto.setCodpaip("57");
-        dto.setConper("NCL");
-        dto.setDomant("1");
-        dto.setEntpre("ENT");
-        dto.setEstciv("S");
-        dto.setEstper("A");
-        dto.setEstrat("3");
-        dto.setFecalt("2020-01-01");
-        dto.setFecfal("2021-01-01");
-        dto.setFecing("2022-01-01");
-        dto.setHstamp("h1");
-        dto.setHstamp2("h2");
-        dto.setHstamp3("h3");
-        dto.setHstamp4("h4");
-        dto.setHstamp5("h5");
-        dto.setLogdomp("logdomp");
-        dto.setLogtelp("logtelp");
-        dto.setNumper("87654321");
-        dto.setPrecel("57");
-        dto.setProfes("DEV");
-        dto.setSeccel("1");
-        dto.setSecdoc("2");
-        dto.setSecdomp("3");
-        dto.setSecdotc("4");
-        dto.setSecdotp("5");
-        dto.setSecema("6");
-        dto.setSectelp("7");
-        dto.setSucadm("0100");
-        dto.setSucmod("0200");
-        dto.setTermod("TERM");
-        dto.setTipdomp("TD");
-        dto.setTipocu("TO");
-        dto.setTipper("TP");
-        dto.setTiptelp("TT");
-        dto.setUsualt("ODSCONS");
-        dto.setUsumod("USER");
+        FinancialInformation dto = new FinancialInformation();
 
-        assertEquals("CC", dto.getTipoIdentificacion());
-        assertEquals("123", dto.getNumeroIdentificacion());
-        assertEquals("Fabio", dto.getNombre());
-        assertEquals("Perez", dto.getPrimerApellido());
-        assertEquals("Lopez", dto.getSegundoApellido());
-        assertEquals("COL", dto.getPaisExpedicion());
-        assertEquals("Colombia", dto.getPaisExpedicionDesc());
-        assertEquals("11001", dto.getCiudadExpedicion());
-        assertEquals("Bogota", dto.getLugardeExpDescripcion());
-        assertEquals("2020-01-01", dto.getFechaExpedicion());
-        assertEquals("COL", dto.getPaisNacimiento());
-        assertEquals("Colombia", dto.getPaisNacimientoDesc());
-        assertEquals("COL", dto.getNacionalidad());
-        assertEquals("Colombiano", dto.getNacionalidadDesc());
-        assertEquals("11001", dto.getCiudadNacimiento());
-        assertEquals("Bogota", dto.getLugardeNacimiento());
-        assertEquals("1990-01-01", dto.getFechaNacimiento());
-        assertEquals("H", dto.getSexo());
-        assertEquals("COL", dto.getPaisDireccion());
-        assertEquals("Colombia", dto.getPaisDireccionDesc());
-        assertEquals("11", dto.getDepartamento());
-        assertEquals("11001", dto.getCiudad());
-        assertEquals("Bogota", dto.getCiudadDescripcion());
-        assertEquals("CL", dto.getTipoVia());
-        assertEquals("Calle 1", dto.getNombreVia());
-        assertEquals("Apto 101", dto.getDescripcionDireccion());
-        assertEquals("004", dto.getClase());
-        assertEquals("57", dto.getIndicativo());
-        assertEquals("6011234567", dto.getTelefono());
-        assertEquals("57", dto.getPrecelular());
-        assertEquals("3001234567", dto.getCelular());
-        assertEquals("test@test.com", dto.getEmail());
-        assertTrue(dto.getAutorizoTelefono());
-        assertFalse(dto.getAutorizacionEmail());
-        assertEquals("0003", dto.getAgrofic());
-        assertEquals("ACT", dto.getCodact());
-        assertEquals("57", dto.getCodpaip());
-        assertEquals("NCL", dto.getConper());
-        assertEquals("1", dto.getDomant());
-        assertEquals("ENT", dto.getEntpre());
-        assertEquals("S", dto.getEstciv());
-        assertEquals("A", dto.getEstper());
-        assertEquals("3", dto.getEstrat());
-        assertEquals("2020-01-01", dto.getFecalt());
-        assertEquals("2021-01-01", dto.getFecfal());
-        assertEquals("2022-01-01", dto.getFecing());
-        assertEquals("h1", dto.getHstamp());
-        assertEquals("h2", dto.getHstamp2());
-        assertEquals("h3", dto.getHstamp3());
-        assertEquals("h4", dto.getHstamp4());
-        assertEquals("h5", dto.getHstamp5());
-        assertEquals("logdomp", dto.getLogdomp());
-        assertEquals("logtelp", dto.getLogtelp());
-        assertEquals("87654321", dto.getNumper());
-        assertEquals("57", dto.getPrecel());
-        assertEquals("DEV", dto.getProfes());
-        assertEquals("1", dto.getSeccel());
-        assertEquals("2", dto.getSecdoc());
-        assertEquals("3", dto.getSecdomp());
-        assertEquals("4", dto.getSecdotc());
-        assertEquals("5", dto.getSecdotp());
-        assertEquals("6", dto.getSecema());
-        assertEquals("7", dto.getSectelp());
-        assertEquals("0100", dto.getSucadm());
-        assertEquals("0200", dto.getSucmod());
-        assertEquals("TERM", dto.getTermod());
-        assertEquals("TD", dto.getTipdomp());
-        assertEquals("TO", dto.getTipocu());
-        assertEquals("TP", dto.getTipper());
-        assertEquals("TT", dto.getTiptelp());
-        assertEquals("ODSCONS", dto.getUsualt());
-        assertEquals("USER", dto.getUsumod());
-    }
-}
-TrxPersonRequestTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
+        dto.setIngresosFijos(1000);
+        dto.setOtrosIngresos1(200);
+        dto.setTotalIngresos(1200);
+        dto.setCuotasCreditos(300);
+        dto.setOtrosEgresos(100);
+        dto.setTotalEgresos(400);
+        dto.setBienesRaices(10000);
+        dto.setOtrosBienes(5000);
+        dto.setTotalActivos(15000);
+        dto.setSaldoTarjetaCredito(1000);
+        dto.setSaldoOtrasObligaciones(500);
+        dto.setTotalPasivos(1500);
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.generic.TrxPersonHeader;
-import org.junit.jupiter.api.Test;
+        dto.setMatricinmuebles("MAT1");
+        dto.setMatricinmuebles2("MAT2");
+        dto.setMatricinmuebles3("MAT3");
 
-import static org.junit.jupiter.api.Assertions.*;
+        dto.setValorComercial("100");
+        dto.setValorComercial2("200");
+        dto.setValorComercial3("300");
 
-class TrxPersonRequestTest {
+        dto.setSaldoHipoteca("10");
+        dto.setSaldoHipoteca2("20");
+        dto.setSaldoHipoteca3("30");
 
-    @Test
-    void shouldSetAndGetAllFields() {
-        TrxPersonHeader header = new TrxPersonHeader();
-        TrxPersonDataRequest data = new TrxPersonDataRequest();
+        dto.setSaldo("500");
+        dto.setSaldo2("600");
 
-        TrxPersonRequest request = new TrxPersonRequest();
-        request.setCabecera(header);
-        request.setData(data);
-
-        assertSame(header, request.getCabecera());
-        assertSame(data, request.getData());
-    }
-
-    @Test
-    void shouldCreateWithBuilder() {
-        TrxPersonHeader header = new TrxPersonHeader();
-        TrxPersonDataRequest data = new TrxPersonDataRequest();
-
-        TrxPersonRequest request = TrxPersonRequest.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertSame(header, request.getCabecera());
-        assertSame(data, request.getData());
-    }
-}
-TrxPersonDataRequestTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class TrxPersonDataRequestTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        BasicData basicData = new BasicData();
-        ComplementaryInfo complementaryInfo = new ComplementaryInfo();
-        EconomyActivity economyActivity = new EconomyActivity();
-        FinancialInformation financialInformation = new FinancialInformation();
-        References references = new References();
-        AdditionalInfo additionalInfo = new AdditionalInfo();
-        InternationalOperations internationalOperations = new InternationalOperations();
-        IdentificationData identificationData = new IdentificationData();
-
-        TrxPersonDataRequest dto = new TrxPersonDataRequest();
-
-        dto.setpENUMPE("12345678");
+        dto.setNumdoc("123");
+        dto.setNumper("999");
+        dto.setSecdoc("1");
+        dto.setTipdoc("CC");
         dto.setTipoInmueble("CASA");
-        dto.setDatosBasicos(basicData);
-        dto.setInfComplementaria(complementaryInfo);
-        dto.setActividadEconomica(economyActivity);
-        dto.setInfFinanciera(financialInformation);
-        dto.setReferencias(references);
-        dto.setInfAdicional(additionalInfo);
-        dto.setOperacionesInternacionales(internationalOperations);
-        dto.setDocumentoCajero("DOC");
-        dto.setTipoDocumento("CC");
-        dto.setNumDocumento("123");
-        dto.setNombre("Fabio");
-        dto.setDatosIdentificacion(List.of(identificationData));
 
-        assertEquals("12345678", dto.getpENUMPE());
+        assertEquals(1000, dto.getIngresosFijos());
+        assertEquals(200, dto.getOtrosIngresos1());
+        assertEquals(1200, dto.getTotalIngresos());
+        assertEquals(300, dto.getCuotasCreditos());
+        assertEquals(100, dto.getOtrosEgresos());
+        assertEquals(400, dto.getTotalEgresos());
+        assertEquals(10000, dto.getBienesRaices());
+        assertEquals(5000, dto.getOtrosBienes());
+        assertEquals(15000, dto.getTotalActivos());
+        assertEquals(1000, dto.getSaldoTarjetaCredito());
+        assertEquals(500, dto.getSaldoOtrasObligaciones());
+        assertEquals(1500, dto.getTotalPasivos());
+
+        assertEquals("MAT1", dto.getMatricinmuebles());
+        assertEquals("MAT2", dto.getMatricinmuebles2());
+        assertEquals("MAT3", dto.getMatricinmuebles3());
+
+        assertEquals("100", dto.getValorComercial());
+        assertEquals("200", dto.getValorComercial2());
+        assertEquals("300", dto.getValorComercial3());
+
+        assertEquals("10", dto.getSaldoHipoteca());
+        assertEquals("20", dto.getSaldoHipoteca2());
+        assertEquals("30", dto.getSaldoHipoteca3());
+
+        assertEquals("500", dto.getSaldo());
+        assertEquals("600", dto.getSaldo2());
+
+        assertEquals("123", dto.getNumdoc());
+        assertEquals("999", dto.getNumper());
+        assertEquals("1", dto.getSecdoc());
+        assertEquals("CC", dto.getTipdoc());
         assertEquals("CASA", dto.getTipoInmueble());
-        assertSame(basicData, dto.getDatosBasicos());
-        assertSame(complementaryInfo, dto.getInfComplementaria());
-        assertSame(economyActivity, dto.getActividadEconomica());
-        assertSame(financialInformation, dto.getInfFinanciera());
-        assertSame(references, dto.getReferencias());
-        assertSame(additionalInfo, dto.getInfAdicional());
-        assertSame(internationalOperations, dto.getOperacionesInternacionales());
-        assertEquals("DOC", dto.getDocumentoCajero());
-        assertEquals("CC", dto.getTipoDocumento());
-        assertEquals("123", dto.getNumDocumento());
-        assertEquals("Fabio", dto.getNombre());
-        assertEquals(1, dto.getDatosIdentificacion().size());
-        assertSame(identificationData, dto.getDatosIdentificacion().get(0));
     }
+}
+Java
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class IdentificationDataTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        IdentificationData dto = new IdentificationData();
+
+        dto.setNumeroDocumento("123");
+        dto.setNumPersona("999");
+        dto.setApellidos("Perez");
+        dto.setEstado("ACTIVO");
+        dto.setTipoPersona("N");
+
+        dto.setpECODPR("COD");
+        dto.setpEESTPE("EST");
+        dto.setpEFECNA("1990");
+        dto.setpEHSTAM("STAMP");
+        dto.setpEINDAV("A");
+        dto.setpEINDCO("B");
+        dto.setpEINDGR("C");
+        dto.setpEINDN3("D");
+        dto.setpEINDN4("E");
+        dto.setpEINDN5("F");
+        dto.setpEINDRE("G");
+        dto.setpEMARNO("H");
+        dto.setpENOMCA("I");
+        dto.setpENOMLO("J");
+        dto.setpEOBSE1("K");
+        dto.setpEPRIAP("L");
+        dto.setpERUTCA("M");
+        dto.setpESECDO("N");
+        dto.setpESEGAP("O");
+        dto.setpETIPDO("CC");
+        dto.setpETIPVI("CASA");
+
+        assertEquals("123", dto.getNumeroDocumento());
+        assertEquals("999", dto.getNumPersona());
+        assertEquals("Perez", dto.getApellidos());
+        assertEquals("ACTIVO", dto.getEstado());
+        assertEquals("N", dto.getTipoPersona());
+
+        assertEquals("COD", dto.getpECODPR());
+        assertEquals("EST", dto.getpEESTPE());
+        assertEquals("1990", dto.getpEFECNA());
+        assertEquals("STAMP", dto.getpEHSTAM());
+        assertEquals("A", dto.getpEINDAV());
+        assertEquals("B", dto.getpEINDCO());
+        assertEquals("C", dto.getpEINDGR());
+        assertEquals("D", dto.getpEINDN3());
+        assertEquals("E", dto.getpEINDN4());
+        assertEquals("F", dto.getpEINDN5());
+        assertEquals("G", dto.getpEINDRE());
+        assertEquals("H", dto.getpEMARNO());
+        assertEquals("I", dto.getpENOMCA());
+        assertEquals("J", dto.getpENOMLO());
+        assertEquals("K", dto.getpEOBSE1());
+        assertEquals("L", dto.getpEPRIAP());
+        assertEquals("M", dto.getpERUTCA());
+        assertEquals("N", dto.getpESECDO());
+        assertEquals("O", dto.getpESEGAP());
+        assertEquals("CC", dto.getpETIPDO());
+        assertEquals("CASA", dto.getpETIPVI());
+    }
+}
+Java
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class InternationalOperationsTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        InternationalOperations dto = new InternationalOperations();
+
+        dto.setRealizaOperaMoneExtran("SI");
+        dto.setInversiones(true);
+        dto.setGiros(false);
+        dto.setCreditos(true);
+        dto.setImportaciones(false);
+        dto.setExportaciones(true);
+        dto.setOtro(false);
+        dto.setTieneProdMoneExtraje("NO");
+        dto.setNumdoc("123");
+        dto.setNumper("999");
+        dto.setSecdoc("1");
+        dto.setTipdoc("CC");
+
+        assertEquals("SI", dto.getRealizaOperaMoneExtran());
+        assertTrue(dto.getInversiones());
+        assertFalse(dto.getGiros());
+        assertTrue(dto.getCreditos());
+        assertFalse(dto.getImportaciones());
+        assertTrue(dto.getExportaciones());
+        assertFalse(dto.getOtro());
+        assertEquals("NO", dto.getTieneProdMoneExtraje());
+        assertEquals("123", dto.getNumdoc());
+        assertEquals("999", dto.getNumper());
+        assertEquals("1", dto.getSecdoc());
+        assertEquals("CC", dto.getTipdoc());
+    }
+}
+Java
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ReferencesTest {
+
+    @Test
+    void shouldSetAndGetAllFields() {
+
+        References dto = new References();
+
+        dto.setParentesco("PADRE");
+        dto.setNombre("Juan");
+        dto.setPrimerApellido("Perez");
+        dto.setCiudad("11001");
+        dto.setCiudadReferencia("Bogota");
+        dto.setIndictivo("57");
+        dto.setTelefono("3001234567");
+        dto.setDireccion("Calle 1");
+        dto.setNumdoc("123");
+        dto.setNumper("999");
+        dto.setSecdoc("1");
+        dto.setSecref1("2");
+        dto.setTipdoc("CC");
+
+        assertEquals("PADRE", dto.getParentesco());
+        assertEquals("Juan", dto.getNombre());
+        assertEquals("Perez", dto.getPrimerApellido());
+        assertEquals("11001", dto.getCiudad());
+        assertEquals("Bogota", dto.getCiudadReferencia());
+        assertEquals("57", dto.getIndictivo());
+        assertEquals("3001234567", dto.getTelefono());
+        assertEquals("Calle 1", dto.getDireccion());
+        assertEquals("123", dto.getNumdoc());
+        assertEquals("999", dto.getNumper());
+        assertEquals("1", dto.getSecdoc());
+        assertEquals("2", dto.getSecref1());
+        assertEquals("CC", dto.getTipdoc());
+    }
+}

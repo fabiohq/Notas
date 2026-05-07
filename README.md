@@ -1,135 +1,118 @@
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.config;
 
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.ApiEntry;
-import lombok.Data;
-import lombok.Getter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-@Data
-@Component
-@ConfigurationProperties(prefix = "integration")
-public class IntegrationDataConfiguration {
-    @Getter
-    private List<ApiEntry> catalogue;
-    private Map<String, ApiEntry> catalogueMap;
+import static org.junit.jupiter.api.Assertions.*;
 
-    private void loadCatalogueMap() {
-        catalogueMap = catalogue.stream().collect(
-                Collectors.toMap(ApiEntry::getIntegrationType, Function.identity()));
+class IntegrationDataConfigurationTest {
+
+    @Test
+    void getByApiShouldReturnConfiguredApiEntry() {
+        ApiEntry trx = new ApiEntry();
+        trx.setIntegrationType("trx_person");
+        trx.setHost("localhost");
+
+        ApiEntry parameters = new ApiEntry();
+        parameters.setIntegrationType("parameters");
+        parameters.setHost("parameters-host");
+
+        IntegrationDataConfiguration config = new IntegrationDataConfiguration();
+        config.setCatalogue(List.of(trx, parameters));
+
+        ApiEntry result = config.getByApi("parameters");
+
+        assertNotNull(result);
+        assertEquals("parameters", result.getIntegrationType());
+        assertEquals("parameters-host", result.getHost());
     }
-    public ApiEntry getByApi(String integrationType){
-        if(catalogueMap == null){
-            loadCatalogueMap();
-        }
-        return catalogueMap.get(integrationType);
+
+    @Test
+    void getByApiShouldReturnNullWhenApiDoesNotExist() {
+        ApiEntry trx = new ApiEntry();
+        trx.setIntegrationType("trx_person");
+
+        IntegrationDataConfiguration config = new IntegrationDataConfiguration();
+        config.setCatalogue(List.of(trx));
+
+        assertNull(config.getByApi("context"));
     }
 }
-
-
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.config;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.ContextAPI;
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.ParametersAPI;
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.api.TrxPersonAPI;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.integration.ApiEntry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import java.util.List;
 
-@Configuration
-@RequiredArgsConstructor
-@Slf4j
-public class RestClientConfig {
+import static org.junit.jupiter.api.Assertions.*;
 
-    @Autowired
-    IntegrationDataConfiguration properties;
+class RestClientConfigTest {
 
-    @Bean
-    TrxPersonAPI txrTransactionApi() {
-        return getRetrofitConfig(properties.getByApi("trx_person"))
-                .addConverterFactory(JacksonConverterFactory.create(getObjectMapper(new ObjectMapper()))).build()
-                .create(TrxPersonAPI.class);
+    private RestClientConfig restClientConfig;
+
+    @BeforeEach
+    void setUp() {
+        IntegrationDataConfiguration integrationConfig = new IntegrationDataConfiguration();
+
+        integrationConfig.setCatalogue(List.of(
+                apiEntry("trx_person", "localhost", "8080", false, "/", 5, 5),
+                apiEntry("parameters", "localhost", "8081", false, "/", 5, 5),
+                apiEntry("context", "localhost", "8082", false, "/", 5, 5)
+        ));
+
+        restClientConfig = new RestClientConfig();
+        ReflectionTestUtils.setField(restClientConfig, "properties", integrationConfig);
     }
 
-    @Bean
-    ParametersAPI parametersAPI() {
-        return getRetrofitConfig(properties.getByApi("parameters"))
-                .addConverterFactory(JacksonConverterFactory.create(getObjectMapper(new ObjectMapper()))).build()
-                .create(ParametersAPI.class);
+    @Test
+    void txrTransactionApiShouldCreateBean() {
+        TrxPersonAPI api = restClientConfig.txrTransactionApi();
+
+        assertNotNull(api);
     }
 
-    @Bean
-    ContextAPI contextAPI() {
-        return getRetrofitConfig(properties.getByApi("context"))
-                .addConverterFactory(JacksonConverterFactory.create(getObjectMapper(new ObjectMapper()))).build()
-                .create(ContextAPI.class);
+    @Test
+    void parametersAPIShouldCreateBean() {
+        ParametersAPI api = restClientConfig.parametersAPI();
+
+        assertNotNull(api);
     }
 
-    private Retrofit.Builder getRetrofitConfig(ApiEntry apiEntry) {
+    @Test
+    void contextAPIShouldCreateBean() {
+        ContextAPI api = restClientConfig.contextAPI();
 
-        return new Retrofit.Builder()
-                .baseUrl(buildURL(apiEntry))
-                .client(getHttpClient(HttpLoggingInterceptor.Level.BODY,
-                        apiEntry.getTimeOutRead(),
-                        apiEntry.getTimeOutConn()));
+        assertNotNull(api);
     }
 
-    private OkHttpClient getHttpClient(HttpLoggingInterceptor.Level level, long readTimeout, long connectTimeout) {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(msg ->
-		log.info("--> OKHTTP {}",msg)
-		);
-        interceptor.setLevel(level);
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-
-        builder.readTimeout(readTimeout, TimeUnit.SECONDS);
-        builder.connectTimeout(connectTimeout, TimeUnit.SECONDS);
-        builder.addInterceptor(interceptor);
-
-        return builder
-                .build();
+    private ApiEntry apiEntry(
+            String integrationType,
+            String host,
+            String port,
+            boolean https,
+            String endpoint,
+            Integer timeOutConn,
+            Integer timeOutRead
+    ) {
+        ApiEntry apiEntry = new ApiEntry();
+        apiEntry.setIntegrationType(integrationType);
+        apiEntry.setHost(host);
+        apiEntry.setPort(port);
+        apiEntry.setHttps(https);
+        apiEntry.setEndpoint(endpoint);
+        apiEntry.setTimeOutConn(timeOutConn);
+        apiEntry.setTimeOutRead(timeOutRead);
+        return apiEntry;
     }
-
-    private ObjectMapper getObjectMapper(ObjectMapper objectMapper) {
-        return objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .setDateFormat(new StdDateFormat())
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-                .enable(JsonGenerator.Feature.IGNORE_UNKNOWN)
-                .enable(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_COMMENTS)
-                .registerModule(new JavaTimeModule());
-    }
-
-    private String buildURL(ApiEntry apiEntry) {
-        String schema = "https://";
-        if (!apiEntry.isHttps()) {
-            schema = schema.replace("s", "");
-        }
-        return schema + apiEntry.getHost() + ":" + apiEntry.getPort() + apiEntry.getEndpoint();
-    }
-
 }
+Para que compile RestClientConfigTest, asegúrate de tener spring-test en test scope.

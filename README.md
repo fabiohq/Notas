@@ -1,302 +1,463 @@
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
 
-import org.junit.jupiter.api.Test;
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.DocumentDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-import static org.junit.jupiter.api.Assertions.*;
 
-class BankRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        CenterRequestDTO center = new CenterRequestDTO();
-
-        BankRequestDTO dto = new BankRequestDTO();
-        dto.setBankId("123");
-        dto.setCenter(center);
-
-        assertEquals("123", dto.getBankId());
-        assertSame(center, dto.getCenter());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrganizationCustomerSearchDTO {
+    private OrganizationNameCustomerSearchDTO organizationName;
+    private DocumentDTO document;
+    private String typeCode;
+    private String typeDescription;
+    private String subtypeCode;
+    private String subtypeDescription;
+    private String registrationDate;
+    
+    public OrganizationNameCustomerSearchDTO getOrganizationName() {
+        return organizationName;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class CenterRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        CenterRequestDTO dto = new CenterRequestDTO();
-
-        dto.setCenterId("CENTER01");
-
-        assertEquals("CENTER01", dto.getCenterId());
+    public void setOrganizationName(OrganizationNameCustomerSearchDTO organizationName) {
+        this.organizationName = organizationName;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class CountryRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        CountryRequestDTO dto = new CountryRequestDTO();
-
-        dto.setCode("CO");
-
-        assertEquals("CO", dto.getCode());
+    public DocumentDTO getDocument() {
+        return document;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class DocumentRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        StateRequestDTO state = new StateRequestDTO();
-
-        DocumentRequestDTO dto = new DocumentRequestDTO();
-        dto.setDocumentTypeCode("CC");
-        dto.setDocumentNumber("123456789");
-        dto.setState(state);
-
-        assertEquals("CC", dto.getDocumentTypeCode());
-        assertEquals("123456789", dto.getDocumentNumber());
-        assertSame(state, dto.getState());
+    public void setDocument(DocumentDTO document) {
+        this.document = document;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ElectronicAddressRequestDtOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        ElectronicAddressRequestDtO dto = new ElectronicAddressRequestDtO();
-
-        dto.setEmailAddress("test@test.com");
-
-        assertEquals("test@test.com", dto.getEmailAddress());
+    public String getTypeCode() {
+        return typeCode;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class OrganizationNameRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        OrganizationNameRequestDTO dto = new OrganizationNameRequestDTO();
-
-        dto.setLegalName("Santander");
-
-        assertEquals("Santander", dto.getLegalName());
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class OrganizationRequestDtoTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        OrganizationNameRequestDTO name = new OrganizationNameRequestDTO();
-        DocumentRequestDTO document = new DocumentRequestDTO();
-
-        OrganizationRequestDto dto = new OrganizationRequestDto();
-        dto.setRegistrationDate("2025-01-01");
-        dto.setOrganizationName(name);
-        dto.setDocument(document);
-
-        assertEquals("2025-01-01", dto.getRegistrationDate());
-        assertSame(name, dto.getOrganizationName());
-        assertSame(document, dto.getDocument());
+    public String getTypeDescription() {
+        return typeDescription;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PersonNameRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PersonNameRequestDTO dto = new PersonNameRequestDTO();
-
-        dto.setGivenName("Juan");
-        dto.setLastName("Perez");
-        dto.setSecondLastName("Gomez");
-
-        assertEquals("Juan", dto.getGivenName());
-        assertEquals("Perez", dto.getLastName());
-        assertEquals("Gomez", dto.getSecondLastName());
+    public void setTypeDescription(String typeDescription) {
+        this.typeDescription = typeDescription;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PersonRequestDtoTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PersonNameRequestDTO name = new PersonNameRequestDTO();
-        DocumentRequestDTO document = new DocumentRequestDTO();
-
-        PersonRequestDto dto = new PersonRequestDto();
-        dto.setPersonName(name);
-        dto.setBirthDate("2000-01-01");
-        dto.setDocument(document);
-
-        assertSame(name, dto.getPersonName());
-        assertEquals("2000-01-01", dto.getBirthDate());
-        assertSame(document, dto.getDocument());
+    public String getSubtypeCode() {
+        return subtypeCode;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PhoneAddressRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PhoneAddressRequestDTO dto = new PhoneAddressRequestDTO();
-
-        dto.setMobileNumber("3001234567");
-        dto.setPhoneNumber("6011234567");
-        dto.setInternationalCode("57");
-        dto.setExtension("123");
-
-        assertEquals("3001234567", dto.getMobileNumber());
-        assertEquals("6011234567", dto.getPhoneNumber());
-        assertEquals("57", dto.getInternationalCode());
-        assertEquals("123", dto.getExtension());
+    public void setSubtypeCode(String subtypeCode) {
+        this.subtypeCode = subtypeCode;
     }
-}
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PostalAddressRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        ProvinceRequestDTO province = new ProvinceRequestDTO();
-        CountryRequestDTO country = new CountryRequestDTO();
-
-        PostalAddressRequestDTO dto = new PostalAddressRequestDTO();
-        dto.setProvince(province);
-        dto.setTownName("Bogotá");
-        dto.setCountry(country);
-
-        assertSame(province, dto.getProvince());
-        assertEquals("Bogotá", dto.getTownName());
-        assertSame(country, dto.getCountry());
+    public String getSubtypeDescription() {
+        return subtypeDescription;
     }
+    public void setSubtypeDescription(String subtypeDescription) {
+        this.subtypeDescription = subtypeDescription;
+    }
+    public String getRegistrationDate() {
+        return registrationDate;
+    }
+    public void setRegistrationDate(String registrationDate) {
+        this.registrationDate = registrationDate;
+    }    
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
 
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrganizationNameCustomerSearchDTO {
+    private String legalName;
+
+    public String getLegalName() {
+        return legalName;
+    }
+
+    public void setLegalName(String legalName) {
+        this.legalName = legalName;
+    }
+
+    
+}
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.CodeNameDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PersonCustomerSearchResponseDTO {
+    private PersonNameCustomerSearchResponseDTO personName;
+    private ProspectSearchPlaceOfBirthDTO placeOfBirth;
+    private CodeNameDTO firstNationality;
+    private String birthDate;
+    private String genderCode;
+    private String genderDescription;
+    private CodeNameDTO countryOfResident;
+    
+    public PersonNameCustomerSearchResponseDTO getPersonName() {
+        return personName;
+    }
+    public void setPersonName(PersonNameCustomerSearchResponseDTO personName) {
+        this.personName = personName;
+    }
+    public ProspectSearchPlaceOfBirthDTO getPlaceOfBirth() {
+        return placeOfBirth;
+    }
+    public void setPlaceOfBirth(ProspectSearchPlaceOfBirthDTO placeOfBirth) {
+        this.placeOfBirth = placeOfBirth;
+    }
+    public CodeNameDTO getFirstNationality() {
+        return firstNationality;
+    }
+    public void setFirstNationality(CodeNameDTO firstNationality) {
+        this.firstNationality = firstNationality;
+    }
+    public String getBirthDate() {
+        return birthDate;
+    }
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
+    public String getGenderCode() {
+        return genderCode;
+    }
+    public void setGenderCode(String genderCode) {
+        this.genderCode = genderCode;
+    }
+    public String getGenderDescription() {
+        return genderDescription;
+    }
+    public void setGenderDescription(String genderDescription) {
+        this.genderDescription = genderDescription;
+    }
+    public CodeNameDTO getCountryOfResident() {
+        return countryOfResident;
+    }
+    public void setCountryOfResident(CodeNameDTO countryOfResident) {
+        this.countryOfResident = countryOfResident;
+    }
+
+    
+}
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PersonNameCustomerSearchResponseDTO {
+    private String givenName;
+    private String lastName;
+    private String secondLastName;
+    private String fullName;
+    
+    public String getGivenName() {
+        return givenName;
+    }
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    public String getSecondLastName() {
+        return secondLastName;
+    }
+    public void setSecondLastName(String secondLastName) {
+        this.secondLastName = secondLastName;
+    }
+    public String getFullName() {
+        return fullName;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }   
+}
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.CodeNameDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchDocumentDTO {
+    private String documentTypeCode;
+    private String documentTypeDescription;
+    private String documentNumber;
+    private String issueDate;
+    private CodeNameDTO country;
+    private CodeNameDTO state;
+    
+    public String getDocumentTypeCode() {
+        return documentTypeCode;
+    }
+    public void setDocumentTypeCode(String documentTypeCode) {
+        this.documentTypeCode = documentTypeCode;
+    }
+    public String getDocumentTypeDescription() {
+        return documentTypeDescription;
+    }
+    public void setDocumentTypeDescription(String documentTypeDescription) {
+        this.documentTypeDescription = documentTypeDescription;
+    }
+    public String getDocumentNumber() {
+        return documentNumber;
+    }
+    public void setDocumentNumber(String documentNumber) {
+        this.documentNumber = documentNumber;
+    }
+    public String getIssueDate() {
+        return issueDate;
+    }
+    public void setIssueDate(String issueDate) {
+        this.issueDate = issueDate;
+    }
+    public CodeNameDTO getCountry() {
+        return country;
+    }
+    public void setCountry(CodeNameDTO country) {
+        this.country = country;
+    }
+    public CodeNameDTO getState() {
+        return state;
+    }
+    public void setState(CodeNameDTO state) {
+        this.state = state;
+    }
+
+    
+}
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import java.util.List;
+
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.DocumentDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response.ContactPointDTO;
-import org.junit.jupiter.api.Test;
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response.PersonDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ProspectRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        PersonRequestDto person = new PersonRequestDto();
-        OrganizationRequestDto organization = new OrganizationRequestDto();
-        PhoneAddressRequestDTO phone = new PhoneAddressRequestDTO();
-        ElectronicAddressRequestDtO electronic = new ElectronicAddressRequestDtO();
-        ContactPointDTO contactPoint = new ContactPointDTO();
-
-        ProspectRequestDTO dto = new ProspectRequestDTO();
-        dto.setPerson(person);
-        dto.setOrganization(organization);
-        dto.setPhoneAddress(phone);
-        dto.setElectronicAddress(electronic);
-        dto.setContactPointCustomer(contactPoint);
-
-        assertSame(person, dto.getPerson());
-        assertSame(organization, dto.getOrganization());
-        assertSame(phone, dto.getPhoneAddress());
-        assertSame(electronic, dto.getElectronicAddress());
-        assertSame(contactPoint, dto.getContactPointCustomer());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchDTO {
+    private String prospectId;
+    private PersonDTO person;
+    private DocumentDTO document;
+    private List<ContactPointDTO> contactPoints;
+    
+    public String getProspectId() {
+        return prospectId;
     }
+    public void setProspectId(String prospectId) {
+        this.prospectId = prospectId;
+    }
+    public PersonDTO getPerson() {
+        return person;
+    }
+    public void setPerson(PersonDTO person) {
+        this.person = person;
+    }
+    public DocumentDTO getDocument() {
+        return document;
+    }
+    public void setDocument(DocumentDTO document) {
+        this.document = document;
+    }
+    public List<ContactPointDTO> getContactPoints() {
+        return contactPoints;
+    }
+    public void setContactPoints(List<ContactPointDTO> contactPoints) {
+        this.contactPoints = contactPoints;
+    }
+
+    
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
 
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
 
-class ProvinceRequestDTOTest {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-    @Test
-    void shouldSetAndGetAllFields() {
-        ProvinceRequestDTO dto = new ProvinceRequestDTO();
 
-        dto.setCode("11");
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchElectronicAddressDTO {
+    private String emailAddress;
 
-        assertEquals("11", dto.getCode());
+    public String getEmailAddress() {
+        return emailAddress;
     }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
+    
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request;
 
-import org.junit.jupiter.api.Test;
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
 
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-class StateRequestDTOTest {
-
-    @Test
-    void shouldSetAndGetAllFields() {
-        StateRequestDTO dto = new StateRequestDTO();
-
-        dto.setCode("05");
-
-        assertEquals("05", dto.getCode());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchPhoneAddressDTO {
+    private String phoneNumber;
+    private String internationalCode;
+    private String mobileNumber;
+    
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    public String getInternationalCode() {
+        return internationalCode;
+    }
+    public void setInternationalCode(String internationalCode) {
+        this.internationalCode = internationalCode;
+    }
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.CodeNameDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchPlaceOfBirthDTO {
+    private CodeNameDTO country;
+    private CodeNameDTO state;
+    private String town;
+    
+    public CodeNameDTO getCountry() {
+        return country;
+    }
+    public void setCountry(CodeNameDTO country) {
+        this.country = country;
+    }
+    public CodeNameDTO getState() {
+        return state;
+    }
+    public void setState(CodeNameDTO state) {
+        this.state = state;
+    }
+    public String getTown() {
+        return town;
+    }
+    public void setTown(String town) {
+        this.town = town;
+    }
+
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.pagination.PaginationDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchResponseDTO {
+    private List<ProspectSearchDTO> prospects;
+    private PaginationDTO pagination;
+    
+    public List<ProspectSearchDTO> getProspects() {
+        return prospects;
+    }
+    public void setProspects(List<ProspectSearchDTO> prospects) {
+        this.prospects = prospects;
+    }
+    public PaginationDTO getPagination() {
+        return pagination;
+    }
+    public void setPagination(PaginationDTO pagination) {
+        this.pagination = pagination;
+    }
+
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProspectSearchUseTypesDTO {
+    private String code;
+    private String description;
+    
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    
 }

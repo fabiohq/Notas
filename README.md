@@ -1,53 +1,48 @@
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
+package com.santander.bnc.bsn049.bncbsn049msprospects.enums;
 
-import org.junit.jupiter.api.Test;
+public enum ClientEnum {
+    PEF1("ingresoAltaPersonaNatural"),
+    PEF2("modificarMantencionPersonaNaturalDatosBasicos"),
+    PEF3("ConsultaDatosBasicosPNatural"),
+    PEFT("modificarMantencionPersonaNaturalReferencias"),
+    PEFP("modificarMantencionPersonaNaturalInfAdicional"),
+    PEFV("modificarMantencionPersonaNaturalInfAdicional"),
+    PE37("AltaPersonaNatural2"),
+    PEF4("modificarMantencionPersonaNaturalInfComplementariaDos"),
+    PEF8("modificarMantencionPersonaNaturalActivivadEconomica2"),
+    
+    MQROUTE("QCTFD");
 
-import static org.junit.jupiter.api.Assertions.*;
+    private final String path;
 
-class RegexTypesTest {
-
-    @Test
-    void enumShouldContainAllValues() {
-        assertEquals(31, RegexTypes.values().length);
-
-        assertNotNull(RegexTypes.valueOf("ONLY_NUMBERS"));
-        assertNotNull(RegexTypes.valueOf("STRICT_LENGTH_8"));
-        assertNotNull(RegexTypes.valueOf("STRICT_LENGTH_11"));
-        assertNotNull(RegexTypes.valueOf("STRICT_CHAR_LENGTH_2"));
-        assertNotNull(RegexTypes.valueOf("EMAIL"));
-        assertNotNull(RegexTypes.valueOf("EMAIL_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("EMAIL_FORMAT_LEFT"));
-        assertNotNull(RegexTypes.valueOf("EMAIL_FORMAT_RIGHT"));
-        assertNotNull(RegexTypes.valueOf("EMAIL_FORMAT_FIRST_CHAR"));
-        assertNotNull(RegexTypes.valueOf("PHONE_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("PHONE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("INTERNATIONAL_CODE_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("INTERNATIONAL_CODE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("ADDRESS_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("TEXT_20_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("TEXT_20_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("TEXT_40_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("TEXT_40_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("ADDRESS_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("COUNTRY_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("COUNTRT_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("GENDER_CODE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("BIRTH_DAY_DATE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("ISSUE_DATE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("GENDER_CODE_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("SECOND_LAST_NAME_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("SECOND_LAST_NAME_CE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("REGEX_TOWN_DESCRIPTION_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("REGEX_TOWN_DESCRIPTION_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("REGEX_TOWN_CODE_LENGTH"));
-        assertNotNull(RegexTypes.valueOf("REGEX_STATE_CODE_FORMAT"));
-        assertNotNull(RegexTypes.valueOf("REGEX_STATE_CODE_LENGTH"));
+    ClientEnum(String path) {
+        this.path = path;
     }
 
-    @Test
-    void enumNameShouldReturnExpectedValue() {
-        assertEquals("ONLY_NUMBERS", RegexTypes.ONLY_NUMBERS.name());
-        assertEquals("EMAIL", RegexTypes.EMAIL.name());
-        assertEquals("REGEX_STATE_CODE_LENGTH", RegexTypes.REGEX_STATE_CODE_LENGTH.name());
+    public String value() {
+        return path;
     }
 }
+
+package com.santander.bnc.bsn049.bncbsn049msprospects.enums;
+
+public enum ParametersEnums {
+    TOWNS("0008"),
+    COUNTRY("0112"),
+    STATES("0009"),
+    WAY_TYPE("0314"),
+    CIVIL_STATE("0116"),
+    LIST_BCO_EXT("0026"),
+    DOCU_TYPE("0113");
+
+    private final String code;
+
+    ParametersEnums(String path) {
+        this.code = path;
+    }
+
+    public String value() {
+        return code;
+    }
+}
+

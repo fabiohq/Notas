@@ -1,3 +1,5 @@
+ParamsServiceImplTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.service.impl;
 
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ContextApiService;
@@ -6,509 +8,385 @@ import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.parameters.DataListDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.CodeNameDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.Parameters;
-import com.santander.bnc.bsn049.bncbsn049msprospects.enums.ParametersEnums;
-import com.santander.bnc.bsn049.bncbsn049msprospects.service.ParamService;
-import com.santander.bnc.bsn049.bncbsn049msprospects.utils.GUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@Service
-public class ParamsServiceImpl implements ParamService {
-    
-    final ParameterApiService parameterApiService;
-    final ContextApiService contextService;    
-    private ObjectMapper objectMapper;
-    
-    @Autowired
-    public ParamsServiceImpl(ParameterApiService parameterApiService, ContextApiService contextApiService){
-        this.parameterApiService = parameterApiService;
-        this.contextService = contextApiService;
-        this.objectMapper = new ObjectMapper();
+@ExtendWith(MockitoExtension.class)
+class ParamsServiceImplTest {
+
+    @Mock
+    private ParameterApiService parameterApiService;
+
+    @Mock
+    private ContextApiService contextService;
+
+    private ParamsServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        service = new ParamsServiceImpl(parameterApiService, contextService);
     }
 
+    @Test
+    void getCountryShouldReturnFromContextWhenExists() {
+        DataListDTO dto = DataListDTO.builder()
+                .code("CO")
+                .description("Colombia")
+                .build();
 
-    private static final String SPLIT_KEY = "split";
+        when(contextService.getContext("0112-CO")).thenReturn(dto);
 
+        CodeNameDTO result = service.getCountry("CO", "auth", "client");
 
-    /**
-     * Get document decription
-     * @param personData
-     * @return document description
-     */
-    private String getDocumentTypeDescription(TrxPersonData personData,String authorization,String xSantanderClientId) {
-        
-        if(personData.getTipoIdentificacion() == null || personData.getTipoIdentificacion().isBlank()) return "";            
-
-        String docDescContextKey = ParametersEnums.DOCU_TYPE.value() + "-" + personData.getTipoIdentificacion();
-
-        DataListDTO documentTypes = objectMapper.convertValue(contextService.getContext(docDescContextKey), DataListDTO.class);
-        if( documentTypes == null){
-            documentTypes = parameterApiService.getParameter(ParametersEnums.DOCU_TYPE.value(), personData.getTipoIdentificacion(),authorization,xSantanderClientId).get(0);
-        }
-
-       
-        return documentTypes.getDescription();
-    
+        assertEquals("CO", result.getCode());
+        assertEquals("Colombia", result.getName());
+        verify(parameterApiService, never()).getParameter(anyString(), any(), anyString(), anyString());
     }
 
-    /**
-     * Get way types description
-     * @param personData
-     * @return wayType description
-     */
-    private String getWayTypeDescription(TrxPersonData personData,String authorization,String xSantanderClientId){
+    @Test
+    void getCountryShouldCallApiWhenContextIsNull() {
+        when(contextService.getContext("0112-CO")).thenReturn(null);
+        when(parameterApiService.getParameter("0112", "CO", "auth", "client"))
+                .thenReturn(List.of(DataListDTO.builder()
+                        .code("CO")
+                        .description("Colombia")
+                        .build()));
 
-        if(personData.getTipoVia() == null || personData.getTipoVia().isEmpty()) return "";            
+        CodeNameDTO result = service.getCountry("CO", "auth", "client");
 
-        String wayTypeContextKey = ParametersEnums.WAY_TYPE.value() + "-" + personData.getTipoVia();
-
-        DataListDTO wayTypes = objectMapper.convertValue(contextService.getContext(wayTypeContextKey), DataListDTO.class);
-
-        if(wayTypes == null){
-            wayTypes = parameterApiService.getParameter(ParametersEnums.WAY_TYPE.value(), personData.getTipoVia(),authorization,xSantanderClientId).get(0);
-        }
-
-    
-        return wayTypes.getDescription();
+        assertEquals("CO", result.getCode());
+        assertEquals("Colombia", result.getName());
     }
 
+    @Test
+    void getTownShouldReturnTown() {
+        when(contextService.getContext("0008-05101")).thenReturn(null);
+        when(parameterApiService.getParameter("0008", "05101", "auth", "client"))
+                .thenReturn(List.of(DataListDTO.builder()
+                        .code("05101")
+                        .description("MEDELLIN")
+                        .build()));
 
-    /**
-     * Get country
-     * @param securityHeaders
-     * @return country
-     */
-    public CodeNameDTO getCountry(String country,String authorization,String xSantanderClientId) {
-        CodeNameDTO countryObj = new CodeNameDTO();
-        String countryContextKey = ParametersEnums.COUNTRY.value() + (country != null && !country.isBlank() ? "-" + country : "");
+        CodeNameDTO result = service.getTown("05101", "auth", "client");
 
-        DataListDTO countryParameter = objectMapper.convertValue(contextService.getContext(countryContextKey), DataListDTO.class);
-        if( countryParameter == null ){
-            countryParameter = parameterApiService.getParameter(ParametersEnums.COUNTRY.value(), country,authorization,xSantanderClientId).get(0);
-        }
-        
-        countryObj.setCode(countryParameter.getCode());
-        countryObj.setName(countryParameter.getDescription());
-
-       
-        return countryObj;
-    }//method closure
-
-
-    /**
-     * Get town
-     * @param securityHeaders
-     * @return town code and name
-     */
-    public CodeNameDTO getTown(String townCode,String authorization,String xSantanderClientId) {
-        String townContextKey = ParametersEnums.TOWNS.value() + (townCode != null && !townCode.isBlank() ? "-" + townCode : "");
-        CodeNameDTO townObj = new CodeNameDTO();
-
-        DataListDTO townParameter = objectMapper.convertValue(contextService.getContext(townContextKey), DataListDTO.class);
-        if( townParameter == null ){
-            townParameter = parameterApiService.getParameter(ParametersEnums.TOWNS.value(), townCode,authorization,xSantanderClientId).get(0);
-        }
-
-        townObj.setCode(townParameter.getCode());
-        townObj.setName(townParameter.getDescription());
-
-      
-        return townObj;
-    }//method closure
-
-    /**
-     * Get city
-     * @param securityHeaders
-     * @return city code and name
-     */
-    public CodeNameDTO getCity(String city,String authorization,String xSantanderClientId) {
-        String cityContextKey = ParametersEnums.STATES.value();
-        CodeNameDTO cityObj = new CodeNameDTO();
-        
-
-        if (!city.isEmpty()) {
-            city = city.substring(0, 2);
-            cityContextKey += "-" + city;
-        }
-        DataListDTO cityParameter = objectMapper.convertValue(contextService.getContext(cityContextKey), DataListDTO.class);
-        if( cityParameter == null ){
-            cityParameter = parameterApiService.getParameter(ParametersEnums.STATES.value(), city,authorization,xSantanderClientId).get(0);
-        }
-        cityObj.setCode(cityParameter.getCode());
-        cityObj.setName(cityParameter.getDescription());
-
-      
-        return cityObj;
+        assertEquals("05101", result.getCode());
+        assertEquals("MEDELLIN", result.getName());
     }
 
-    /**
-     * Get parameters
-     * @param personData
-     * @return parameters list
-     */
-    public Parameters findParameters(TrxPersonData personData,String authorization,String xSantanderClientId) {
-        log.info(GUtils.SLOG + "Find parameters");
-        String sNationality = personData.getNacionalidad();
-        String sExp = personData.getPaisExpedicion();
-        String sBirth = personData.getPaisNacimiento();
-        String sCountryDir = personData.getPaisDireccion();
-        String sCity = personData.getCiudad();
-        String sDepartment = personData.getDepartamento();        
-        String sCityExp = personData.getCiudadExpedicion();      
-        String sCityBirth = personData.getCiudadNacimiento();
-        
+    @Test
+    void getCityShouldUseFirstTwoChars() {
+        when(contextService.getContext("0009-05")).thenReturn(null);
+        when(parameterApiService.getParameter("0009", "05", "auth", "client"))
+                .thenReturn(List.of(DataListDTO.builder()
+                        .code("05")
+                        .description("ANTIOQUIA")
+                        .build()));
 
-        List<CodeNameDTO> countries = getListParameterByGroup(new String[]{sNationality, sExp, sBirth, sCountryDir}, "Country",authorization,xSantanderClientId);
-        List<CodeNameDTO> cities = getListParameterByGroup(new String[]{sCity, sDepartment, sCityExp, sCityBirth}, "City",authorization,xSantanderClientId);
+        CodeNameDTO result = service.getCity("05101", "auth", "client");
 
-        Parameters response = new Parameters();        
-        response.setCountryNationality(getKey(countries, sNationality));
-        response.setCountryExp(getKey(countries, sExp));
-        response.setCountryBirth(getKey(countries, sBirth));
-        response.setCountryDir(getKey(countries, sCountryDir));
-        if(sCity != null && !sCity.isBlank()){
-            response.setCityStandard(getTown(sCity,authorization,xSantanderClientId));
-        }
-        response.setCityDepartment(getKey(cities, sDepartment));
-        if(sCityExp != null && !sCityExp.isBlank()){
-            response.setCityExp(getKey(cities, sCityExp));
-            response.setTownDocument(getTown(sCityExp, authorization, xSantanderClientId));
-        }      
-        response.setCityBirth(getKey(cities, sCityBirth));
-        //Extras
-        if(sCityBirth != null && !sCityBirth.isBlank()){
-            response.setTown(getTown(sCityBirth,authorization,xSantanderClientId));
-        }
-        response.setStreetTypeDescription(getWayTypeDescription(personData,authorization,xSantanderClientId));
-        response.setDocumentTypeDescription(getDocumentTypeDescription(personData,authorization,xSantanderClientId));
+        assertEquals("05", result.getCode());
+        assertEquals("ANTIOQUIA", result.getName());
+    }
 
-        log.info(GUtils.ELOG + "Return parameters = {} ", response);       
-        return response;
-    }//method closure
+    @Test
+    void findParametersShouldMapAllData() {
+        TrxPersonData data = new TrxPersonData();
+        data.setNacionalidad("CO");
+        data.setPaisExpedicion("CO");
+        data.setPaisNacimiento("CO");
+        data.setPaisDireccion("CO");
+        data.setCiudad("05101");
+        data.setDepartamento("05");
+        data.setCiudadExpedicion("99999");
+        data.setCiudadNacimiento("05101");
+        data.setTipoVia("NN");
+        data.setTipoIdentificacion("CC");
 
-    private List<CodeNameDTO> getListParameterByGroup(String[] parameterGroup, String type,String authorization,String xSantanderClientId) {
-        log.info("    find {}'s = {} ", type, parameterGroup);
-        List<CodeNameDTO> listCodename = new ArrayList<>();
-        Map<String, Long> groupMap = Arrays.stream(parameterGroup).filter(Objects::nonNull).filter(param -> !param.isBlank())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        log.info("    look just for = " + groupMap);
-        groupMap.forEach((key, count) -> {
-                    if ("Country".equalsIgnoreCase(type)) {
-                        CodeNameDTO codeNameDTO = getCountry(key,authorization,xSantanderClientId);
-                        codeNameDTO.setCode(codeNameDTO.getCode() + SPLIT_KEY + key);
-                        listCodename.add(codeNameDTO);
-                    } else if ("City".equalsIgnoreCase(type)) {
-                        CodeNameDTO codeNameDTO = getCity(key,authorization,xSantanderClientId);
-                        codeNameDTO.setCode(codeNameDTO.getCode() + SPLIT_KEY + key);
-                        listCodename.add(codeNameDTO);
-                    }
-                }
-        );
-        return listCodename;
-    }//method closure
+        when(contextService.getContext(anyString())).thenReturn(null);
 
-    private CodeNameDTO getKey(List<CodeNameDTO> groupCodeNameList, String key) {
-                
-        CodeNameDTO responseC = groupCodeNameList.stream().filter(x -> x.getCode().split(SPLIT_KEY).length == 2)
-                                                        .findFirst().orElse(null);
+        when(parameterApiService.getParameter(eq("0112"), any(), anyString(), anyString()))
+                .thenReturn(List.of(DataListDTO.builder().code("CO").description("Colombia").build()));
 
-        if(responseC != null){
-            responseC = groupCodeNameList.stream().filter(x -> x.getCode().split(SPLIT_KEY)[1].equals(key))
-                .findFirst().orElse(null);
-        }
-        
-        
-        CodeNameDTO response = new CodeNameDTO();
-        if (responseC != null) {
-            String replaced = responseC.getCode().replaceAll(SPLIT_KEY + key, "");
-            response.setCode(replaced);
-            response.setName(responseC.getName());
-        }
-        return response;
-    }//method closure
-}//class closure
+        when(parameterApiService.getParameter(eq("0009"), any(), anyString(), anyString()))
+                .thenReturn(List.of(DataListDTO.builder().code("05").description("ANTIOQUIA").build()));
 
+        when(parameterApiService.getParameter(eq("0008"), any(), anyString(), anyString()))
+                .thenReturn(List.of(DataListDTO.builder().code("05101").description("MEDELLIN").build()));
 
+        when(parameterApiService.getParameter(eq("0314"), eq("NN"), anyString(), anyString()))
+                .thenReturn(List.of(DataListDTO.builder().code("NN").description("NO INFORMADO").build()));
+
+        when(parameterApiService.getParameter(eq("0113"), eq("CC"), anyString(), anyString()))
+                .thenReturn(List.of(DataListDTO.builder().code("CC").description("CEDULA").build()));
+
+        Parameters result = service.findParameters(data, "auth", "client");
+
+        assertNotNull(result);
+        assertEquals("CO", result.getCountryNationality().getCode());
+        assertEquals("Colombia", result.getCountryNationality().getName());
+        assertEquals("NO INFORMADO", result.getStreetTypeDescription());
+        assertEquals("CEDULA", result.getDocumentTypeDescription());
+        assertEquals("MEDELLIN", result.getTown().getName());
+    }
+}
+ProspectSevicerImplTest.java
+Java
 package com.santander.bnc.bsn049.bncbsn049msprospects.service.impl;
 
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ContextApiService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.ParameterApiService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.client.service.TrxPersonService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request.BasicData;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request.TrxPersonDataRequest;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request.TrxPersonRequest;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonData;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.request.CreateProspectRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonResponse;
+import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.request.*;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.create.response.ProspectCreatedResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response.ProspectDetailResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request.ProspectRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.response.ProspectSearchResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonResponse;
 import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.update.request.PatchProspectRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.enums.ClientEnum;
 import com.santander.bnc.bsn049.bncbsn049msprospects.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorDictionary;
+import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorType;
 import com.santander.bnc.bsn049.bncbsn049msprospects.mappers.PatchProspectMapper;
 import com.santander.bnc.bsn049.bncbsn049msprospects.mappers.ProspectMapper;
-import com.santander.bnc.bsn049.bncbsn049msprospects.service.ProspectService;
 import com.santander.bnc.bsn049.bncbsn049msprospects.utils.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
-/**
- * @author Wilfredo Pena
- * This clas handle all main methods from MS-Customer
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ProspectSevicerImpl implements ProspectService {
+import java.util.List;
 
-    final TrxPersonService trxPersonService;
-    final ContextApiService contextService;
-    final ProspectMapper mapper;
-    final PatchProspectMapper patchProspectMapper;
-    final ErrorService errorService;    
-    final ParameterApiService parameterApiService;    
-    final ProspectMapperUtils prospectMapperUtils;
-    final RegexUtils regexUtils;
-    final StringUtils utils;
-    private String personNotFound = "PERSONA INEXISTENTE";
-    private String prospectIdField = "prospect_id";
-    /**
-     *  PROSPECT DETAILS
-     *
-     * @param prospectId
-     * @return ProspectDetailResponseDTO
-     */
-    @Override
-    public ProspectDetailResponseDTO getProspectDetails(String prospectId,String authorization,String xSantanderClientId) {
-        ObjectMapper mapResponse = new ObjectMapper();
-        log.info(GUtils.SLOG + "service get prospect details by id {}", prospectId);
-        TrxPersonResponse responseTrx;
-        ProspectDetailResponseDTO prospectDetailResponseDTO;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-        if(Boolean.FALSE.equals(ProspectMapperUtils.isPenumperValid(prospectId))){
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getInvalidProspectId());
-        }
-      
+@ExtendWith(MockitoExtension.class)
+class ProspectSevicerImplTest {
 
-        try {
-            responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, prospectId)
-                    , ClientEnum.PEF3);                
-        } catch (Exception e) {
-            if(e.getMessage().equals(personNotFound)) {
-                return null;
-            }
-            throw e;
-        }
+    @Mock private TrxPersonService trxPersonService;
+    @Mock private ContextApiService contextService;
+    @Mock private ProspectMapper mapper;
+    @Mock private PatchProspectMapper patchProspectMapper;
+    @Mock private ErrorService errorService;
+    @Mock private ParameterApiService parameterApiService;
+    @Mock private ProspectMapperUtils prospectMapperUtils;
+    @Mock private RegexUtils regexUtils;
+    @Mock private StringUtils utils;
 
-        prospectDetailResponseDTO = mapper.trxPersonToProspectDTO(responseTrx,authorization,xSantanderClientId);
-               
+    private ProspectSevicerImpl service;
 
-        log.info(GUtils.ELOG + "service get prospect details response={}", prospectDetailResponseDTO);
-        return prospectDetailResponseDTO;
-    }//method closure
-
-    /**
-     * PROSPECT SEARCH
-     *
-     * @param prospectRequestDTO
-     * @return
-     */
-    @Override
-    public ProspectSearchResponseDTO searchProspect(ProspectRequestDTO prospectRequestDTO,String authorization,String xSantanderClientId) {
-        log.info(GUtils.SLOG + "service search person {}", prospectRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
-        ProspectSearchResponseDTO customerResponseDTO;
-
-        try {
-            responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(prospectRequestDTO, null)
-                    , ClientEnum.PEF3);            
-        } catch (Exception e) {
-            if(e.getMessage().equals(personNotFound)) {
-                return null;
-            }
-            throw e;
-        }
-        customerResponseDTO = mapper.trxPersonToCustomerSearchDTO(responseTrx,authorization,xSantanderClientId);
-        log.info(GUtils.ELOG + "service search person response={}", customerResponseDTO);
-        return customerResponseDTO;
+    @BeforeEach
+    void setUp() {
+        service = new ProspectSevicerImpl(
+                trxPersonService,
+                contextService,
+                mapper,
+                patchProspectMapper,
+                errorService,
+                parameterApiService,
+                prospectMapperUtils,
+                regexUtils,
+                utils
+        );
     }
 
+    @Test
+    void getProspectDetailsShouldReturnResponse() {
+        TrxPersonResponse trxResponse = new TrxPersonResponse();
+        ProspectDetailResponseDTO expected = new ProspectDetailResponseDTO();
 
-    @Override
-    public ProspectCreatedResponseDTO createProspect(CreateProspectRequestDTO createProspectRequestDTO,String authorization,String xSantanderClientId) {
-        log.info(GUtils.SLOG + "service create person {}", createProspectRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        when(mapper.trxPersonToProspectDTO(trxResponse, "auth", "client")).thenReturn(expected);
 
-        var documentTypeCode = createProspectRequestDTO.getPerson().getDocuments().get(0).getDocumentTypeCode();
-        var secondLastName = createProspectRequestDTO.getPerson().getPersonName().getSecondLastName();
+        ProspectDetailResponseDTO result = service.getProspectDetails("12345678", "auth", "client");
 
-        utils.inputSencondLastNameValidation(documentTypeCode, secondLastName);
-        responseTrx = trxPersonService.callPostTRX(mapper.dtoRequestToTrxRequest(createProspectRequestDTO, authorization, xSantanderClientId)
-                , ClientEnum.PEF1);
-        log.info(GUtils.ELOG + "service created person response");
-        return new ProspectCreatedResponseDTO(responseTrx.getData().getNumPersona());
+        assertSame(expected, result);
     }
 
-    /**
-     * PROSPECT UPDATE
-     *
-     * @param updateProspectRequestDTO
-     * @return
-     */
-    @Override
-    public void updateProspect(PatchProspectRequestDTO updateProspectRequestDTO, String prospectId,String authorization,String xSantanderClientId) {
-        log.info(GUtils.SLOG + "service update prospect id {} data= {}", prospectId, updateProspectRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
+    @Test
+    void getProspectDetailsShouldThrowWhenInvalidProspectId() {
+        assertThrows(ServiceException.class,
+                () -> service.getProspectDetails("ABC", "auth", "client"));
+    }
 
-        regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, prospectId, prospectIdField);
-        regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_8, prospectId, prospectIdField);
+    @Test
+    void getProspectDetailsShouldReturnNullWhenPersonNotFound() {
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3)))
+                .thenThrow(new RuntimeException("PERSONA INEXISTENTE"));
 
-        // AQUI EL CACHE GET!!
-        log.info("Start to get customer {}", prospectId);
-        try {
-            responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, prospectId)
-                , ClientEnum.PEF3);
-        } catch (ServiceException e) {
-            if(e.getMessage().equals(personNotFound)) {
-                throw errorService.serviceExceptionBuilder(HttpStatus.NOT_FOUND, ErrorDictionary.getProspectNotFound(), ErrorType.FUNCTIONAL);
-            }
-            if(e.getMessage().equals("EL CLIENTE REQUERIDO NO ES PERSONA FISICA.")){
-                throw errorService.serviceExceptionBuilder(HttpStatus.NOT_FOUND, ErrorDictionary.getPersonIsNotProspect(), ErrorType.FUNCTIONAL);
-            }
-            throw e;
-        }        
-        TrxPersonData trxBasicData = responseTrx.getData().getDatosBasicos();
+        ProspectDetailResponseDTO result = service.getProspectDetails("12345678", "auth", "client");
 
-        //VALIDA CONPER == PRO
-        if (ProspectMapperUtils.isNotProspect(trxBasicData.getConper())) {
-            throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.getPersonIsNotProspect());
-        }
-        log.info("responseTrx = {}", responseTrx);
-        //Transformar PEF3 response (o caché) a Request PEF4
-        BasicData basicData = patchProspectMapper.pef3ResponseToPef2Request(trxBasicData);
-        log.info("BasicData   from pef3  = {}", basicData);
-        
-        BasicData basicDataRequestPatch = patchProspectMapper.prospectPatchToPef2Request(PatchProspectMapperUtils.cleanFieldsFromProspectUpdate(updateProspectRequestDTO), authorization,xSantanderClientId);
-        log.info("basicData request patch = {}", basicDataRequestPatch);
-        //Copio propiedades que deseo modificar al nuevo objeto
-        BeanUtils.copyProperties(basicDataRequestPatch, basicData, GUtils.getNullOrBlankPropertyNames(basicDataRequestPatch));
+        assertNull(result);
+    }
 
-        var secondLastNameOld = basicDataRequestPatch.getSegundoApellido();
-        if(secondLastNameOld != null && secondLastNameOld.equals("")){
-            basicData.setSegundoApellido("");
-        }
-        String expirationDate= basicDataRequestPatch.getDescripcionDireccion();
-        String premiseCopia = trxBasicData.getDescripcionDireccion();
+    @Test
+    void searchProspectShouldReturnResponse() {
+        ProspectRequestDTO request = new ProspectRequestDTO();
+        TrxPersonResponse trxResponse = new TrxPersonResponse();
+        ProspectSearchResponseDTO expected = new ProspectSearchResponseDTO();
 
-        if (premiseCopia.length() == 60 && expirationDate!=null) {
-            // Construir premise + expirationDate
-            String finalPremise = premiseCopia.substring(0, premiseCopia.length() - 10) + expirationDate;
-            basicDataRequestPatch.setDescripcionDireccion(finalPremise);
-            basicData.setDescripcionDireccion(finalPremise);
-            
-        }   
-        log.info("BasicData  afterCopy    = {}", basicData);
-        TrxPersonRequest pef2Request = new TrxPersonRequest();
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        when(mapper.trxPersonToCustomerSearchDTO(trxResponse, "auth", "client")).thenReturn(expected);
 
+        ProspectSearchResponseDTO result = service.searchProspect(request, "auth", "client");
 
-        if(updateProspectRequestDTO.getPerson() != null){
-            basicData.setUsualt(patchProspectMapper.usualtMapper(basicData.getUsualt(), updateProspectRequestDTO.getPerson().getForeignTaxIndicator()));
-        } else {
-            basicData.setUsualt(patchProspectMapper.usualtMapper(basicData.getUsualt(), null));
-        }
+        assertSame(expected, result);
+    }
 
-        TrxPersonDataRequest trxPersonDataRequest = new TrxPersonDataRequest();
-        trxPersonDataRequest.setDatosBasicos(basicData);            
-        pef2Request.setData(trxPersonDataRequest);
-        //UPDATE PROSPECT
-        trxPersonService.callPostTRX(pef2Request, ClientEnum.PEF2);
-        log.info(GUtils.ELOG + "service update prospect response");
+    @Test
+    void searchProspectShouldReturnNullWhenPersonNotFound() {
+        ProspectRequestDTO request = new ProspectRequestDTO();
 
-    }//method closure
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3)))
+                .thenThrow(new RuntimeException("PERSONA INEXISTENTE"));
 
-    @Override
-    public void removeProspect(String prospectId, String authorization, String xSantanderClientId) {
+        ProspectSearchResponseDTO result = service.searchProspect(request, "auth", "client");
 
-        CreateProspectRequestDTO createProspectRequestDTO = new CreateProspectRequestDTO();
-        log.info(GUtils.SLOG + "service update prospect id {} data= {}", prospectId, createProspectRequestDTO.getPerson());
-        TrxPersonResponse responseTrx;
+        assertNull(result);
+    }
 
-        regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, prospectId, prospectIdField);
-        regexUtils.validateRegex(RegexTypes.STRICT_LENGTH_8, prospectId, prospectIdField);
+    @Test
+    void createProspectShouldReturnCreatedProspectId() {
+        CreateProspectRequestDTO request = buildCreateRequest();
 
-        // AQUI EL CACHE GET!!
-        log.info("Start to get customer {}", prospectId);
-        try {
-            responseTrx = trxPersonService.callPostTRX(ClientUtils.buildTrxRequestByCustomerId(null, prospectId)
-                    , ClientEnum.PEF3);
-        } catch (ServiceException e) {
-            if(e.getMessage().equals(personNotFound)) {
-                throw errorService.serviceExceptionBuilder(HttpStatus.NOT_FOUND, ErrorDictionary.getProspectNotFound(), ErrorType.FUNCTIONAL);
-            }
-            if(e.getMessage().equals("EL CLIENTE REQUERIDO NO ES PERSONA FISICA.")){
-                throw errorService.serviceExceptionBuilder(HttpStatus.NOT_FOUND, ErrorDictionary.getPersonIsNotProspect(), ErrorType.FUNCTIONAL);
-            }
-            throw e;
-        }
-        TrxPersonData trxBasicData = responseTrx.getData().getDatosBasicos();
+        TrxPersonResponse trxResponse = new TrxPersonResponse();
+        com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonDataResponse data =
+                new com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonDataResponse();
+        data.setNumPersona("87654321");
+        trxResponse.setData(data);
 
-        //VALIDA CONPER == PRO
-        if (ProspectMapperUtils.isNotProspect(trxBasicData.getConper())) {
-            throw new ServiceException(HttpStatus.NOT_FOUND, ErrorCatalog.getPersonIsNotProspect());
-        }
-        log.info("responseTrx = {}", responseTrx);
-        //Transformar PEF3 response (o caché) a Request PEF4
-        BasicData basicData = mapper.pef3ResponseToPef2Request(trxBasicData);
-        log.info("BasicData   from pef3  = {}", basicData);
+        when(mapper.dtoRequestToTrxRequest(request, "auth", "client"))
+                .thenReturn(new com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request.TrxPersonRequest());
 
-        TrxPersonRequest pef2Request = new TrxPersonRequest();
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF1))).thenReturn(trxResponse);
 
-        //Se modifica campo para poder realizar la modificación
-        if(basicData.getEstciv() != null){
-            if(basicData.getEstciv().isBlank()){
-                basicData.setEstciv("S");
-            } else if(basicData.getEstciv().equals("S")) {
-                basicData.setEstciv("C");
-            } else {
-                basicData.setEstciv("S");
-            }
-        } else {
-            basicData.setEstciv("S");
-        }
+        ProspectCreatedResponseDTO result = service.createProspect(request, "auth", "client");
 
+        assertEquals("87654321", result.getProspectId());
+        verify(utils).inputSencondLastNameValidation("CC", "Perez");
+    }
 
-        //Remove prospect
-        basicData.setUsualt(prospectMapperUtils.lowProspectLogic(trxBasicData));
+    @Test
+    void updateProspectShouldExecutePef2() {
+        PatchProspectRequestDTO request = new PatchProspectRequestDTO();
 
-        TrxPersonDataRequest trxPersonDataRequest = new TrxPersonDataRequest();
-        trxPersonDataRequest.setDatosBasicos(basicData);
-        pef2Request.setData(trxPersonDataRequest);
+        TrxPersonData trxData = buildTrxPersonData("PRO");
+        TrxPersonResponse trxResponse = buildTrxResponse(trxData);
 
-        //UPDATE PROSPECT
-        log.info("Request PF2: {} ", pef2Request);
-        trxPersonService.callPostTRX(pef2Request, ClientEnum.PEF2);
-        log.info(GUtils.ELOG + "service update prospect response");
+        BasicData original = new BasicData();
+        original.setDescripcionDireccion("123456789012345678901234567890123456789012345678901234567890");
+        original.setUsualt("ODSAAAA");
 
-    }//method closure
-}//class closure
+        BasicData patch = new BasicData();
+        patch.setNombre("Juan");
 
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        when(patchProspectMapper.pef3ResponseToPef2Request(trxData)).thenReturn(original);
+        when(patchProspectMapper.prospectPatchToPef2Request(any(), eq("auth"), eq("client"))).thenReturn(patch);
+        when(patchProspectMapper.usualtMapper(any(), any())).thenReturn("ODSCONN");
+        doNothing().when(regexUtils).validateRegex(any(), anyString(), anyString());
 
+        service.updateProspect(request, "12345678", "auth", "client");
+
+        verify(trxPersonService).callPostTRX(any(), eq(ClientEnum.PEF2));
+    }
+
+    @Test
+    void updateProspectShouldThrowWhenPersonIsNotProspect() {
+        PatchProspectRequestDTO request = new PatchProspectRequestDTO();
+
+        TrxPersonResponse trxResponse = buildTrxResponse(buildTrxPersonData("CLI"));
+
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        doNothing().when(regexUtils).validateRegex(any(), anyString(), anyString());
+
+        assertThrows(ServiceException.class,
+                () -> service.updateProspect(request, "12345678", "auth", "client"));
+    }
+
+    @Test
+    void removeProspectShouldExecutePef2() {
+        TrxPersonData trxData = buildTrxPersonData("PRO");
+        TrxPersonResponse trxResponse = buildTrxResponse(trxData);
+
+        BasicData basicData = new BasicData();
+        basicData.setEstciv("S");
+
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        when(mapper.pef3ResponseToPef2Request(trxData)).thenReturn(basicData);
+        when(prospectMapperUtils.lowProspectLogic(trxData)).thenReturn("BAJACONN");
+        doNothing().when(regexUtils).validateRegex(any(), anyString(), anyString());
+
+        service.removeProspect("12345678", "auth", "client");
+
+        verify(trxPersonService).callPostTRX(any(), eq(ClientEnum.PEF2));
+        assertEquals("C", basicData.getEstciv());
+        assertEquals("BAJACONN", basicData.getUsualt());
+    }
+
+    @Test
+    void removeProspectShouldThrowWhenNotProspect() {
+        TrxPersonResponse trxResponse = buildTrxResponse(buildTrxPersonData("CLI"));
+
+        when(trxPersonService.callPostTRX(any(), eq(ClientEnum.PEF3))).thenReturn(trxResponse);
+        doNothing().when(regexUtils).validateRegex(any(), anyString(), anyString());
+
+        assertThrows(ServiceException.class,
+                () -> service.removeProspect("12345678", "auth", "client"));
+    }
+
+    private CreateProspectRequestDTO buildCreateRequest() {
+        DocumentRequestDTO document = new DocumentRequestDTO();
+        document.setDocumentTypeCode("CC");
+        document.setDocumentNumber("12345678901");
+
+        PersonNameRequestDTO name = new PersonNameRequestDTO();
+        name.setGivenName("Juan");
+        name.setLastName("Gomez");
+        name.setSecondLastName("Perez");
+
+        PersonRequestDTO person = new PersonRequestDTO();
+        person.setDocuments(List.of(document));
+        person.setPersonName(name);
+
+        CreateProspectRequestDTO request = new CreateProspectRequestDTO();
+        request.setPerson(person);
+
+        return request;
+    }
+
+    private TrxPersonData buildTrxPersonData(String conper) {
+        TrxPersonData data = new TrxPersonData();
+        data.setConper(conper);
+        data.setDescripcionDireccion("123456789012345678901234567890123456789012345678901234567890");
+        return data;
+    }
+
+    private TrxPersonResponse buildTrxResponse(TrxPersonData personData) {
+        TrxPersonResponse response = new TrxPersonResponse();
+
+        com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonDataResponse data =
+                new com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonDataResponse();
+
+        data.setDatosBasicos(personData);
+        response.setData(data);
+
+        return response;
+    }
+}
+Si tu clase real no se llama TrxPersonDataResponse, cambia ese tipo por el nombre exacto de tu DTO interno de TrxPersonResponse.getData().

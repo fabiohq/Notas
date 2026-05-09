@@ -1,1021 +1,750 @@
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+AuditDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import static org.junit.jupiter.api.Assertions.*;
 
+class AuditDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AuditDTO {
-    private String creationDate;
-    private String lastUpdateDate;
-    public String getCreationDate() {
-        return creationDate;
+    @Test
+    void shouldTestAuditDTO() {
+
+        AuditDTO dto = new AuditDTO();
+
+        dto.setCreationDate("2024-01-01");
+        dto.setLastUpdateDate("2024-01-02");
+
+        assertEquals("2024-01-01", dto.getCreationDate());
+        assertEquals("2024-01-02", dto.getLastUpdateDate());
+
+        AuditDTO builder = AuditDTO.builder()
+                .creationDate("2024-01-01")
+                .lastUpdateDate("2024-01-02")
+                .build();
+
+        assertEquals("2024-01-01", builder.getCreationDate());
+
+        AuditDTO allArgs = new AuditDTO("2024-01-01", "2024-01-02");
+
+        assertEquals("2024-01-02", allArgs.getLastUpdateDate());
     }
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-    public String getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-    public void setLastUpdateDate(String lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-    
-    
 }
+BestContactTimeDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+import static org.junit.jupiter.api.Assertions.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+class BestContactTimeDTOTest {
 
+    @Test
+    void shouldTestBestContactTimeDTO() {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BestContactTimeDTO {
-    private String fromDateTime;
-    private String toDateTime;
-    private String bestTimeFrameCode;
-    private String bestTimeFrameDescription;
+        BestContactTimeDTO dto = new BestContactTimeDTO();
 
-    public String getFromDateTime() {
-        return fromDateTime;
-    }
-    public void setFromDateTime(String fromDateTime) {
-        this.fromDateTime = fromDateTime;
-    }
-    public String getToDateTime() {
-        return toDateTime;
-    }
-    public void setToDateTime(String toDateTime) {
-        this.toDateTime = toDateTime;
-    }
-    public String getBestTimeFrameCode() {
-        return bestTimeFrameCode;
-    }
-    public void setBestTimeFrameCode(String bestTimeFrameCode) {
-        this.bestTimeFrameCode = bestTimeFrameCode;
-    }
-    public String getBestTimeFrameDescription() {
-        return bestTimeFrameDescription;
-    }
-    public void setBestTimeFrameDescription(String bestTimeFrameDescription) {
-        this.bestTimeFrameDescription = bestTimeFrameDescription;
-    }
+        dto.setFromDateTime("FROM");
+        dto.setToDateTime("TO");
+        dto.setBestTimeFrameCode("CODE");
+        dto.setBestTimeFrameDescription("DESC");
 
-    
+        assertEquals("FROM", dto.getFromDateTime());
+        assertEquals("TO", dto.getToDateTime());
+        assertEquals("CODE", dto.getBestTimeFrameCode());
+        assertEquals("DESC", dto.getBestTimeFrameDescription());
+
+        BestContactTimeDTO builder = BestContactTimeDTO.builder()
+                .fromDateTime("FROM")
+                .toDateTime("TO")
+                .bestTimeFrameCode("CODE")
+                .bestTimeFrameDescription("DESC")
+                .build();
+
+        assertEquals("FROM", builder.getFromDateTime());
+
+        BestContactTimeDTO allArgs =
+                new BestContactTimeDTO("FROM", "TO", "CODE", "DESC");
+
+        assertEquals("DESC", allArgs.getBestTimeFrameDescription());
+    }
 }
+ConsentDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class ConsentDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestConsentDTO() {
 
+        ConsentDTO dto = new ConsentDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConsentDTO {
-    private String legitimateCode;
-    private String legitimateDescription;
-    private String treatmentCode;
-    private String treatmentDescription;
-    private String purposeCode;
-    private String purposeDescription;
-    
-    public String getLegitimateCode() {
-        return legitimateCode;
-    }
-    public void setLegitimateCode(String legitimateCode) {
-        this.legitimateCode = legitimateCode;
-    }
-    public String getLegitimateDescription() {
-        return legitimateDescription;
-    }
-    public void setLegitimateDescription(String legitimateDescription) {
-        this.legitimateDescription = legitimateDescription;
-    }
-    public String getTreatmentCode() {
-        return treatmentCode;
-    }
-    public void setTreatmentCode(String treatmentCode) {
-        this.treatmentCode = treatmentCode;
-    }
-    public String getTreatmentDescription() {
-        return treatmentDescription;
-    }
-    public void setTreatmentDescription(String treatmentDescription) {
-        this.treatmentDescription = treatmentDescription;
-    }
-    public String getPurposeCode() {
-        return purposeCode;
-    }
-    public void setPurposeCode(String purposeCode) {
-        this.purposeCode = purposeCode;
-    }
-    public String getPurposeDescription() {
-        return purposeDescription;
-    }
-    public void setPurposeDescription(String purposeDescription) {
-        this.purposeDescription = purposeDescription;
-    }
+        dto.setLegitimateCode("LC");
+        dto.setLegitimateDescription("LD");
+        dto.setTreatmentCode("TC");
+        dto.setTreatmentDescription("TD");
+        dto.setPurposeCode("PC");
+        dto.setPurposeDescription("PD");
 
+        assertEquals("LC", dto.getLegitimateCode());
+        assertEquals("LD", dto.getLegitimateDescription());
+        assertEquals("TC", dto.getTreatmentCode());
+        assertEquals("TD", dto.getTreatmentDescription());
+        assertEquals("PC", dto.getPurposeCode());
+        assertEquals("PD", dto.getPurposeDescription());
+
+        ConsentDTO builder = ConsentDTO.builder()
+                .legitimateCode("LC")
+                .legitimateDescription("LD")
+                .treatmentCode("TC")
+                .treatmentDescription("TD")
+                .purposeCode("PC")
+                .purposeDescription("PD")
+                .build();
+
+        assertEquals("LC", builder.getLegitimateCode());
+
+        ConsentDTO allArgs =
+                new ConsentDTO("LC", "LD", "TC", "TD", "PC", "PD");
+
+        assertEquals("PD", allArgs.getPurposeDescription());
+    }
 }
-
-
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+ContactPointDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.PostalAddressDTO;
+import static org.junit.jupiter.api.Assertions.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+class ContactPointDTOTest {
 
+    @Test
+    void shouldTestContactPointDTO() {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContactPointDTO {
-    private String contactPointId;
-    private List<UseTypeDTO> useTypes;
-    private PhoneAddressDTO phoneAddress;
-    private Boolean preferredIndicator;
-    private Boolean primaryIndicator;
-    private ElectronicAddressDTO electronicAddress;
-    private PostalAddressDTO postalAddress;
-    
-    public String getContactPointId() {
-        return contactPointId;
-    }
-    public void setContactPointId(String contactPointId) {
-        this.contactPointId = contactPointId;
-    }
-    public List<UseTypeDTO> getUseTypes() {
-        return useTypes;
-    }
-    public void setUseTypes(List<UseTypeDTO> useTypes) {
-        this.useTypes = useTypes;
-    }
-    public PhoneAddressDTO getPhoneAddress() {
-        return phoneAddress;
-    }
-    public void setPhoneAddress(PhoneAddressDTO phoneAddress) {
-        this.phoneAddress = phoneAddress;
-    }
-    public Boolean getPreferredIndicator() {
-        return preferredIndicator;
-    }
-    public void setPreferredIndicator(Boolean preferredIndicator) {
-        this.preferredIndicator = preferredIndicator;
-    }
-    public Boolean getPrimaryIndicator() {
-        return primaryIndicator;
-    }
-    public void setPrimaryIndicator(Boolean primaryIndicator) {
-        this.primaryIndicator = primaryIndicator;
-    }
-    public ElectronicAddressDTO getElectronicAddress() {
-        return electronicAddress;
-    }
-    public void setElectronicAddress(ElectronicAddressDTO electronicAddress) {
-        this.electronicAddress = electronicAddress;
-    }
-    public PostalAddressDTO getPostalAddress() {
-        return postalAddress;
-    }
-    public void setPostalAddress(PostalAddressDTO postalAddress) {
-        this.postalAddress = postalAddress;
-    }
-    
+        List<UseTypeDTO> useTypes =
+                List.of(new UseTypeDTO("C", "D"));
 
- }
+        PhoneAddressDTO phone = new PhoneAddressDTO();
+        ElectronicAddressDTO electronic = new ElectronicAddressDTO();
 
+        ContactPointDTO dto = new ContactPointDTO();
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+        dto.setContactPointId("ID");
+        dto.setUseTypes(useTypes);
+        dto.setPhoneAddress(phone);
+        dto.setPreferredIndicator(true);
+        dto.setPrimaryIndicator(false);
+        dto.setElectronicAddress(electronic);
+        dto.setPostalAddress(null);
+
+        assertEquals("ID", dto.getContactPointId());
+        assertSame(useTypes, dto.getUseTypes());
+        assertSame(phone, dto.getPhoneAddress());
+        assertTrue(dto.getPreferredIndicator());
+        assertFalse(dto.getPrimaryIndicator());
+        assertSame(electronic, dto.getElectronicAddress());
+        assertNull(dto.getPostalAddress());
+
+        ContactPointDTO builder = ContactPointDTO.builder()
+                .contactPointId("ID")
+                .useTypes(useTypes)
+                .phoneAddress(phone)
+                .preferredIndicator(true)
+                .primaryIndicator(false)
+                .electronicAddress(electronic)
+                .postalAddress(null)
+                .build();
+
+        assertEquals("ID", builder.getContactPointId());
+
+        ContactPointDTO allArgs =
+                new ContactPointDTO("ID", useTypes, phone, true, false, electronic, null);
+
+        assertEquals("ID", allArgs.getContactPointId());
+    }
+}
+ContactPointsResponseDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import static org.junit.jupiter.api.Assertions.*;
 
+class ContactPointsResponseDTOTest {
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContactPointsResponseDTO {
-    private List<ContactPointDTO> contactPoints;
+    @Test
+    void shouldTestContactPointsResponseDTO() {
 
-    public List<ContactPointDTO> getContactPoints() {
-        return contactPoints;
+        List<ContactPointDTO> list =
+                List.of(new ContactPointDTO());
+
+        ContactPointsResponseDTO dto =
+                new ContactPointsResponseDTO();
+
+        dto.setContactPoints(list);
+
+        assertSame(list, dto.getContactPoints());
+
+        ContactPointsResponseDTO builder =
+                ContactPointsResponseDTO.builder()
+                        .contactPoints(list)
+                        .build();
+
+        assertSame(list, builder.getContactPoints());
+
+        ContactPointsResponseDTO allArgs =
+                new ContactPointsResponseDTO(list);
+
+        assertSame(list, allArgs.getContactPoints());
     }
-
-    public void setContactPoints(List<ContactPointDTO> contactPoints) {
-        this.contactPoints = contactPoints;
-    }
-    
 }
+CountryDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class CountryDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestCountryDTO() {
 
+        CountryDTO dto = new CountryDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CountryDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
+        dto.setCode("CO");
+        dto.setName("COLOMBIA");
+
+        assertEquals("CO", dto.getCode());
+        assertEquals("COLOMBIA", dto.getName());
+
+        CountryDTO builder =
+                CountryDTO.builder()
+                        .code("CO")
+                        .name("COLOMBIA")
+                        .build();
+
+        assertEquals("CO", builder.getCode());
+
+        CountryDTO allArgs =
+                new CountryDTO("CO", "COLOMBIA");
+
+        assertEquals("COLOMBIA", allArgs.getName());
     }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    
 }
+CountyIdentificationDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class CountyIdentificationDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestCountyIdentificationDTO() {
 
+        CountyIdentificationDTO dto =
+                new CountyIdentificationDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CountyIdentificationDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
+        dto.setCode("C");
+        dto.setName("NAME");
+
+        assertEquals("C", dto.getCode());
+        assertEquals("NAME", dto.getName());
+
+        CountyIdentificationDTO builder =
+                CountyIdentificationDTO.builder()
+                        .code("C")
+                        .name("NAME")
+                        .build();
+
+        assertEquals("C", builder.getCode());
+
+        CountyIdentificationDTO allArgs =
+                new CountyIdentificationDTO("C", "NAME");
+
+        assertEquals("NAME", allArgs.getName());
     }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    
 }
+ElectronicAddressDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class ElectronicAddressDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestElectronicAddressDTO() {
 
+        ElectronicAddressDTO dto =
+                new ElectronicAddressDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ElectronicAddressDTO {
-    private String emailAddress;
+        dto.setEmailAddress("test@mail.com");
 
-    public String getEmailAddress() {
-        return emailAddress;
+        assertEquals("test@mail.com",
+                dto.getEmailAddress());
+
+        ElectronicAddressDTO builder =
+                ElectronicAddressDTO.builder()
+                        .emailAddress("test@mail.com")
+                        .build();
+
+        assertEquals("test@mail.com",
+                builder.getEmailAddress());
+
+        ElectronicAddressDTO allArgs =
+                new ElectronicAddressDTO("test@mail.com");
+
+        assertEquals("test@mail.com",
+                allArgs.getEmailAddress());
     }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-
 }
+FirstDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class FirstDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestFirstDTO() {
 
+        FirstDTO dto = new FirstDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class FirstDTO {
-    private String href;
+        dto.setHref("first");
 
-    public String getHref() {
-        return href;
+        assertEquals("first", dto.getHref());
+
+        FirstDTO builder =
+                FirstDTO.builder()
+                        .href("first")
+                        .build();
+
+        assertEquals("first", builder.getHref());
+
+        FirstDTO allArgs =
+                new FirstDTO("first");
+
+        assertEquals("first", allArgs.getHref());
     }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-
 }
+LastDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class LastDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestLastDTO() {
 
+        LastDTO dto = new LastDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LastDTO {
-    private String href;
+        dto.setHref("last");
 
-    public String getHref() {
-        return href;
+        assertEquals("last", dto.getHref());
+
+        LastDTO builder =
+                LastDTO.builder()
+                        .href("last")
+                        .build();
+
+        assertEquals("last", builder.getHref());
+
+        LastDTO allArgs =
+                new LastDTO("last");
+
+        assertEquals("last", allArgs.getHref());
     }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-
 }
+LinksDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class LinksDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestLinksDTO() {
 
+        FirstDTO first = new FirstDTO("first");
+        PrevDTO prev = new PrevDTO("prev");
+        NextDTO next = new NextDTO("next");
+        LastDTO last = new LastDTO("last");
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LinksDTO {
-    private FirstDTO first;
-    private PrevDTO prev;
-    private NextDTO next;
-    private LastDTO last;
-    
-    public FirstDTO getFirst() {
-        return first;
-    }
-    public void setFirst(FirstDTO first) {
-        this.first = first;
-    }
-    public PrevDTO getPrev() {
-        return prev;
-    }
-    public void setPrev(PrevDTO prev) {
-        this.prev = prev;
-    }
-    public NextDTO getNext() {
-        return next;
-    }
-    public void setNext(NextDTO next) {
-        this.next = next;
-    }
-    public LastDTO getLast() {
-        return last;
-    }
-    public void setLast(LastDTO last) {
-        this.last = last;
-    }
+        LinksDTO dto = new LinksDTO();
 
-    
+        dto.setFirst(first);
+        dto.setPrev(prev);
+        dto.setNext(next);
+        dto.setLast(last);
+
+        assertSame(first, dto.getFirst());
+        assertSame(prev, dto.getPrev());
+        assertSame(next, dto.getNext());
+        assertSame(last, dto.getLast());
+
+        LinksDTO builder =
+                LinksDTO.builder()
+                        .first(first)
+                        .prev(prev)
+                        .next(next)
+                        .last(last)
+                        .build();
+
+        assertSame(first, builder.getFirst());
+
+        LinksDTO allArgs =
+                new LinksDTO(first, prev, next, last);
+
+        assertSame(last, allArgs.getLast());
+    }
 }
+NextDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class NextDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestNextDTO() {
 
+        NextDTO dto = new NextDTO();
 
+        dto.setHref("next");
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class NextDTO {
-    private String href;
+        assertEquals("next", dto.getHref());
 
-    public String getHref() {
-        return href;
+        NextDTO builder =
+                NextDTO.builder()
+                        .href("next")
+                        .build();
+
+        assertEquals("next", builder.getHref());
+
+        NextDTO allArgs =
+                new NextDTO("next");
+
+        assertEquals("next", allArgs.getHref());
     }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-    
-    
 }
+PhoneAddressDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class PhoneAddressDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestPhoneAddressDTO() {
 
+        PhoneAddressDTO dto =
+                new PhoneAddressDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PhoneAddressDTO {
-    private String mobileNumber;
-    private String phoneNumber;
-    private String faxNumber;
-    private String internationalCode;
-    private String extension;
+        dto.setMobileNumber("1");
+        dto.setPhoneNumber("2");
+        dto.setFaxNumber("3");
+        dto.setInternationalCode("+57");
+        dto.setExtension("99");
 
-    public String getMobileNumber() {
-        return mobileNumber;
+        assertEquals("1", dto.getMobileNumber());
+        assertEquals("2", dto.getPhoneNumber());
+        assertEquals("3", dto.getFaxNumber());
+        assertEquals("+57", dto.getInternationalCode());
+        assertEquals("99", dto.getExtension());
+
+        PhoneAddressDTO builder =
+                PhoneAddressDTO.builder()
+                        .mobileNumber("1")
+                        .phoneNumber("2")
+                        .faxNumber("3")
+                        .internationalCode("+57")
+                        .extension("99")
+                        .build();
+
+        assertEquals("1", builder.getMobileNumber());
+
+        PhoneAddressDTO allArgs =
+                new PhoneAddressDTO("1", "2", "3", "+57", "99");
+
+        assertEquals("99", allArgs.getExtension());
     }
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    public String getFaxNumber() {
-        return faxNumber;
-    }
-    public void setFaxNumber(String faxNumber) {
-        this.faxNumber = faxNumber;
-    }
-    public String getInternationalCode() {
-        return internationalCode;
-    }
-    public void setInternationalCode(String internationalCode) {
-        this.internationalCode = internationalCode;
-    }
-    public String getExtension() {
-        return extension;
-    }
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }    
-    
 }
+PrevDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class PrevDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestPrevDTO() {
+
+        PrevDTO dto = new PrevDTO();
+
+        dto.setHref("prev");
+
+        assertEquals("prev", dto.getHref());
+
+        PrevDTO builder =
+                PrevDTO.builder()
+                        .href("prev")
+                        .build();
+
+        assertEquals("prev", builder.getHref());
+
+        PrevDTO allArgs =
+                new PrevDTO("prev");
+
+        assertEquals("prev", allArgs.getHref());
+    }
+}
+ProvinceDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ProvinceDTOTest {
+
+    @Test
+    void shouldTestProvinceDTO() {
+
+        ProvinceDTO dto = new ProvinceDTO();
+
+        dto.setCode("P");
+        dto.setName("PROVINCE");
+
+        assertEquals("P", dto.getCode());
+        assertEquals("PROVINCE", dto.getName());
+
+        ProvinceDTO builder =
+                ProvinceDTO.builder()
+                        .code("P")
+                        .name("PROVINCE")
+                        .build();
+
+        assertEquals("P", builder.getCode());
+
+        ProvinceDTO allArgs =
+                new ProvinceDTO("P", "PROVINCE");
+
+        assertEquals("PROVINCE", allArgs.getName());
+    }
+}
+RegionIdentificationDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class RegionIdentificationDTOTest {
+
+    @Test
+    void shouldTestRegionIdentificationDTO() {
+
+        RegionIdentificationDTO dto =
+                new RegionIdentificationDTO();
+
+        dto.setCode("R");
+        dto.setName("REGION");
+
+        assertEquals("R", dto.getCode());
+        assertEquals("REGION", dto.getName());
+
+        RegionIdentificationDTO builder =
+                RegionIdentificationDTO.builder()
+                        .code("R")
+                        .name("REGION")
+                        .build();
+
+        assertEquals("R", builder.getCode());
+
+        RegionIdentificationDTO allArgs =
+                new RegionIdentificationDTO("R", "REGION");
+
+        assertEquals("REGION", allArgs.getName());
+    }
+}
+RootDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PostalAddressDTO {
-    private String fullAddress;
-    private String formatCode;
-    private String formatDescription;
-    private Boolean isAddressValidated;
-    private String matchId;
-    private String streetTypeCode;
-    private String streetTypeDescription;
-    private String streetName;
-    private String secondaryStreetName;
-    private String streetBuildingIdentification;
-    private String mailDeliverySubLocation;
-    private String buildingName;
-    private String floor;
-    private String detailCode;
-    private String unitType;
-    private String unitNumber;
-    private String premise;
-    private String alternativePremise;
-    private String department;
-    private String subDepartment;
-    private String postCodeIdentification;
-    private String townName;
-    private StateDTO state;
-    private String districtName;
-    private String secondaryDistrictName;
-    private String mailingInstructions;
-    private ProvinceDTO province;
-    private RegionIdentificationDTO regionIdentification;
-    private CountyIdentificationDTO countyIdentification;
-    private CountryDTO country;
-    private String military;
-    private String postOfficeBox;
-    private String postBoxTypeCode;
-    private String postBoxTypeDescription;
-    private List<String> foreignAddressLines;
-    private String zipCode;
-    private String zip4Code;
-    private String ruralTypeCode;
-    private String ruralTypeDescription;
-    private String ruralNumber;
-    
-    public String getFullAddress() {
-        return fullAddress;
-    }
-    public void setFullAddress(String fullAddress) {
-        this.fullAddress = fullAddress;
-    }
-    public String getFormatCode() {
-        return formatCode;
-    }
-    public void setFormatCode(String formatCode) {
-        this.formatCode = formatCode;
-    }
-    public String getFormatDescription() {
-        return formatDescription;
-    }
-    public void setFormatDescription(String formatDescription) {
-        this.formatDescription = formatDescription;
-    }
-    public Boolean getIsAddressValidated() {
-        return isAddressValidated;
-    }
-    public void setIsAddressValidated(Boolean isAddressValidated) {
-        this.isAddressValidated = isAddressValidated;
-    }
-    public String getMatchId() {
-        return matchId;
-    }
-    public void setMatchId(String matchId) {
-        this.matchId = matchId;
-    }
-    public String getStreetTypeCode() {
-        return streetTypeCode;
-    }
-    public void setStreetTypeCode(String streetTypeCode) {
-        this.streetTypeCode = streetTypeCode;
-    }
-    public String getStreetTypeDescription() {
-        return streetTypeDescription;
-    }
-    public void setStreetTypeDescription(String streetTypeDescription) {
-        this.streetTypeDescription = streetTypeDescription;
-    }
-    public String getStreetName() {
-        return streetName;
-    }
-    public void setStreetName(String streetName) {
-        this.streetName = streetName;
-    }
-    public String getSecondaryStreetName() {
-        return secondaryStreetName;
-    }
-    public void setSecondaryStreetName(String secondaryStreetName) {
-        this.secondaryStreetName = secondaryStreetName;
-    }
-    public String getStreetBuildingIdentification() {
-        return streetBuildingIdentification;
-    }
-    public void setStreetBuildingIdentification(String streetBuildingIdentification) {
-        this.streetBuildingIdentification = streetBuildingIdentification;
-    }
-    public String getMailDeliverySubLocation() {
-        return mailDeliverySubLocation;
-    }
-    public void setMailDeliverySubLocation(String mailDeliverySubLocation) {
-        this.mailDeliverySubLocation = mailDeliverySubLocation;
-    }
-    public String getBuildingName() {
-        return buildingName;
-    }
-    public void setBuildingName(String buildingName) {
-        this.buildingName = buildingName;
-    }
-    public String getFloor() {
-        return floor;
-    }
-    public void setFloor(String floor) {
-        this.floor = floor;
-    }
-    public String getDetailCode() {
-        return detailCode;
-    }
-    public void setDetailCode(String detailCode) {
-        this.detailCode = detailCode;
-    }
-    public String getUnitType() {
-        return unitType;
-    }
-    public void setUnitType(String unitType) {
-        this.unitType = unitType;
-    }
-    public String getUnitNumber() {
-        return unitNumber;
-    }
-    public void setUnitNumber(String unitNumber) {
-        this.unitNumber = unitNumber;
-    }
-    public String getPremise() {
-        return premise;
-    }
-    public void setPremise(String premise) {
-        this.premise = premise;
-    }
-    public String getAlternativePremise() {
-        return alternativePremise;
-    }
-    public void setAlternativePremise(String alternativePremise) {
-        this.alternativePremise = alternativePremise;
-    }
-    public String getDepartment() {
-        return department;
-    }
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-    public String getSubDepartment() {
-        return subDepartment;
-    }
-    public void setSubDepartment(String subDepartment) {
-        this.subDepartment = subDepartment;
-    }
-    public String getPostCodeIdentification() {
-        return postCodeIdentification;
-    }
-    public void setPostCodeIdentification(String postCodeIdentification) {
-        this.postCodeIdentification = postCodeIdentification;
-    }
-    public String getTownName() {
-        return townName;
-    }
-    public void setTownName(String townName) {
-        this.townName = townName;
-    }
-    public StateDTO getState() {
-        return state;
-    }
-    public void setState(StateDTO state) {
-        this.state = state;
-    }
-    public String getDistrictName() {
-        return districtName;
-    }
-    public void setDistrictName(String districtName) {
-        this.districtName = districtName;
-    }
-    public String getSecondaryDistrictName() {
-        return secondaryDistrictName;
-    }
-    public void setSecondaryDistrictName(String secondaryDistrictName) {
-        this.secondaryDistrictName = secondaryDistrictName;
-    }
-    public String getMailingInstructions() {
-        return mailingInstructions;
-    }
-    public void setMailingInstructions(String mailingInstructions) {
-        this.mailingInstructions = mailingInstructions;
-    }
-    public ProvinceDTO getProvince() {
-        return province;
-    }
-    public void setProvince(ProvinceDTO province) {
-        this.province = province;
-    }
-    public RegionIdentificationDTO getRegionIdentification() {
-        return regionIdentification;
-    }
-    public void setRegionIdentification(RegionIdentificationDTO regionIdentification) {
-        this.regionIdentification = regionIdentification;
-    }
-    public CountyIdentificationDTO getCountyIdentification() {
-        return countyIdentification;
-    }
-    public void setCountyIdentification(CountyIdentificationDTO countyIdentification) {
-        this.countyIdentification = countyIdentification;
-    }
-    public CountryDTO getCountry() {
-        return country;
-    }
-    public void setCountry(CountryDTO country) {
-        this.country = country;
-    }
-    public String getMilitary() {
-        return military;
-    }
-    public void setMilitary(String military) {
-        this.military = military;
-    }
-    public String getPostOfficeBox() {
-        return postOfficeBox;
-    }
-    public void setPostOfficeBox(String postOfficeBox) {
-        this.postOfficeBox = postOfficeBox;
-    }
-    public String getPostBoxTypeCode() {
-        return postBoxTypeCode;
-    }
-    public void setPostBoxTypeCode(String postBoxTypeCode) {
-        this.postBoxTypeCode = postBoxTypeCode;
-    }
-    public String getPostBoxTypeDescription() {
-        return postBoxTypeDescription;
-    }
-    public void setPostBoxTypeDescription(String postBoxTypeDescription) {
-        this.postBoxTypeDescription = postBoxTypeDescription;
-    }
-    public List<String> getForeignAddressLines() {
-        return foreignAddressLines;
-    }
-    public void setForeignAddressLines(List<String> foreignAddressLines) {
-        this.foreignAddressLines = foreignAddressLines;
-    }
-    public String getZipCode() {
-        return zipCode;
-    }
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-    public String getZip4Code() {
-        return zip4Code;
-    }
-    public void setZip4Code(String zip4Code) {
-        this.zip4Code = zip4Code;
-    }
-    public String getRuralTypeCode() {
-        return ruralTypeCode;
-    }
-    public void setRuralTypeCode(String ruralTypeCode) {
-        this.ruralTypeCode = ruralTypeCode;
-    }
-    public String getRuralTypeDescription() {
-        return ruralTypeDescription;
-    }
-    public void setRuralTypeDescription(String ruralTypeDescription) {
-        this.ruralTypeDescription = ruralTypeDescription;
-    }
-    public String getRuralNumber() {
-        return ruralNumber;
-    }
-    public void setRuralNumber(String ruralNumber) {
-        this.ruralNumber = ruralNumber;
-    }
+class RootDTOTest {
 
-    
+    @Test
+    void shouldTestRootDTO() {
+
+        List<ContactPointDTO> list =
+                List.of(new ContactPointDTO());
+
+        LinksDTO links = new LinksDTO();
+
+        RootDTO dto = new RootDTO();
+
+        dto.setContactPoints(list);
+        dto.setLinks(links);
+
+        assertSame(list, dto.getContactPoints());
+        assertSame(links, dto.getLinks());
+
+        RootDTO builder =
+                RootDTO.builder()
+                        .contactPoints(list)
+                        .links(links)
+                        .build();
+
+        assertSame(list, builder.getContactPoints());
+
+        RootDTO allArgs =
+                new RootDTO(list, links);
+
+        assertSame(links, allArgs.getLinks());
+    }
 }
+StateDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class StateDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestStateDTO() {
 
+        StateDTO dto = new StateDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PrevDTO {
-    private String href;
+        dto.setCode("S");
+        dto.setName("STATE");
 
-    public String getHref() {
-        return href;
+        assertEquals("S", dto.getCode());
+        assertEquals("STATE", dto.getName());
+
+        StateDTO builder =
+                StateDTO.builder()
+                        .code("S")
+                        .name("STATE")
+                        .build();
+
+        assertEquals("S", builder.getCode());
+
+        StateDTO allArgs =
+                new StateDTO("S", "STATE");
+
+        assertEquals("STATE", allArgs.getName());
     }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-    
-
 }
+UseTypeDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class UseTypeDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestUseTypeDTO() {
 
+        UseTypeDTO dto = new UseTypeDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProvinceDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
+        dto.setCode("C");
+        dto.setDescription("DESC");
+
+        assertEquals("C", dto.getCode());
+        assertEquals("DESC", dto.getDescription());
+
+        UseTypeDTO builder =
+                UseTypeDTO.builder()
+                        .code("C")
+                        .description("DESC")
+                        .build();
+
+        assertEquals("C", builder.getCode());
+
+        UseTypeDTO allArgs =
+                new UseTypeDTO("C", "DESC");
+
+        assertEquals("DESC", allArgs.getDescription());
     }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-
 }
+ValidityPeriodDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class ValidityPeriodDTOTest {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+    @Test
+    void shouldTestValidityPeriodDTO() {
 
+        ValidityPeriodDTO dto =
+                new ValidityPeriodDTO();
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RegionIdentificationDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
+        dto.setStartDate("START");
+        dto.setEndDate("END");
+
+        assertEquals("START", dto.getStartDate());
+        assertEquals("END", dto.getEndDate());
+
+        ValidityPeriodDTO builder =
+                ValidityPeriodDTO.builder()
+                        .startDate("START")
+                        .endDate("END")
+                        .build();
+
+        assertEquals("START", builder.getStartDate());
+
+        ValidityPeriodDTO allArgs =
+                new ValidityPeriodDTO("START", "END");
+
+        assertEquals("END", allArgs.getEndDate());
     }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    
-
 }
+WebAddressDTOTest.java
+Java
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
+class WebAddressDTOTest {
 
-import java.util.List;
+    @Test
+    void shouldTestWebAddressDTO() {
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+        WebAddressDTO dto =
+                new WebAddressDTO();
 
+        dto.setUrl("url");
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RootDTO {
-    private List<ContactPointDTO> contactPoints;
-    private LinksDTO links;
-    
-    public List<ContactPointDTO> getContactPoints() {
-        return contactPoints;
+        assertEquals("url", dto.getUrl());
+
+        WebAddressDTO builder =
+                WebAddressDTO.builder()
+                        .url("url")
+                        .build();
+
+        assertEquals("url", builder.getUrl());
+
+        WebAddressDTO allArgs =
+                new WebAddressDTO("url");
+
+        assertEquals("url", allArgs.getUrl());
     }
-    public void setContactPoints(List<ContactPointDTO> contactPoints) {
-        this.contactPoints = contactPoints;
-    }
-    public LinksDTO getLinks() {
-        return links;
-    }
-    public void setLinks(LinksDTO links) {
-        this.links = links;
-    }
-
-    
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class StateDTO {
-    private String code;
-    private String name;
-    
-    public String getCode() {
-        return code;
-    }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UseTypeDTO {
-    private String code;
-    private String description;
-    public String getCode() {
-        return code;
-    }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ValidityPeriodDTO {
-    private String startDate;
-    private String endDate;
-
-    public String getStartDate() {
-        return startDate;
-    }
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-    public String getEndDate() {
-        return endDate;
-    }
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
-    
-
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class WebAddressDTO {
-    private String url;
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-
 }

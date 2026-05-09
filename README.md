@@ -1,856 +1,1079 @@
-SessionTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.generic;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.context;
 
-import org.junit.jupiter.api.Test;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class SessionTest {
-
-    @Test
-    void shouldCoverSession() {
-
-        Session dto = new Session();
-
-        dto.setUsuario("USER");
-        dto.setTerminal("TERM");
-        dto.setHoraConexion("10:00");
-        dto.setEntorno("DEV");
-        dto.setPerfil("ADMIN");
-        dto.setSucursal("001");
-        dto.setEntidad("BNC");
-        dto.setDiasRestantesCambioClave("30");
-        dto.setFechaContable("20240101");
-        dto.setTurno("A");
-
-        assertEquals("USER", dto.getUsuario());
-        assertEquals("TERM", dto.getTerminal());
-        assertEquals("10:00", dto.getHoraConexion());
-        assertEquals("DEV", dto.getEntorno());
-        assertEquals("ADMIN", dto.getPerfil());
-        assertEquals("001", dto.getSucursal());
-        assertEquals("BNC", dto.getEntidad());
-        assertEquals("30", dto.getDiasRestantesCambioClave());
-        assertEquals("20240101", dto.getFechaContable());
-        assertEquals("A", dto.getTurno());
-
-        Session builder = Session.builder()
-                .usuario("USER")
-                .terminal("TERM")
-                .horaConexion("10:00")
-                .entorno("DEV")
-                .perfil("ADMIN")
-                .sucursal("001")
-                .entidad("BNC")
-                .diasRestantesCambioClave("30")
-                .fechaContable("20240101")
-                .turno("A")
-                .build();
-
-        assertEquals("USER", builder.getUsuario());
-
-        Session allArgs = new Session(
-                "USER", "TERM", "10:00", "DEV", "ADMIN",
-                "001", "BNC", "30", "20240101", "A"
-        );
-
-        assertEquals("A", allArgs.getTurno());
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContextRequest {
+    private String key;
+    private Object value;
+    private String product;
+    
+    public String getKey() {
+        return key;
     }
-}
-TrxPersonHeaderTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.generic;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class TrxPersonHeaderTest {
-
-    @Test
-    void shouldCoverTrxPersonHeader() {
-
-        Session session = new Session();
-
-        TrxPersonHeader dto = new TrxPersonHeader();
-
-        dto.setRutaServicio("ROUTE");
-        dto.setSesion(session);
-        dto.setFuncion("FUNC");
-        dto.setSecuencia(1);
-        dto.setCanal("WEB");
-        dto.setResultado("OK");
-
-        assertEquals("ROUTE", dto.getRutaServicio());
-        assertSame(session, dto.getSesion());
-        assertEquals("FUNC", dto.getFuncion());
-        assertEquals(1, dto.getSecuencia());
-        assertEquals("WEB", dto.getCanal());
-        assertEquals("OK", dto.getResultado());
-
-        TrxPersonHeader builder = TrxPersonHeader.builder()
-                .rutaServicio("ROUTE")
-                .sesion(session)
-                .funcion("FUNC")
-                .secuencia(1)
-                .canal("WEB")
-                .resultado("OK")
-                .build();
-
-        assertEquals("ROUTE", builder.getRutaServicio());
-
-        TrxPersonHeader allArgs = new TrxPersonHeader(
-                "ROUTE", session, "FUNC", 1, "WEB", "OK"
-        );
-
-        assertEquals("OK", allArgs.getResultado());
+    public void setKey(String key) {
+        this.key = key;
     }
-}
-AdditionalInfoTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class AdditionalInfoTest {
-
-    @Test
-    void shouldCoverAdditionalInfo() {
-
-        AdditionalInfo dto = new AdditionalInfo();
-
-        dto.setPaisResidenciaFiscal1("CO");
-        dto.setPaisDescripcion("COLOMBIA");
-        dto.setClasificacionFATCA("FATCA");
-        dto.setValidacionFATCA(true);
-        dto.setSalario(true);
-        dto.setOtro(true);
-        dto.setCanalVenta("WEB");
-        dto.setNumdoc("123");
-
-        assertEquals("CO", dto.getPaisResidenciaFiscal1());
-        assertEquals("COLOMBIA", dto.getPaisDescripcion());
-        assertEquals("FATCA", dto.getClasificacionFATCA());
-        assertTrue(dto.getValidacionFATCA());
-        assertTrue(dto.getSalario());
-        assertTrue(dto.getOtro());
-        assertEquals("WEB", dto.getCanalVenta());
-        assertEquals("123", dto.getNumdoc());
-
-        AdditionalInfo builder = AdditionalInfo.builder()
-                .paisResidenciaFiscal1("CO")
-                .paisDescripcion("COLOMBIA")
-                .clasificacionFATCA("FATCA")
-                .validacionFATCA(true)
-                .salario(true)
-                .otro(true)
-                .canalVenta("WEB")
-                .numdoc("123")
-                .build();
-
-        assertEquals("CO", builder.getPaisResidenciaFiscal1());
-
-        AdditionalInfo allArgs = new AdditionalInfo(
-                "CO", "COLOMBIA", "US", "USA",
-                "FATCA", "CRS", true, true, true,
-                true, true, true, true, true,
-                true, "NIT1", "NIT2", "PRE",
-                true, true, true, true, true,
-                "WEB", "OF", "001", "NEG",
-                "ACTIVE", "20240101", "123",
-                "999", "1", "CC"
-        );
-
-        assertEquals("CC", allArgs.getTipdoc());
+    public Object getValue() {
+        return value;
     }
-}
-BasicDataTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class BasicDataTest {
-
-    @Test
-    void shouldCoverBasicData() {
-
-        BasicData dto = new BasicData();
-
-        dto.setTipoIdentificacion("CC");
-        dto.setNumeroIdentificacion("123");
-        dto.setNombre("JUAN");
-        dto.setPrimerApellido("PEREZ");
-        dto.setEmail("mail@test.com");
-        dto.setAutorizoTelefono(true);
-        dto.setAutorizacionEmail(true);
-        dto.setTown("BOGOTA");
-
-        assertEquals("CC", dto.getTipoIdentificacion());
-        assertEquals("123", dto.getNumeroIdentificacion());
-        assertEquals("JUAN", dto.getNombre());
-        assertEquals("PEREZ", dto.getPrimerApellido());
-        assertEquals("mail@test.com", dto.getEmail());
-        assertTrue(dto.isAutorizoTelefono());
-        assertTrue(dto.isAutorizacionEmail());
-        assertEquals("BOGOTA", dto.getTown());
-
-        BasicData builder = BasicData.builder()
-                .tipoIdentificacion("CC")
-                .numeroIdentificacion("123")
-                .nombre("JUAN")
-                .primerApellido("PEREZ")
-                .email("mail@test.com")
-                .autorizoTelefono(true)
-                .autorizacionEmail(true)
-                .town("BOGOTA")
-                .build();
-
-        assertEquals("CC", builder.getTipoIdentificacion());
-
-        BasicData allArgs = new BasicData();
-
-        allArgs.setTown("CALI");
-
-        assertEquals("CALI", allArgs.getTown());
+    public void setValue(Object value) {
+        this.value = value;
     }
-}
-ComplementaryInfoTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ComplementaryInfoTest {
-
-    @Test
-    void shouldCoverComplementaryInfo() {
-
-        ComplementaryInfo dto = new ComplementaryInfo();
-
-        dto.setEstadoCivil("S");
-        dto.setTipoVivienda("CASA");
-        dto.setEstrato("3");
-        dto.setAnios("5");
-        dto.setNivelEstudios("UNI");
-        dto.setNumHijos("2");
-        dto.setTipdoc("CC");
-
-        assertEquals("S", dto.getEstadoCivil());
-        assertEquals("CASA", dto.getTipoVivienda());
-        assertEquals("3", dto.getEstrato());
-        assertEquals("5", dto.getAnios());
-        assertEquals("UNI", dto.getNivelEstudios());
-        assertEquals("2", dto.getNumHijos());
-        assertEquals("CC", dto.getTipdoc());
-
-        ComplementaryInfo builder = ComplementaryInfo.builder()
-                .estadoCivil("S")
-                .tipoVivienda("CASA")
-                .estrato("3")
-                .anios("5")
-                .nivelEstudios("UNI")
-                .numHijos("2")
-                .tipdoc("CC")
-                .build();
-
-        assertEquals("S", builder.getEstadoCivil());
-
-        ComplementaryInfo allArgs = new ComplementaryInfo(
-                "S", "CASA", "3", "5", "2",
-                "1", "UNI", "3", "2", "H1",
-                "H2", "BOG", "999", "1", "1",
-                "1", "1", "1", "1", "1", "CC"
-        );
-
-        assertEquals("CC", allArgs.getTipdoc());
+    public String getProduct() {
+        return product;
     }
-}
-EconomyActivityTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class EconomyActivityTest {
-
-    @Test
-    void shouldCoverEconomyActivity() {
-
-        EconomyActivity dto = new EconomyActivity();
-
-        dto.setCargo("DEV");
-        dto.setDescCargo("DEVELOPER");
-        dto.setPais("CO");
-        dto.setCiudad("BOG");
-        dto.setTelefono("123");
-        dto.setTipdoc("CC");
-
-        assertEquals("DEV", dto.getCargo());
-        assertEquals("DEVELOPER", dto.getDescCargo());
-        assertEquals("CO", dto.getPais());
-        assertEquals("BOG", dto.getCiudad());
-        assertEquals("123", dto.getTelefono());
-        assertEquals("CC", dto.getTipdoc());
-
-        EconomyActivity builder = EconomyActivity.builder()
-                .cargo("DEV")
-                .descCargo("DEVELOPER")
-                .pais("CO")
-                .ciudad("BOG")
-                .telefono("123")
-                .tipdoc("CC")
-                .build();
-
-        assertEquals("DEV", builder.getCargo());
-
-        EconomyActivity allArgs = new EconomyActivity(
-                "DEV", "DEVELOPER", "CL", "DC",
-                "FIX", "CO", "COL", "BOG", "BOGOTA",
-                "ING", "INGENIERO", "ACT", "ACT DESC",
-                "5", "2", "EMP", "900",
-                "20240101", "20240102", "CALLE",
-                "DIR", "+57", "123", "OP",
-                "1", "999", "1", "CC"
-        );
-
-        assertEquals("CC", allArgs.getTipdoc());
+    public void setProduct(String product) {
+        this.product = product;
     }
+    
 }
-FinancialInformationTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
 
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.context;
 
-class FinancialInformationTest {
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-    @Test
-    void shouldCoverFinancialInformation() {
 
-        FinancialInformation dto = new FinancialInformation();
-
-        dto.setIngresosFijos(1000);
-        dto.setOtrosIngresos1(200);
-        dto.setTotalIngresos(1200);
-        dto.setValorComercial("50000");
-        dto.setSaldo("100");
-        dto.setTipoInmueble("CASA");
-
-        assertEquals(1000, dto.getIngresosFijos());
-        assertEquals(200, dto.getOtrosIngresos1());
-        assertEquals(1200, dto.getTotalIngresos());
-        assertEquals("50000", dto.getValorComercial());
-        assertEquals("100", dto.getSaldo());
-        assertEquals("CASA", dto.getTipoInmueble());
-
-        FinancialInformation builder = FinancialInformation.builder()
-                .ingresosFijos(1000)
-                .otrosIngresos1(200)
-                .totalIngresos(1200)
-                .valorComercial("50000")
-                .saldo("100")
-                .tipoInmueble("CASA")
-                .build();
-
-        assertEquals(1000, builder.getIngresosFijos());
-
-        FinancialInformation allArgs = new FinancialInformation(
-                1,2,3,4,5,6,7,8,9,10,11,12,
-                "M1","M2","M3","VC1","VC2","VC3",
-                "SH1","SH2","SH3","S1","S2",
-                "123","999","1","CC","CASA"
-        );
-
-        assertEquals("CASA", allArgs.getTipoInmueble());
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContextResponse {
+    private String key;
+    private Object value;
+    private String product;
+    
+    public String getKey() {
+        return key;
     }
-}
-IdentificationDataTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class IdentificationDataTest {
-
-    @Test
-    void shouldCoverIdentificationData() {
-
-        IdentificationData dto = new IdentificationData();
-
-        dto.setNumeroDocumento("123");
-        dto.setNumPersona("999");
-        dto.setApellidos("PEREZ");
-        dto.setTipoPersona("N");
-        dto.setpETIPDO("CC");
-
-        assertEquals("123", dto.getNumeroDocumento());
-        assertEquals("999", dto.getNumPersona());
-        assertEquals("PEREZ", dto.getApellidos());
-        assertEquals("N", dto.getTipoPersona());
-        assertEquals("CC", dto.getpETIPDO());
-
-        IdentificationData builder = IdentificationData.builder()
-                .numeroDocumento("123")
-                .numPersona("999")
-                .apellidos("PEREZ")
-                .tipoPersona("N")
-                .pETIPDO("CC")
-                .build();
-
-        assertEquals("123", builder.getNumeroDocumento());
-
-        IdentificationData allArgs = new IdentificationData(
-                "123","999","PEREZ","A","N",
-                "1","1","20240101","H","A",
-                "C","G","N3","N4","N5",
-                "R","M","NCA","NLO","OBS",
-                "PRI","RUT","SEC","SEG","CC","VI"
-        );
-
-        assertEquals("VI", allArgs.getpETIPVI());
+    public void setKey(String key) {
+        this.key = key;
     }
-}
-InternationalOperationsTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class InternationalOperationsTest {
-
-    @Test
-    void shouldCoverInternationalOperations() {
-
-        InternationalOperations dto = new InternationalOperations();
-
-        dto.setRealizaOperaMoneExtran("YES");
-        dto.setInversiones(true);
-        dto.setGiros(true);
-        dto.setTieneProdMoneExtraje("YES");
-        dto.setTipdoc("CC");
-
-        assertEquals("YES", dto.getRealizaOperaMoneExtran());
-        assertTrue(dto.getInversiones());
-        assertTrue(dto.getGiros());
-        assertEquals("YES", dto.getTieneProdMoneExtraje());
-        assertEquals("CC", dto.getTipdoc());
-
-        InternationalOperations builder = InternationalOperations.builder()
-                .realizaOperaMoneExtran("YES")
-                .inversiones(true)
-                .giros(true)
-                .tieneProdMoneExtraje("YES")
-                .tipdoc("CC")
-                .build();
-
-        assertEquals("YES", builder.getRealizaOperaMoneExtran());
-
-        InternationalOperations allArgs = new InternationalOperations(
-                "YES", true, true, true,
-                true, true, true,
-                "YES", "123", "999",
-                "1", "CC"
-        );
-
-        assertEquals("CC", allArgs.getTipdoc());
+    public Object getValue() {
+        return value;
     }
-}
-ReferencesTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ReferencesTest {
-
-    @Test
-    void shouldCoverReferences() {
-
-        References dto = new References();
-
-        dto.setParentesco("PADRE");
-        dto.setNombre("JUAN");
-        dto.setTelefono("123");
-        dto.setDireccion("DIR");
-        dto.setTipdoc("CC");
-
-        assertEquals("PADRE", dto.getParentesco());
-        assertEquals("JUAN", dto.getNombre());
-        assertEquals("123", dto.getTelefono());
-        assertEquals("DIR", dto.getDireccion());
-        assertEquals("CC", dto.getTipdoc());
-
-        References builder = References.builder()
-                .parentesco("PADRE")
-                .nombre("JUAN")
-                .telefono("123")
-                .direccion("DIR")
-                .tipdoc("CC")
-                .build();
-
-        assertEquals("PADRE", builder.getParentesco());
-
-        References allArgs = new References(
-                "PADRE", "JUAN", "PEREZ",
-                "BOG", "BOGOTA", "+57",
-                "123", "DIR", "1",
-                "999", "1", "REF",
-                "CC"
-        );
-
-        assertEquals("CC", allArgs.getTipdoc());
+    public void setValue(Object value) {
+        this.value = value;
     }
+    public String getProduct() {
+        return product;
+    }
+    public void setProduct(String product) {
+        this.product = product;
+    }
+    
 }
-TrxPersonDataRequestTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
 
-import org.junit.jupiter.api.Test;
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+/**
+ * params from properties.yml
+ */
+
+@AllArgsConstructor
+@NoArgsConstructor
+public class ApiEntry {
+    private String integrationType;
+    private String host;
+    private String port;
+    private boolean https;
+    private String endpoint;
+    private Integer timeOutConn;
+    private Integer timeOutRead;
+    public String getIntegrationType() {
+        return integrationType;
+    }
+    public void setIntegrationType(String integrationType) {
+        this.integrationType = integrationType;
+    }
+    public String getHost() {
+        return host;
+    }
+    public void setHost(String host) {
+        this.host = host;
+    }
+    public String getPort() {
+        return port;
+    }
+    public void setPort(String port) {
+        this.port = port;
+    }
+    public boolean isHttps() {
+        return https;
+    }
+    public void setHttps(boolean https) {
+        this.https = https;
+    }
+    public String getEndpoint() {
+        return endpoint;
+    }
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+    public Integer getTimeOutConn() {
+        return timeOutConn;
+    }
+    public void setTimeOutConn(Integer timeOutConn) {
+        this.timeOutConn = timeOutConn;
+    }
+    public Integer getTimeOutRead() {
+        return timeOutRead;
+    }
+    public void setTimeOutRead(Integer timeOutRead) {
+        this.timeOutRead = timeOutRead;
+    }
+
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration;
+
+import lombok.AllArgsConstructor;
+
+import lombok.NoArgsConstructor;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class SecurityHeaders {
+    private String authorization;
+    private String xSantanderClientId;
+    
+    public String getAuthorization() {
+        return authorization;
+    }
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
+    }
+    public String getxSantanderClientId() {
+        return xSantanderClientId;
+    }
+    public void setxSantanderClientId(String xSantanderClientId) {
+        this.xSantanderClientId = xSantanderClientId;
+    }
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class DataListDTO {
+    private String listCode;
+    private String code;
+    private String description;
+    
+    public String getListCode() {
+        return listCode;
+    }
+    public void setListCode(String listCode) {
+        this.listCode = listCode;
+    }
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 
-class TrxPersonDataRequestTest {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class GeographiesParametersResponseDTO {
+    List<DataListDTO> parameters;
 
-    @Test
-    void shouldCoverTrxPersonDataRequest() {
+    public List<DataListDTO> getParameters() {
+        return parameters;
+    }
 
-        BasicData basic = new BasicData();
-        ComplementaryInfo comp = new ComplementaryInfo();
-        EconomyActivity eco = new EconomyActivity();
-        FinancialInformation fin = new FinancialInformation();
-        References ref = new References();
-        AdditionalInfo add = new AdditionalInfo();
-        InternationalOperations inter = new InternationalOperations();
+    public void setParameters(List<DataListDTO> parameters) {
+        this.parameters = parameters;
+    }
 
-        List<IdentificationData> list =
-                List.of(new IdentificationData());
+    
+}
 
-        TrxPersonDataRequest dto = new TrxPersonDataRequest();
 
-        dto.setPenumpe("999");
-        dto.setTipoInmueble("CASA");
-        dto.setDatosBasicos(basic);
-        dto.setInfComplementaria(comp);
-        dto.setActividadEconomica(eco);
-        dto.setInfFinanciera(fin);
-        dto.setReferencias(ref);
-        dto.setInfAdicional(add);
-        dto.setOperacionesInternacionales(inter);
-        dto.setDocumentoCajero("123");
-        dto.setTipoDocumento("CC");
-        dto.setNumDocumento("999");
-        dto.setNombre("JUAN");
-        dto.setDatosIdentificacion(list);
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.enums;
 
-        assertEquals("999", dto.getPenumpe());
-        assertEquals("CASA", dto.getTipoInmueble());
-        assertSame(basic, dto.getDatosBasicos());
-        assertSame(comp, dto.getInfComplementaria());
-        assertSame(eco, dto.getActividadEconomica());
-        assertSame(fin, dto.getInfFinanciera());
-        assertSame(ref, dto.getReferencias());
-        assertSame(add, dto.getInfAdicional());
-        assertSame(inter, dto.getOperacionesInternacionales());
-        assertEquals("JUAN", dto.getNombre());
-        assertSame(list, dto.getDatosIdentificacion());
+public enum ClientEnum {
+    PEF1("ingresoAltaPersonaNatural"),
+    PEF2("modificarMantencionPersonaNaturalDatosBasicos"),
+    PEF3("ConsultaDatosBasicosPNatural"),
+    PEFT("modificarMantencionPersonaNaturalReferencias"),
+    PEFP("modificarMantencionPersonaNaturalInfAdicional"),
+    PEFV("modificarMantencionPersonaNaturalInfAdicional"),
+    PE37("AltaPersonaNatural2"),
+    PEF4("modificarMantencionPersonaNaturalInfComplementariaDos"),
+    PEF8("modificarMantencionPersonaNaturalActivivadEconomica2"),
+    
+    MQROUTE("QCTFD");
 
-        TrxPersonDataRequest builder = TrxPersonDataRequest.builder()
-                .penumpe("999")
-                .tipoInmueble("CASA")
-                .nombre("JUAN")
-                .datosIdentificacion(list)
-                .build();
+    private final String path;
 
-        assertEquals("999", builder.getPenumpe());
+    ClientEnum(String path) {
+        this.path = path;
+    }
+
+    public String value() {
+        return path;
     }
 }
-TrxPersonRequestTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request;
 
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.generic.TrxPersonHeader;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.enums;
 
-class TrxPersonRequestTest {
+public enum ParametersEnums {
+    TOWNS("0008"),
+    COUNTRY("0112"),
+    STATES("0009"),
+    WAY_TYPE("0314"),
+    CIVIL_STATE("0116"),
+    LIST_BCO_EXT("0026"),
+    DOCU_TYPE("0113");
 
-    @Test
-    void shouldCoverTrxPersonRequest() {
+    private final String code;
 
-        TrxPersonHeader header = new TrxPersonHeader();
-        TrxPersonDataRequest data = new TrxPersonDataRequest();
+    ParametersEnums(String path) {
+        this.code = path;
+    }
 
-        TrxPersonRequest dto = new TrxPersonRequest();
-
-        dto.setCabecera(header);
-        dto.setData(data);
-
-        assertSame(header, dto.getCabecera());
-        assertSame(data, dto.getData());
-
-        TrxPersonRequest builder = TrxPersonRequest.builder()
-                .cabecera(header)
-                .data(data)
-                .build();
-
-        assertSame(header, builder.getCabecera());
-
-        TrxPersonRequest allArgs =
-                new TrxPersonRequest(header, data);
-
-        assertSame(data, allArgs.getData());
+    public String value() {
+        return code;
     }
 }
-ErrorResponseTrxDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
 
-import org.junit.jupiter.api.Test;
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
+
+
+public class ErrorCatalog {   
+
+    public static final String PT_400 = "-P-T-9400";
+    public static final String PT_404 = "-P-T-9404";
+    public static final String PT_409 = "-P-T-9409";
+    public static final String PT_429 = "-P-T-9429";
+    public static final String PT_500 = "-P-T-9500";
+    public static final String PT_503 = "-P-T-9503";
+
+    private ErrorCatalog() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+    
+    private static ErrorDTO msParametersNetworkConection = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_500)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_PARAMETERS_NETWORK)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_PARAMETERS_NETWORK)
+                                                            .build();
+
+    private static ErrorDTO msParametersResponse = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_400)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_PARAMETERS_RESPONSE)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_PARAMETERS_RESPONSE)
+                                                            .build();
+    
+    private static ErrorDTO msParametersNoEntry = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_400)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_PARAMETERS_NO_ENTRY)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_PARAMETERS_NO_ENTRY)
+                                                            .build();
+
+    private static ErrorDTO msSambaNetworkConnection = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_503)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_SANBA_NETWORK)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_SANBA_NETWORK)
+                                                            .build();    
+
+
+    private static ErrorDTO msParametersGeneral = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_400)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_PARAMETERS_GENERAL)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_PARAMETERS_GENERAL)
+                                                            .build();   
+
+    private static ErrorDTO msSanbaTrxError = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_409)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_SANBA_TRX)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_SANBA_TRX)
+                                                            .build();                                                          
+    
+    private static ErrorDTO msSanbaResponse = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_429)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.ERROR_MS_SANBA_RESPONSE)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.ERROR_MS_SANBA_RESPONSE)
+                                                            .build();
+
+    private static ErrorDTO invalidCustomerId = ErrorDTO.builder()                    
+                                                            .code(ErrorDictionary.MS_NAME + PT_400)
+                                                            .level(ErrorDictionary.ERROR_LEVEL)
+                                                            .message(ErrorDictionary.INVALID_CUSTOMER_ID)
+                                                            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.INVALID_CUSTOMER_ID)
+                                                            .build();
+
+    private static ErrorDTO nonExistentPerson = ErrorDTO.builder()
+            .code(ErrorDictionary.MS_NAME + PT_404)
+            .level(ErrorDictionary.ERROR_LEVEL)
+            .message(ErrorDictionary.NONEXISTENT_PERSON)
+            .description(ErrorDictionary.MS_NAME.toLowerCase() + ErrorDictionary.MS_VERSION + ErrorDictionary.NONEXISTENT_PERSON)
+            .build();
+
+    public static ErrorDTO getMsParametersNetworkConection() {
+        return msParametersNetworkConection;
+    }
+
+    public static void setMsParametersNetworkConection(ErrorDTO msParametersNetworkConection) {
+        ErrorCatalog.msParametersNetworkConection = msParametersNetworkConection;
+    }
+
+    public static ErrorDTO getMsParametersResponse() {
+        return msParametersResponse;
+    }
+
+    public static void setMsParametersResponse(ErrorDTO msParametersResponse) {
+        ErrorCatalog.msParametersResponse = msParametersResponse;
+    }
+
+    public static ErrorDTO getMsParametersNoEntry() {
+        return msParametersNoEntry;
+    }
+
+    public static void setMsParametersNoEntry(ErrorDTO msParametersNoEntry) {
+        ErrorCatalog.msParametersNoEntry = msParametersNoEntry;
+    }
+
+    public static ErrorDTO getMsSambaNetworkConnection() {
+        return msSambaNetworkConnection;
+    }
+
+    public static void setMsSambaNetworkConnection(ErrorDTO msSambaNetworkConnection) {
+        ErrorCatalog.msSambaNetworkConnection = msSambaNetworkConnection;
+    }
+
+    public static ErrorDTO getMsParametersGeneral() {
+        return msParametersGeneral;
+    }
+
+    public static void setMsParametersGeneral(ErrorDTO msParametersGeneral) {
+        ErrorCatalog.msParametersGeneral = msParametersGeneral;
+    }
+
+    public static ErrorDTO getMsSanbaTrxError() {
+        return msSanbaTrxError;
+    }
+
+    public static void setMsSanbaTrxError(ErrorDTO msSanbaTrxError) {
+        ErrorCatalog.msSanbaTrxError = msSanbaTrxError;
+    }
+
+    public static ErrorDTO getMsSanbaResponse() {
+        return msSanbaResponse;
+    }
+
+    public static void setMsSanbaResponse(ErrorDTO msSanbaResponse) {
+        ErrorCatalog.msSanbaResponse = msSanbaResponse;
+    }
+
+    public static ErrorDTO getInvalidCustomerId() {
+        return invalidCustomerId;
+    }
+
+    public static void setInvalidCustomerId(ErrorDTO invalidCustomerId) {
+        ErrorCatalog.invalidCustomerId = invalidCustomerId;
+    }
+
+    public static ErrorDTO getNonExistentPerson() {
+        return nonExistentPerson;
+    }
+
+    public static void setNonExistentPerson(ErrorDTO nonExistentPerson) {
+        ErrorCatalog.nonExistentPerson = nonExistentPerson;
+    }
+
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
+
+public class ErrorDictionary {
+        
+    public static String MS_NAME = "CUSTOMER_CONTACT_POINTS";
+    public static String ERROR_LEVEL = "error";
+    public static String MS_VERSION = "-api-service-v2: ";
+    public static String ERROR_MS_PARAMETERS_NETWORK = "Cannot connect to MS Parameters";
+    public static String ERROR_MS_PARAMETERS_RESPONSE = "Error trying to process response";
+    public static String ERROR_MS_PARAMETERS_NO_ENTRY = "No entry founds";
+    public static String ERROR_MS_PARAMETERS_GENERAL = "Cannot connect to MS Parameters";
+    public static String ERROR_MS_SANBA_NETWORK = "Cannot connect to MS Sanba";
+    public static String ERROR_MS_SANBA_RESPONSE = "Error trying to process response";
+    public static String ERROR_MS_SANBA_TRX = "Error in transaction execution";
+    public static String INVALID_CUSTOMER_ID = "Invalid customer_id";
+    public static String NONEXISTENT_PERSON = "Customer not found";
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
+
+import lombok.*;
+
+/**
+ * @author Wilfredo Pena
+ * This class handle error data
+ */
+
+@Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class ErrorDTO {
+    private String code;
+    private String message;
+    private String level;
+    private String description;
+    
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    public String getLevel() {
+        return level;
+    }
+    public void setLevel(String level) {
+        this.level = level;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    } 
+       
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+/**
+ * @author Wilfredo Pena
+ * This class handle error general response
+ */
 
-class ErrorResponseTrxDTOTest {
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class ErrorResponseDTO {
+    private List<ErrorDTO> errors;
 
-    @Test
-    void shouldCoverErrorResponseTrxDTO() {
-
-        List<String> errors = List.of("ERROR");
-
-        ErrorResponseTrxDTO dto = new ErrorResponseTrxDTO();
-
-        dto.setErrores(errors);
-
-        assertSame(errors, dto.getErrores());
-
-        ErrorResponseTrxDTO builder = ErrorResponseTrxDTO.builder()
-                .errores(errors)
-                .build();
-
-        assertSame(errors, builder.getErrores());
-
-        ErrorResponseTrxDTO allArgs =
-                new ErrorResponseTrxDTO(errors);
-
-        assertSame(errors, allArgs.getErrores());
+    public List<ErrorDTO> getErrors() {
+        return errors;
     }
-}
-ErrorTrxDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ErrorTrxDTOTest {
-
-    @Test
-    void shouldCoverErrorTrxDTO() {
-
-        ErrorTrxDTO dto = new ErrorTrxDTO();
-
-        dto.setCodigo("001");
-        dto.setMensaje("ERROR");
-        dto.setTransaccion("TRX");
-
-        assertEquals("001", dto.getCodigo());
-        assertEquals("ERROR", dto.getMensaje());
-        assertEquals("TRX", dto.getTransaccion());
-
-        ErrorTrxDTO builder = ErrorTrxDTO.builder()
-                .codigo("001")
-                .mensaje("ERROR")
-                .transaccion("TRX")
-                .build();
-
-        assertEquals("001", builder.getCodigo());
-
-        ErrorTrxDTO allArgs =
-                new ErrorTrxDTO("001", "ERROR", "TRX");
-
-        assertEquals("TRX", allArgs.getTransaccion());
+    public void setErrors(List<ErrorDTO> errors) {
+        this.errors = errors;
     }
-}
-TrxBasicDataTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
+    
+}//method closure
 
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+ package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
 
-class TrxBasicDataTest {
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
-    @Test
-    void shouldCoverTrxBasicData() {
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.ServiceException;
 
-        TrxPersonData data = new TrxPersonData();
+@Service
+public class ErrorService {
+    
+    @Value("${ms_name}")
+    private String msName;
 
-        TrxBasicData dto = new TrxBasicData();
+    @Value("${ms_version}")
+    private String msVersion;
+    
+    @Value("${errors.level}")
+    private String errorLevel;
+    
+    @Value("${errors.functional}")
+    private String functionalError;
+    
+    @Value("${errors.technical}")
+    private String technicalError;
+    
+    @Value("${errors.general.invalid_value}")
+    public String invalidValue;
 
-        dto.setDatosBasicos(data);
-        dto.setNumPersona("999");
+    @Value(("${errors.general.blank_data}"))
+    public String blankData;
 
-        assertSame(data, dto.getDatosBasicos());
-        assertEquals("999", dto.getNumPersona());
 
-        TrxBasicData builder = TrxBasicData.builder()
-                .datosBasicos(data)
-                .numPersona("999")
-                .build();
+    public ServiceException errorBuilder(HttpStatus status, String message, ErrorType type){
 
-        assertEquals("999", builder.getNumPersona());
+        String errorType = type == ErrorType.FUNCTIONAL ? functionalError : technicalError;
 
-        TrxBasicData allArgs =
-                new TrxBasicData(data, "999");
+        var error = ErrorDTO.builder()
+                    .code(msName + "-" + errorType + "-9" + status.value())
+                    .level(errorLevel)
+                    .message(message)
+                    .description(msName.toLowerCase() + "-" + msVersion + ": " + message)
+                    .build();
 
-        assertEquals("999", allArgs.getNumPersona());
+        return new ServiceException(status, error);
     }
-}
-TrxPersonDataTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
 
-import org.junit.jupiter.api.Test;
+    public void isBlank(String value, String fieldName){
+        if(value.isBlank()){            
+            var message = "'"+ fieldName +"' " + blankData;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class TrxPersonDataTest {
-
-    @Test
-    void shouldCoverTrxPersonData() {
-
-        TrxPersonData dto = new TrxPersonData();
-
-        dto.setTipoIdentificacion("CC");
-        dto.setNumeroIdentificacion("123");
-        dto.setNombre("JUAN");
-        dto.setPrimerApellido("PEREZ");
-        dto.setDomant(1);
-        dto.setSeccel(2);
-        dto.setTown("BOGOTA");
-
-        assertEquals("CC", dto.getTipoIdentificacion());
-        assertEquals("123", dto.getNumeroIdentificacion());
-        assertEquals("JUAN", dto.getNombre());
-        assertEquals("PEREZ", dto.getPrimerApellido());
-        assertEquals(1, dto.getDomant());
-        assertEquals(2, dto.getSeccel());
-        assertEquals("BOGOTA", dto.getTown());
-
-        TrxPersonData builder = TrxPersonData.builder()
-                .tipoIdentificacion("CC")
-                .numeroIdentificacion("123")
-                .nombre("JUAN")
-                .primerApellido("PEREZ")
-                .domant(1)
-                .seccel(2)
-                .town("BOGOTA")
-                .build();
-
-        assertEquals("CC", builder.getTipoIdentificacion());
+            throw errorBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);            
+        }        
     }
+
 }
-TrxPersonResponseTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
 
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.generic.TrxPersonHeader;
-import org.junit.jupiter.api.Test;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error;
 
+public enum ErrorType {
+    FUNCTIONAL,
+    TECHNICAL;
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception;
+
+
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorDTO;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorResponseDTO;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+/**
+ * @author Wilfredo Pena
+ * This class handle all Exceptions
+ */
+@Slf4j
+@ControllerAdvice
+public class GlobalExceptionHandler {    
+    
+    @Value("${params.app-name}")
+    private String msName;
 
-class TrxPersonResponseTest {
+    private String pf400 = "-P-F-9400";
+    private String pt400 = "-P-T-9400";
+    private String pf404 = "-P-F-9404";
+    private String errorLevel = "error";
+    private String messageNotSpecified= " not specified";
 
-    @Test
-    void shouldCoverTrxPersonResponse() {
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
+        
+        log.info("Error type: {}", e.getClass().getName());
+        log.info("Error: {}", e.getMessage());
 
-        TrxBasicData data = new TrxBasicData();
-        TrxPersonHeader header = new TrxPersonHeader();
-        List<Object> avisos = List.of("WARN");
-        List<ErrorTrxDTO> errores =
-                List.of(new ErrorTrxDTO());
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName + "-P-T-9499")
+                            .message("Unhandled exception")
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Unhandled exception")
+                            .build());
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }//method closure
 
-        TrxPersonResponse dto = new TrxPersonResponse();
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        BindingResult result = ex.getBindingResult();
+        List<ErrorDTO> errors = new ArrayList<>();
+       
 
-        dto.setData(data);
-        dto.setCabecera(header);
-        dto.setAvisos(avisos);
-        dto.setErrores(errores);
-        dto.setOk(true);
+        result.getAllErrors().forEach(error -> {   
+            String field = ((FieldError) error).getField();         
+            log.info(error.toString());            
 
-        assertSame(data, dto.getData());
-        assertSame(header, dto.getCabecera());
-        assertSame(avisos, dto.getAvisos());
-        assertSame(errores, dto.getErrores());
-        assertTrue(dto.getOk());
+            String errorMessage = "'" + field + "': " + error.getDefaultMessage();
 
-        TrxPersonResponse builder = TrxPersonResponse.builder()
-                .data(data)
-                .cabecera(header)
-                .avisos(avisos)
-                .errores(errores)
-                .ok(true)
-                .build();
-
-        assertTrue(builder.getOk());
+            errors.add(ErrorDTO.builder()
+                                .code(msName + pf404)
+                                .level(errorLevel)
+                                .message(errorMessage)
+                                .description(msName.toLowerCase() + "-api-services-v2: " + errorMessage).build());
+        });
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(NoResourceFoundException ex) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName + pf404)
+                            .message("Not Found")
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Not Found")
+                            .build());        
+
+        return buildResponseEntity(errors, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingServletRequestParameterException ex) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName + pf400)
+                            .message("Required query parameter " + ex.getParameterName() + messageNotSpecified)
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Required query parameter " + ex.getParameterName() + messageNotSpecified)
+                            .build());        
+
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(IllegalArgumentException ex) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName.toLowerCase() + pf400)
+                            .message(ex.getMessage())
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Bad request")
+                            .build());        
+
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingRequestHeaderException ex) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName + pf400)
+                            .message("Required header " + ex.getHeaderName() + messageNotSpecified)
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Required header " + ex.getHeaderName() + messageNotSpecified)
+                            .build());        
+
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(HttpMessageNotReadableException ex) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ErrorDTO.builder()
+                            .code(msName + pt400)
+                            .message("Invalid body structure")
+                            .level(errorLevel)
+                            .description(msName.toLowerCase() + "-api-services-v2: Invalid body structure")
+                            .build());        
+
+        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Main exception hanlder
+     * @param ex Exception
+     * @param request Web Request
+     * @return Structured Santander Exception format
+     */
+    @ExceptionHandler({ ServiceException.class })
+    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceException ex, WebRequest request) {
+        List<ErrorDTO> errors = new ArrayList<>();
+        errors.add(ex.getError());
+
+        return buildResponseEntity(errors, ex.getCode());
+    }
+    
+    @ExceptionHandler({ ServiceExceptionClient.class })
+    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceExceptionClient ex, WebRequest request) {
+        log.error("ERRORRS {}", ex.getErrorResponseDTO());
+        return buildResponseEntity2(ex.getErrorResponseDTO(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    public ResponseEntity<ErrorResponseDTO> buildResponseEntity2(ErrorResponseDTO newErrorDTO, HttpStatus status) {
+
+        newErrorDTO.getErrors().forEach( error->log.error(error.getMessage()));
+        return new ResponseEntity<>(newErrorDTO, status);
+    }//method closure
+
+/**
+    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
+
+        ErrorResponseDTO responseError = new ErrorResponseDTO();
+        responseError.setErrors(errors);
+        if(errors != null){
+            errors.forEach( error->log.error(error.getMessage())                    
+            );
+        }
+        return new ResponseEntity<>(responseError, status);
+    }//method closure
+*/
+    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
+
+        ErrorResponseDTO responseError = new ErrorResponseDTO();
+        responseError.setErrors(errors);
+        if (errors != null) {
+            // 1. REGISTRO SEGURO (Logging interno para diagnóstico de devs)
+            // Registramos todos los detalles originales ANTES de limpiarlos.
+            log.error("Se detectaron {} errores técnicos detallados:", errors.size());
+            errors.forEach(error -> 
+                log.error("Código de Error Técnico: {}, Descripción Técnica Detallada: {}", error.getCode(), error.getDescription())
+            );
+        }
+         // 2. CREACIÓN DE RESPUESTA DESDE CERO (Interrupción de flujo)
+         // No usamos 'responseError.setErrors(sanitizedErrors)' sobre un objeto que tocó datos viejos.
+         ErrorResponseDTO cleanResponse = new ErrorResponseDTO();
+         List<ErrorDTO> externalErrors = new ArrayList<>();
+
+         if (errors != null) {
+             for (ErrorDTO original : errors) {
+                 // Creamos un DTO nuevo por cada error, sin copiar referencias sospechosas
+                 ErrorDTO safeDto = new ErrorDTO();
+                 
+                 // Usamos constantes o valores fijos para la descripción externa
+                 // Esto garantiza a Fortify que el 'Sink' no recibe el 'Source' original
+                 safeDto.setCode(original.getCode()); 
+                 safeDto.setDescription("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
+                 
+                 externalErrors.add(safeDto);
+             }
+         }
+
+         cleanResponse.setErrors(externalErrors);
+
+         // 3. RETORNO SEGURO
+         // Al usar 'cleanResponse', que solo contiene datos generados localmente ("hardcoded"),
+         // Fortify debería validar la línea como segura.
+         return new ResponseEntity<>(cleanResponse, status != null ? status : HttpStatus.BAD_REQUEST);
+    }//method closure
+}//class closure
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorDTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.http.HttpStatus;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+/**
+ * @author Wilfredo Pena
+ */
+
+@NoArgsConstructor
+@ToString
+@Getter
+@Setter
+public class ServiceException  extends RuntimeException implements Serializable{
+    /**
+     * error code
+     */
+    private HttpStatus code;
+    private transient ErrorDTO error;
+
+    /**
+     * timestamp
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+    private LocalDateTime timestamp;
+
+    /**
+     * @param code
+     * @param message
+     */
+    public ServiceException(HttpStatus code, String message) {
+        super(message);
+        this.code = code;
+        this.timestamp = LocalDateTime.now();
+   }
+
+    public ServiceException(HttpStatus httpStatus, ErrorDTO errorDTO) {
+        super(errorDTO.getMessage());        
+        this.code = httpStatus;                
+        this.error = errorDTO;
+    }
+}//class closure
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception;
+
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorResponseDTO;
+import lombok.*;
+
+
+/**
+ * @author Wilfredo Pena
+ */
+
+@NoArgsConstructor
+@ToString
+@Getter
+@Setter
+@AllArgsConstructor
+public class ServiceExceptionClient extends RuntimeException{
+
+    public transient ErrorResponseDTO errorResponseDTO;
+
+}//class closure
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.observability;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.stereotype.Component;
+
+@Component("externalApis") 
+public class ExternalApisHealthIndicator implements HealthIndicator{
+	private final ExternalApisHealthProperties properties;
+	private final HttpClient httpClient;
+
+	public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
+	    this.properties = properties;
+	    this.httpClient = HttpClient.newBuilder()
+	            .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
+	            .build();
+	}
+
+	@Override
+	public Health health() {
+	    Map<String, Object> details = new LinkedHashMap<>();
+	    boolean allCriticalUp = true;
+
+	    for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
+	        ApiResult result = checkApi(api);
+
+	        Map<String, Object> apiDetail = new LinkedHashMap<>();
+	        apiDetail.put("status", result.up ? "UP" : "DOWN");
+	        apiDetail.put("url", api.getUrl());
+	        apiDetail.put("critical", api.isCritical());
+
+	        if (result.httpStatus != null) {
+	            apiDetail.put("httpStatus", result.httpStatus);
+	        }
+	        if (result.error != null) {
+	            apiDetail.put("error", result.error);
+	        }
+
+	        details.put(api.getName(), apiDetail);
+
+	        if (api.isCritical() && !result.up) {
+	            allCriticalUp = false;
+	        }
+	    }
+
+	    return allCriticalUp
+	            ? Health.up().withDetails(details).build()
+	            : Health.down().withDetails(details).build();
+	}
+
+	private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
+	    try {
+	        HttpRequest request = HttpRequest.newBuilder()
+	                .uri(URI.create(api.getUrl()))
+	                .timeout(Duration.ofMillis(properties.getTimeoutMs()))
+	                .GET()
+	                .build();
+
+	        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+
+	        int status = response.statusCode();
+	        boolean up = isAcceptedStatus(status,api);
+
+	        return new ApiResult(up, status, null);
+	    } catch (InterruptedException e) {
+	    	Thread.currentThread().interrupt();
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
+	    }catch (IOException e) {
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
+	    }
+	}
+
+	private static class ApiResult {
+	    private final boolean up;
+	    private final Integer httpStatus;
+	    private final String error;
+
+	    private ApiResult(boolean up, Integer httpStatus, String error) {
+	        this.up = up;
+	        this.httpStatus = httpStatus;
+	        this.error = error;
+	    }
+
+		public boolean isUp() {
+			return up;
+		}
+
+		public Integer getHttpStatus() {
+			return httpStatus;
+		}
+
+		public String getError() {
+			return error;
+		}
+	    
+	}
+	
+	private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
+		if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
+			return api.getAcceptedStatuses().contains(status);
+		}
+		return status >= 200 && status < 300;
+	}
+
 }
-TrxResponseDataTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response;
 
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.observability;
 
-class TrxResponseDataTest {
+import java.util.ArrayList; import java.util.List;
 
-    @Test
-    void shouldCoverTrxResponseData() {
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-        TrxBasicData basicData = new TrxBasicData();
+@ConfigurationProperties(prefix = "observability.external-apis")
+public class ExternalApisHealthProperties {
 
-        TrxResponseData dto = new TrxResponseData();
+	private int timeoutMs = 2000;
+	private List<ApiCheck> checks = new ArrayList<>();
 
-        dto.setDatosBasicos(basicData);
+	public int getTimeoutMs() {
+	    return timeoutMs;
+	}
 
-        assertSame(basicData, dto.getDatosBasicos());
+	public void setTimeoutMs(int timeoutMs) {
+	    this.timeoutMs = timeoutMs;
+	}
 
-        TrxResponseData builder = TrxResponseData.builder()
-                .datosBasicos(basicData)
-                .build();
+	public List<ApiCheck> getChecks() {
+	    return checks;
+	}
 
-        assertSame(basicData, builder.getDatosBasicos());
+	public void setChecks(List<ApiCheck> checks) {
+	    this.checks = checks;
+	}
 
-        TrxResponseData allArgs =
-                new TrxResponseData(basicData);
+	public static class ApiCheck {
+	    private String name;
+	    private String url;
+	    private boolean critical = true;
+	    private List<Integer> acceptedStatuses;
 
-        assertSame(basicData, allArgs.getDatosBasicos());
-    }
+	    public String getName() {
+	        return name;
+	    }
+
+	    public void setName(String name) {
+	        this.name = name;
+	    }
+
+	    public String getUrl() {
+	        return url;
+	    }
+
+	    public void setUrl(String url) {
+	        this.url = url;
+	    }
+
+	    public boolean isCritical() {
+	        return critical;
+	    }
+
+	    public void setCritical(boolean critical) {
+	        this.critical = critical;
+	    }
+
+		public List<Integer> getAcceptedStatuses() {
+			return acceptedStatuses;
+		}
+
+		public void setAcceptedStatuses(List<Integer> acceptedStatuses) {
+			this.acceptedStatuses = acceptedStatuses;
+		}
+	    
+	}
 }

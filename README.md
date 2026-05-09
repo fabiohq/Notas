@@ -1,820 +1,668 @@
-Sí. Ponlos todos en:
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-AuditDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.pagination;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-class AuditDTOTest {
 
-    @Test
-    void shouldCoverAuditDTO() {
-        AuditDTO dto = new AuditDTO();
-        dto.setCreationDate("CREATION");
-        dto.setLastUpdateDate("UPDATE");
-
-        assertEquals("CREATION", dto.getCreationDate());
-        assertEquals("UPDATE", dto.getLastUpdateDate());
-
-        AuditDTO builder = AuditDTO.builder()
-                .creationDate("CREATION")
-                .lastUpdateDate("UPDATE")
-                .build();
-
-        assertEquals("CREATION", builder.getCreationDate());
-        assertEquals("UPDATE", builder.getLastUpdateDate());
-
-        AuditDTO allArgs = new AuditDTO("CREATION", "UPDATE");
-
-        assertEquals("CREATION", allArgs.getCreationDate());
-        assertEquals("UPDATE", allArgs.getLastUpdateDate());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PaginationCommonDTO {
+    private String offset;
+    private String limit;
+    
+    public String getOffset() {
+        return offset;
     }
-}
-ElectronicAddressDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class ElectronicAddressDTOTest {
-
-    @Test
-    void shouldCoverElectronicAddressDTO() {
-        ElectronicAddressDTO dto = new ElectronicAddressDTO();
-        dto.setEmailAddress("test@mail.com");
-
-        assertEquals("test@mail.com", dto.getEmailAddress());
-
-        ElectronicAddressDTO builder = ElectronicAddressDTO.builder()
-                .emailAddress("test@mail.com")
-                .build();
-
-        assertEquals("test@mail.com", builder.getEmailAddress());
-
-        ElectronicAddressDTO allArgs = new ElectronicAddressDTO("test@mail.com");
-
-        assertEquals("test@mail.com", allArgs.getEmailAddress());
+    public void setOffset(String offset) {
+        this.offset = offset;
     }
-}
-PhoneAddressDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PhoneAddressDTOTest {
-
-    @Test
-    void shouldCoverPhoneAddressDTO() {
-        PhoneAddressDTO dto = new PhoneAddressDTO();
-
-        dto.setMobileNumber("MOBILE");
-        dto.setPhoneNumber("PHONE");
-        dto.setFaxNumber("FAX");
-        dto.setInternationalCode("+57");
-        dto.setExtension("EXT");
-
-        assertEquals("MOBILE", dto.getMobileNumber());
-        assertEquals("PHONE", dto.getPhoneNumber());
-        assertEquals("FAX", dto.getFaxNumber());
-        assertEquals("+57", dto.getInternationalCode());
-        assertEquals("EXT", dto.getExtension());
-
-        PhoneAddressDTO builder = PhoneAddressDTO.builder()
-                .mobileNumber("MOBILE")
-                .phoneNumber("PHONE")
-                .faxNumber("FAX")
-                .internationalCode("+57")
-                .extension("EXT")
-                .build();
-
-        assertEquals("MOBILE", builder.getMobileNumber());
-        assertEquals("EXT", builder.getExtension());
-
-        PhoneAddressDTO allArgs = new PhoneAddressDTO("MOBILE", "PHONE", "FAX", "+57", "EXT");
-
-        assertEquals("PHONE", allArgs.getPhoneNumber());
-        assertEquals("EXT", allArgs.getExtension());
+    public String getLimit() {
+        return limit;
     }
-}
-ValidityPeriodDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class ValidityPeriodDTOTest {
-
-    @Test
-    void shouldCoverValidityPeriodDTO() {
-        ValidityPeriodDTO dto = new ValidityPeriodDTO();
-        dto.setStartDate("START");
-        dto.setEndDate("END");
-
-        assertEquals("START", dto.getStartDate());
-        assertEquals("END", dto.getEndDate());
-
-        ValidityPeriodDTO builder = ValidityPeriodDTO.builder()
-                .startDate("START")
-                .endDate("END")
-                .build();
-
-        assertEquals("START", builder.getStartDate());
-        assertEquals("END", builder.getEndDate());
-
-        ValidityPeriodDTO allArgs = new ValidityPeriodDTO("START", "END");
-
-        assertEquals("START", allArgs.getStartDate());
-        assertEquals("END", allArgs.getEndDate());
+    public void setLimit(String limit) {
+        this.limit = limit;
     }
+    
+
 }
-DataOriginDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-class DataOriginDTOTest {
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.pagination;
 
-    @Test
-    void shouldCoverDataOriginDTO() {
-        DataOriginDTO dto = new DataOriginDTO();
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-        dto.setSourceCode("CODE");
-        dto.setSourceDescription("DESCRIPTION");
-        dto.setCreationDate("DATE");
 
-        assertEquals("CODE", dto.getSourceCode());
-        assertEquals("DESCRIPTION", dto.getSourceDescription());
-        assertEquals("DATE", dto.getCreationDate());
-
-        DataOriginDTO builder = DataOriginDTO.builder()
-                .sourceCode("CODE")
-                .sourceDescription("DESCRIPTION")
-                .creationDate("DATE")
-                .build();
-
-        assertEquals("CODE", builder.getSourceCode());
-
-        DataOriginDTO allArgs = new DataOriginDTO("CODE", "DESCRIPTION", "DATE");
-
-        assertEquals("DATE", allArgs.getCreationDate());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PaginationDTO {
+    private PaginationCommonDTO first;
+    private PaginationCommonDTO prev;
+    private PaginationCommonDTO next;
+    private PaginationCommonDTO last;
+    private PaginationCommonDTO self;
+    
+    public PaginationCommonDTO getFirst() {
+        return first;
     }
-}
-EconomicActivityDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class EconomicActivityDTOTest {
-
-    @Test
-    void shouldCoverEconomicActivityDTO() {
-        EconomicActivityDTO dto = new EconomicActivityDTO();
-
-        dto.setCategoryCode("CAT");
-        dto.setCategoryDescription("CAT_DESC");
-        dto.setSubCategoryCode("SUB");
-        dto.setSubCategoryDescription("SUB_DESC");
-
-        assertEquals("CAT", dto.getCategoryCode());
-        assertEquals("CAT_DESC", dto.getCategoryDescription());
-        assertEquals("SUB", dto.getSubCategoryCode());
-        assertEquals("SUB_DESC", dto.getSubCategoryDescription());
-
-        EconomicActivityDTO builder = EconomicActivityDTO.builder()
-                .categoryCode("CAT")
-                .categoryDescription("CAT_DESC")
-                .subCategoryCode("SUB")
-                .subCategoryDescription("SUB_DESC")
-                .build();
-
-        assertEquals("CAT", builder.getCategoryCode());
-
-        EconomicActivityDTO allArgs = new EconomicActivityDTO("CAT", "CAT_DESC", "SUB", "SUB_DESC");
-
-        assertEquals("SUB_DESC", allArgs.getSubCategoryDescription());
+    public void setFirst(PaginationCommonDTO first) {
+        this.first = first;
     }
-}
-EmploymentInformationDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class EmploymentInformationDTOTest {
-
-    @Test
-    void shouldCoverEmploymentInformationDTO() {
-        EconomicActivityDTO economicActivity = new EconomicActivityDTO();
-
-        EmploymentInformationDTO dto = new EmploymentInformationDTO();
-
-        dto.setStatusCode("STATUS");
-        dto.setStatusDescription("STATUS_DESC");
-        dto.setEconomicActivity(economicActivity);
-        dto.setOccupationCode("OCC");
-        dto.setOccupationDescription("OCC_DESC");
-        dto.setSubActivityCode("SUB");
-        dto.setSubActivityDescription("SUB_DESC");
-        dto.setSubActivityComments("COMMENTS");
-
-        assertEquals("STATUS", dto.getStatusCode());
-        assertEquals("STATUS_DESC", dto.getStatusDescription());
-        assertSame(economicActivity, dto.getEconomicActivity());
-        assertEquals("OCC", dto.getOccupationCode());
-        assertEquals("OCC_DESC", dto.getOccupationDescription());
-        assertEquals("SUB", dto.getSubActivityCode());
-        assertEquals("SUB_DESC", dto.getSubActivityDescription());
-        assertEquals("COMMENTS", dto.getSubActivityComments());
-
-        EmploymentInformationDTO builder = EmploymentInformationDTO.builder()
-                .statusCode("STATUS")
-                .statusDescription("STATUS_DESC")
-                .economicActivity(economicActivity)
-                .occupationCode("OCC")
-                .occupationDescription("OCC_DESC")
-                .subActivityCode("SUB")
-                .subActivityDescription("SUB_DESC")
-                .subActivityComments("COMMENTS")
-                .build();
-
-        assertEquals("STATUS", builder.getStatusCode());
-
-        EmploymentInformationDTO allArgs = new EmploymentInformationDTO(
-                "STATUS", "STATUS_DESC", economicActivity, "OCC", "OCC_DESC", "SUB", "SUB_DESC", "COMMENTS"
-        );
-
-        assertEquals("COMMENTS", allArgs.getSubActivityComments());
+    public PaginationCommonDTO getPrev() {
+        return prev;
     }
-}
-OrganizationNameDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
+    public void setPrev(PaginationCommonDTO prev) {
+        this.prev = prev;
+    }
+    public PaginationCommonDTO getNext() {
+        return next;
+    }
+    public void setNext(PaginationCommonDTO next) {
+        this.next = next;
+    }
+    public PaginationCommonDTO getLast() {
+        return last;
+    }
+    public void setLast(PaginationCommonDTO last) {
+        this.last = last;
+    }
+    public PaginationCommonDTO getSelf() {
+        return self;
+    }
+    public void setSelf(PaginationCommonDTO self) {
+        this.self = self;
+    }
 
-import org.junit.jupiter.api.Test;
+    
+
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BankDTO {
+    private String bankId;
+    private String bankName;
+    
+    public String getBankId() {
+        return bankId;
+    }
+    public void setBankId(String bankId) {
+        this.bankId = bankId;
+    }
+    public String getBankName() {
+        return bankName;
+    }
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CodeNameDTO {
+    private String code;
+    private String name;
+    
+    public String getCode() {
+        return code;
+    }
+    public void setCode(String code) {
+        this.code = code;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DocumentDTO {
+    private String documentTypeCode;
+    private String documentTypeDescription;
+    private String documentNumber;
+    private String issueDate;
+    private String expirationDate;
+    private String issuerEntity;
+    private CodeNameDTO country;
+    private CodeNameDTO state;
+    private CodeNameDTO town;
+    
+    public String getDocumentTypeCode() {
+        return documentTypeCode;
+    }
+    public void setDocumentTypeCode(String documentTypeCode) {
+        this.documentTypeCode = documentTypeCode;
+    }
+    public String getDocumentTypeDescription() {
+        return documentTypeDescription;
+    }
+    public void setDocumentTypeDescription(String documentTypeDescription) {
+        this.documentTypeDescription = documentTypeDescription;
+    }
+    public String getDocumentNumber() {
+        return documentNumber;
+    }
+    public void setDocumentNumber(String documentNumber) {
+        this.documentNumber = documentNumber;
+    }
+    public String getIssueDate() {
+        return issueDate;
+    }
+    public void setIssueDate(String issueDate) {
+        this.issueDate = issueDate;
+    }
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+    public String getIssuerEntity() {
+        return issuerEntity;
+    }
+    public void setIssuerEntity(String issuerEntity) {
+        this.issuerEntity = issuerEntity;
+    }
+    public CodeNameDTO getCountry() {
+        return country;
+    }
+    public void setCountry(CodeNameDTO country) {
+        this.country = country;
+    }
+    public CodeNameDTO getState() {
+        return state;
+    }
+    public void setState(CodeNameDTO state) {
+        this.state = state;
+    }
+    public CodeNameDTO getTown() {
+        return town;
+    }
+    public void setTown(CodeNameDTO town) {
+        this.town = town;
+    }
+
+    
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Parameters {
+    private CodeNameDTO countryNationality;
+    private CodeNameDTO countryExp;
+    private CodeNameDTO countryBirth;
+    private CodeNameDTO countryDir;
+    private CodeNameDTO cityStandard;
+    private CodeNameDTO cityDepartment;
+    private CodeNameDTO cityExp;
+    private CodeNameDTO cityBirth;
+    private CodeNameDTO town;
+
+    private String documentTypeDescription;
+    private String streetTypeDescription; //Way Type
+
+    public CodeNameDTO getCountryNationality() {
+        return countryNationality;
+    }
+    public void setCountryNationality(CodeNameDTO countryNationality) {
+        this.countryNationality = countryNationality;
+    }
+    public CodeNameDTO getCountryExp() {
+        return countryExp;
+    }
+    public void setCountryExp(CodeNameDTO countryExp) {
+        this.countryExp = countryExp;
+    }
+    public CodeNameDTO getCountryBirth() {
+        return countryBirth;
+    }
+    public void setCountryBirth(CodeNameDTO countryBirth) {
+        this.countryBirth = countryBirth;
+    }
+    public CodeNameDTO getCountryDir() {
+        return countryDir;
+    }
+    public void setCountryDir(CodeNameDTO countryDir) {
+        this.countryDir = countryDir;
+    }
+    public CodeNameDTO getCityStandard() {
+        return cityStandard;
+    }
+    public void setCityStandard(CodeNameDTO cityStandard) {
+        this.cityStandard = cityStandard;
+    }
+    public CodeNameDTO getCityDepartment() {
+        return cityDepartment;
+    }
+    public void setCityDepartment(CodeNameDTO cityDepartment) {
+        this.cityDepartment = cityDepartment;
+    }
+    public CodeNameDTO getCityExp() {
+        return cityExp;
+    }
+    public void setCityExp(CodeNameDTO cityExp) {
+        this.cityExp = cityExp;
+    }
+    public CodeNameDTO getCityBirth() {
+        return cityBirth;
+    }
+    public void setCityBirth(CodeNameDTO cityBirth) {
+        this.cityBirth = cityBirth;
+    }
+    public CodeNameDTO getTown() {
+        return town;
+    }
+    public void setTown(CodeNameDTO town) {
+        this.town = town;
+    }
+    public String getDocumentTypeDescription() {
+        return documentTypeDescription;
+    }
+    public void setDocumentTypeDescription(String documentTypeDescription) {
+        this.documentTypeDescription = documentTypeDescription;
+    }
+    public String getStreetTypeDescription() {
+        return streetTypeDescription;
+    }
+    public void setStreetTypeDescription(String streetTypeDescription) {
+        this.streetTypeDescription = streetTypeDescription;
+    }
+
+    
+
+}
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
 
-class OrganizationNameDTOTest {
 
-    @Test
-    void shouldCoverOrganizationNameDTO() {
-        List<String> names = List.of("TRADE");
-
-        OrganizationNameDTO dto = new OrganizationNameDTO();
-
-        dto.setLegalName("LEGAL");
-        dto.setTradingNames(names);
-
-        assertEquals("LEGAL", dto.getLegalName());
-        assertSame(names, dto.getTradingNames());
-
-        OrganizationNameDTO builder = OrganizationNameDTO.builder()
-                .legalName("LEGAL")
-                .tradingNames(names)
-                .build();
-
-        assertEquals("LEGAL", builder.getLegalName());
-
-        OrganizationNameDTO allArgs = new OrganizationNameDTO("LEGAL", names);
-
-        assertSame(names, allArgs.getTradingNames());
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PostalAddressDTO {
+    private String fullAddress;
+    private String formatCode;
+    private String formatDescription;
+    private Boolean isAddressValidated;
+    private String matchId;
+    private String streetTypeCode;
+    private String streetTypeDescription;
+    private String streetName;
+    private String secondaryStreetName;
+    private String streetBuildingIdentification;
+    private String mailDeliverySubLocation;
+    private String buildingName;
+    private String floor;
+    private String detailCode;
+    private String unitType;
+    private String unitNumber;
+    private String premise;
+    private String alternativePremise;
+    private String department;
+    private String subDepartment;
+    private String postCodeIdentification;
+    private CodeNameDTO town;
+    private CodeNameDTO state;
+    private String districtName;
+    private String secondaryDistrictName;
+    private String mailingInstructions;
+    private CodeNameDTO province;
+    private CodeNameDTO regionIdentification;
+    private CodeNameDTO countyIdentification;
+    private CodeNameDTO country;
+    private String military;
+    private String postOfficeBox;
+    private String postBoxTypeCode;
+    private String postBoxTypeDescription;
+    private List<String> foreignAddressLines;
+    private String zipCode;
+    private String zip4Code;
+    private String ruralTypeCode;
+    private String ruralTypeDescription;
+    private String ruralNumber;
+    
+    public String getFullAddress() {
+        return fullAddress;
     }
-}
-PersonNameDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PersonNameDTOTest {
-
-    @Test
-    void shouldCoverPersonNameDTO() {
-        List<String> aliases = List.of("ALIAS");
-
-        PersonNameDTO dto = new PersonNameDTO();
-
-        dto.setNamePrefixCode("NPC");
-        dto.setNamePrefixDescription("NPD");
-        dto.setGivenName("GIVEN");
-        dto.setMiddleName("MIDDLE");
-        dto.setLastName("LAST");
-        dto.setSecondLastName("SECOND");
-        dto.setNameSuffixCode("NSC");
-        dto.setNameSuffixDescription("NSD");
-        dto.setFullName("FULL");
-        dto.setBirthName("BIRTH");
-        dto.setAliases(aliases);
-
-        assertEquals("NPC", dto.getNamePrefixCode());
-        assertEquals("NPD", dto.getNamePrefixDescription());
-        assertEquals("GIVEN", dto.getGivenName());
-        assertEquals("MIDDLE", dto.getMiddleName());
-        assertEquals("LAST", dto.getLastName());
-        assertEquals("SECOND", dto.getSecondLastName());
-        assertEquals("NSC", dto.getNameSuffixCode());
-        assertEquals("NSD", dto.getNameSuffixDescription());
-        assertEquals("FULL", dto.getFullName());
-        assertEquals("BIRTH", dto.getBirthName());
-        assertSame(aliases, dto.getAliases());
-
-        PersonNameDTO builder = PersonNameDTO.builder()
-                .namePrefixCode("NPC")
-                .namePrefixDescription("NPD")
-                .givenName("GIVEN")
-                .middleName("MIDDLE")
-                .lastName("LAST")
-                .secondLastName("SECOND")
-                .nameSuffixCode("NSC")
-                .nameSuffixDescription("NSD")
-                .fullName("FULL")
-                .birthName("BIRTH")
-                .aliases(aliases)
-                .build();
-
-        assertEquals("FULL", builder.getFullName());
-
-        PersonNameDTO allArgs = new PersonNameDTO(
-                "NPC", "NPD", "GIVEN", "MIDDLE", "LAST", "SECOND", "NSC", "NSD", "FULL", "BIRTH", aliases
-        );
-
-        assertSame(aliases, allArgs.getAliases());
+    public void setFullAddress(String fullAddress) {
+        this.fullAddress = fullAddress;
     }
-}
-PlaceOfBirthDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.CodeNameDTO;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PlaceOfBirthDTOTest {
-
-    @Test
-    void shouldCoverPlaceOfBirthDTO() {
-        CodeNameDTO country = null;
-        CodeNameDTO state = null;
-
-        PlaceOfBirthDTO dto = new PlaceOfBirthDTO();
-
-        dto.setCountry(country);
-        dto.setState(state);
-        dto.setTown("TOWN");
-
-        assertNull(dto.getCountry());
-        assertNull(dto.getState());
-        assertEquals("TOWN", dto.getTown());
-
-        PlaceOfBirthDTO builder = PlaceOfBirthDTO.builder()
-                .country(country)
-                .state(state)
-                .town("TOWN")
-                .build();
-
-        assertEquals("TOWN", builder.getTown());
-
-        PlaceOfBirthDTO allArgs = new PlaceOfBirthDTO(country, state, "TOWN");
-
-        assertEquals("TOWN", allArgs.getTown());
+    public String getFormatCode() {
+        return formatCode;
     }
-}
-PlaceOfRegistrationDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.CodeNameDTO;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PlaceOfRegistrationDTOTest {
-
-    @Test
-    void shouldCoverPlaceOfRegistrationDTO() {
-        CodeNameDTO country = null;
-        CodeNameDTO state = null;
-
-        PlaceOfRegistrationDTO dto = new PlaceOfRegistrationDTO();
-
-        dto.setCountry(country);
-        dto.setState(state);
-        dto.setTown("TOWN");
-
-        assertNull(dto.getCountry());
-        assertNull(dto.getState());
-        assertEquals("TOWN", dto.getTown());
-
-        PlaceOfRegistrationDTO builder = PlaceOfRegistrationDTO.builder()
-                .country(country)
-                .state(state)
-                .town("TOWN")
-                .build();
-
-        assertEquals("TOWN", builder.getTown());
-
-        PlaceOfRegistrationDTO allArgs = new PlaceOfRegistrationDTO(country, state, "TOWN");
-
-        assertEquals("TOWN", allArgs.getTown());
+    public void setFormatCode(String formatCode) {
+        this.formatCode = formatCode;
     }
-}
-PublicOfficeInformationDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PublicOfficeInformationDTOTest {
-
-    @Test
-    void shouldCoverPublicOfficeInformationDTO() {
-        ValidityPeriodDTO validityPeriod = new ValidityPeriodDTO();
-
-        PublicOfficeInformationDTO dto = new PublicOfficeInformationDTO();
-
-        dto.setPositionCode("POS");
-        dto.setPositionDescription("POS_DESC");
-        dto.setValidityPeriod(validityPeriod);
-
-        assertEquals("POS", dto.getPositionCode());
-        assertEquals("POS_DESC", dto.getPositionDescription());
-        assertSame(validityPeriod, dto.getValidityPeriod());
-
-        PublicOfficeInformationDTO builder = PublicOfficeInformationDTO.builder()
-                .positionCode("POS")
-                .positionDescription("POS_DESC")
-                .validityPeriod(validityPeriod)
-                .build();
-
-        assertEquals("POS", builder.getPositionCode());
-
-        PublicOfficeInformationDTO allArgs =
-                new PublicOfficeInformationDTO("POS", "POS_DESC", validityPeriod);
-
-        assertSame(validityPeriod, allArgs.getValidityPeriod());
+    public String getFormatDescription() {
+        return formatDescription;
     }
-}
-ContactPointDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.CodeNameDTO;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.PostalAddressDTO;
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-class ContactPointDTOTest {
-
-    @Test
-    void shouldCoverContactPointDTO() {
-        List<CodeNameDTO> useTypes = List.of();
-        PostalAddressDTO postalAddress = null;
-        PhoneAddressDTO phoneAddress = new PhoneAddressDTO();
-        ElectronicAddressDTO electronicAddress = new ElectronicAddressDTO();
-        AuditDTO audit = new AuditDTO();
-
-        ContactPointDTO dto = new ContactPointDTO();
-
-        dto.setContactPointId("ID");
-        dto.setUseTypes(useTypes);
-        dto.setPostalAddress(postalAddress);
-        dto.setPhoneAddress(phoneAddress);
-        dto.setElectronicAddress(electronicAddress);
-        dto.setAudit(audit);
-
-        assertEquals("ID", dto.getContactPointId());
-        assertSame(useTypes, dto.getUseTypes());
-        assertNull(dto.getPostalAddress());
-        assertSame(phoneAddress, dto.getPhoneAddress());
-        assertSame(electronicAddress, dto.getElectronicAddress());
-        assertSame(audit, dto.getAudit());
-
-        ContactPointDTO builder = ContactPointDTO.builder()
-                .contactPointId("ID")
-                .useTypes(useTypes)
-                .postalAddress(postalAddress)
-                .phoneAddress(phoneAddress)
-                .electronicAddress(electronicAddress)
-                .audit(audit)
-                .build();
-
-        assertEquals("ID", builder.getContactPointId());
-
-        ContactPointDTO allArgs = new ContactPointDTO(
-                "ID", useTypes, postalAddress, phoneAddress, electronicAddress, audit
-        );
-
-        assertSame(audit, allArgs.getAudit());
+    public void setFormatDescription(String formatDescription) {
+        this.formatDescription = formatDescription;
     }
-}
-CustomerDetailsResponseDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.BankDTO;
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-class CustomerDetailsResponseDTOTest {
-
-    @Test
-    void shouldCoverCustomerDetailsResponseDTO() {
-        PersonDTO person = new PersonDTO();
-        OrganizationDTO organization = new OrganizationDTO();
-        List<ContactPointDTO> contactPoints = List.of(new ContactPointDTO());
-        BankDTO bank = null;
-        List<DataOriginDTO> dataOrigins = List.of(new DataOriginDTO());
-
-        CustomerDetailsResponseDTO dto = new CustomerDetailsResponseDTO();
-
-        dto.setPerson(person);
-        dto.setOrganization(organization);
-        dto.setContactPoints(contactPoints);
-        dto.setHighConfidentialityIndicator(true);
-        dto.setIsPendingExCustomer(false);
-        dto.setConfidentialityLevel("LEVEL");
-        dto.setBank(bank);
-        dto.setDataOrigins(dataOrigins);
-        dto.setStructuralSegmentCode("SEG");
-        dto.setStructuralSegmentDescription("SEG_DESC");
-        dto.setStructuralSubsegmentCode("SUB");
-        dto.setStructuralSubsegmentDescription("SUB_DESC");
-
-        assertSame(person, dto.getPerson());
-        assertSame(organization, dto.getOrganization());
-        assertSame(contactPoints, dto.getContactPoints());
-        assertTrue(dto.getHighConfidentialityIndicator());
-        assertFalse(dto.getIsPendingExCustomer());
-        assertEquals("LEVEL", dto.getConfidentialityLevel());
-        assertNull(dto.getBank());
-        assertSame(dataOrigins, dto.getDataOrigins());
-        assertEquals("SEG", dto.getStructuralSegmentCode());
-        assertEquals("SEG_DESC", dto.getStructuralSegmentDescription());
-        assertEquals("SUB", dto.getStructuralSubsegmentCode());
-        assertEquals("SUB_DESC", dto.getStructuralSubsegmentDescription());
-
-        CustomerDetailsResponseDTO builder = CustomerDetailsResponseDTO.builder()
-                .person(person)
-                .organization(organization)
-                .contactPoints(contactPoints)
-                .highConfidentialityIndicator(true)
-                .isPendingExCustomer(false)
-                .confidentialityLevel("LEVEL")
-                .bank(bank)
-                .dataOrigins(dataOrigins)
-                .structuralSegmentCode("SEG")
-                .structuralSegmentDescription("SEG_DESC")
-                .structuralSubsegmentCode("SUB")
-                .structuralSubsegmentDescription("SUB_DESC")
-                .build();
-
-        assertSame(person, builder.getPerson());
-
-        CustomerDetailsResponseDTO allArgs = new CustomerDetailsResponseDTO(
-                person, organization, contactPoints, true, false, "LEVEL", bank,
-                dataOrigins, "SEG", "SEG_DESC", "SUB", "SUB_DESC"
-        );
-
-        assertEquals("SUB_DESC", allArgs.getStructuralSubsegmentDescription());
+    public Boolean getIsAddressValidated() {
+        return isAddressValidated;
     }
-}
-OrganizationDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.CodeNameDTO;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.DocumentDTO;
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-class OrganizationDTOTest {
-
-    @Test
-    void shouldCoverOrganizationDTO() {
-        PlaceOfRegistrationDTO place = new PlaceOfRegistrationDTO();
-        OrganizationNameDTO name = new OrganizationNameDTO();
-        List<DocumentDTO> documents = List.of();
-        CodeNameDTO country = null;
-        EconomicActivityDTO economicActivity = new EconomicActivityDTO();
-        CodeNameDTO language = null;
-
-        OrganizationDTO dto = new OrganizationDTO();
-
-        dto.setRegistrationDate("REG");
-        dto.setEntityDisolutionDate("DIS");
-        dto.setResidentialStatusCode("RSC");
-        dto.setResidentialStatusDescription("RSD");
-        dto.setForeignTaxIndicator("FTI");
-        dto.setPlaceOfRegistration(place);
-        dto.setOrganizationName(name);
-        dto.setTypeCode("TC");
-        dto.setTypeDescription("TD");
-        dto.setSubtypeCode("STC");
-        dto.setSubtypeDescription("STD");
-        dto.setDocuments(documents);
-        dto.setCountryOfOperation(country);
-        dto.setAccountingSectorCode("ASC");
-        dto.setAccountingSectorDescription("ASD");
-        dto.setEconomicActivity(economicActivity);
-        dto.setPreferredLanguage(language);
-
-        assertEquals("REG", dto.getRegistrationDate());
-        assertEquals("DIS", dto.getEntityDisolutionDate());
-        assertEquals("RSC", dto.getResidentialStatusCode());
-        assertEquals("RSD", dto.getResidentialStatusDescription());
-        assertEquals("FTI", dto.getForeignTaxIndicator());
-        assertSame(place, dto.getPlaceOfRegistration());
-        assertSame(name, dto.getOrganizationName());
-        assertEquals("TC", dto.getTypeCode());
-        assertEquals("TD", dto.getTypeDescription());
-        assertEquals("STC", dto.getSubtypeCode());
-        assertEquals("STD", dto.getSubtypeDescription());
-        assertSame(documents, dto.getDocuments());
-        assertNull(dto.getCountryOfOperation());
-        assertEquals("ASC", dto.getAccountingSectorCode());
-        assertEquals("ASD", dto.getAccountingSectorDescription());
-        assertSame(economicActivity, dto.getEconomicActivity());
-        assertNull(dto.getPreferredLanguage());
-
-        OrganizationDTO builder = OrganizationDTO.builder()
-                .registrationDate("REG")
-                .entityDisolutionDate("DIS")
-                .residentialStatusCode("RSC")
-                .residentialStatusDescription("RSD")
-                .foreignTaxIndicator("FTI")
-                .placeOfRegistration(place)
-                .organizationName(name)
-                .typeCode("TC")
-                .typeDescription("TD")
-                .subtypeCode("STC")
-                .subtypeDescription("STD")
-                .documents(documents)
-                .countryOfOperation(country)
-                .accountingSectorCode("ASC")
-                .accountingSectorDescription("ASD")
-                .economicActivity(economicActivity)
-                .preferredLanguage(language)
-                .build();
-
-        assertEquals("REG", builder.getRegistrationDate());
-
-        OrganizationDTO allArgs = new OrganizationDTO(
-                "REG", "DIS", "RSC", "RSD", "FTI", place, name, "TC", "TD",
-                "STC", "STD", documents, country, "ASC", "ASD", economicActivity, language
-        );
-
-        assertEquals("ASD", allArgs.getAccountingSectorDescription());
+    public void setIsAddressValidated(Boolean isAddressValidated) {
+        this.isAddressValidated = isAddressValidated;
     }
-}
-PersonDTOTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.customer.response;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.CodeNameDTO;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic.DocumentDTO;
-import org.junit.jupiter.api.Test;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
-
-class PersonDTOTest {
-
-    @Test
-    void shouldCoverPersonDTO() {
-        PersonNameDTO personName = new PersonNameDTO();
-        PlaceOfBirthDTO placeOfBirth = new PlaceOfBirthDTO();
-        CodeNameDTO codeName = null;
-        PublicOfficeInformationDTO publicOfficeInformation = new PublicOfficeInformationDTO();
-        EmploymentInformationDTO employmentInformation = new EmploymentInformationDTO();
-        List<DocumentDTO> documents = List.of();
-        DocumentDTO document = null;
-
-        PersonDTO dto = new PersonDTO();
-
-        dto.setPersonName(personName);
-        dto.setMotherName("MOTHER");
-        dto.setFatherName("FATHER");
-        dto.setGenderCode("GC");
-        dto.setGenderDescription("GD");
-        dto.setBirthDate("BIRTH");
-        dto.setPlaceOfBirth(placeOfBirth);
-        dto.setCountryOfResidence(codeName);
-        dto.setForeignTaxIndicator("FTI");
-        dto.setFirstNationality(codeName);
-        dto.setSecondNationality(codeName);
-        dto.setResidentialStatusCode("RSC");
-        dto.setResidentialStatusDescription("RSD");
-        dto.setCivilStatusCode("CSC");
-        dto.setCivilStatusDescription("CSD");
-        dto.setPublicOfficeInformation(publicOfficeInformation);
-        dto.setDeathDate("DEATH");
-        dto.setEmployeeIndicator(true);
-        dto.setStaffCode("SC");
-        dto.setStaffDescription("SD");
-        dto.setLegallyIncapacitated(false);
-        dto.setLegallyCapableMinor(true);
-        dto.setDiplomatic(false);
-        dto.setEducationalLevelCode("ELC");
-        dto.setEducationalLevelDescription("ELD");
-        dto.setAccountingSectorCode("ASC");
-        dto.setAccountingSectorDescription("ASD");
-        dto.setEmploymentInformation(employmentInformation);
-        dto.setPreferredLanguage(codeName);
-        dto.setDocuments(documents);
-        dto.setDocument(document);
-
-        assertSame(personName, dto.getPersonName());
-        assertEquals("MOTHER", dto.getMotherName());
-        assertEquals("FATHER", dto.getFatherName());
-        assertEquals("GC", dto.getGenderCode());
-        assertEquals("GD", dto.getGenderDescription());
-        assertEquals("BIRTH", dto.getBirthDate());
-        assertSame(placeOfBirth, dto.getPlaceOfBirth());
-        assertNull(dto.getCountryOfResidence());
-        assertEquals("FTI", dto.getForeignTaxIndicator());
-        assertNull(dto.getFirstNationality());
-        assertNull(dto.getSecondNationality());
-        assertEquals("RSC", dto.getResidentialStatusCode());
-        assertEquals("RSD", dto.getResidentialStatusDescription());
-        assertEquals("CSC", dto.getCivilStatusCode());
-        assertEquals("CSD", dto.getCivilStatusDescription());
-        assertSame(publicOfficeInformation, dto.getPublicOfficeInformation());
-        assertEquals("DEATH", dto.getDeathDate());
-        assertTrue(dto.getEmployeeIndicator());
-        assertEquals("SC", dto.getStaffCode());
-        assertEquals("SD", dto.getStaffDescription());
-        assertFalse(dto.getLegallyIncapacitated());
-        assertTrue(dto.getLegallyCapableMinor());
-        assertFalse(dto.getDiplomatic());
-        assertEquals("ELC", dto.getEducationalLevelCode());
-        assertEquals("ELD", dto.getEducationalLevelDescription());
-        assertEquals("ASC", dto.getAccountingSectorCode());
-        assertEquals("ASD", dto.getAccountingSectorDescription());
-        assertSame(employmentInformation, dto.getEmploymentInformation());
-        assertNull(dto.getPreferredLanguage());
-        assertSame(documents, dto.getDocuments());
-        assertNull(dto.getDocument());
-
-        PersonDTO builder = PersonDTO.builder()
-                .personName(personName)
-                .motherName("MOTHER")
-                .fatherName("FATHER")
-                .genderCode("GC")
-                .genderDescription("GD")
-                .birthDate("BIRTH")
-                .placeOfBirth(placeOfBirth)
-                .countryOfResidence(codeName)
-                .foreignTaxIndicator("FTI")
-                .firstNationality(codeName)
-                .secondNationality(codeName)
-                .residentialStatusCode("RSC")
-                .residentialStatusDescription("RSD")
-                .civilStatusCode("CSC")
-                .civilStatusDescription("CSD")
-                .publicOfficeInformation(publicOfficeInformation)
-                .deathDate("DEATH")
-                .employeeIndicator(true)
-                .staffCode("SC")
-                .staffDescription("SD")
-                .legallyIncapacitated(false)
-                .legallyCapableMinor(true)
-                .diplomatic(false)
-                .educationalLevelCode("ELC")
-                .educationalLevelDescription("ELD")
-                .accountingSectorCode("ASC")
-                .accountingSectorDescription("ASD")
-                .employmentInformation(employmentInformation)
-                .preferredLanguage(codeName)
-                .documents(documents)
-                .document(document)
-                .build();
-
-        assertSame(personName, builder.getPersonName());
-
-        PersonDTO allArgs = new PersonDTO(
-                personName, "MOTHER", "FATHER", "GC", "GD", "BIRTH", placeOfBirth,
-                codeName, "FTI", codeName, codeName, "RSC", "RSD", "CSC", "CSD",
-                publicOfficeInformation, "DEATH", true, "SC", "SD", false, true,
-                false, "ELC", "ELD", "ASC", "ASD", employmentInformation,
-                codeName, documents, document
-        );
-
-        assertEquals("ASD", allArgs.getAccountingSectorDescription());
+    public String getMatchId() {
+        return matchId;
     }
+    public void setMatchId(String matchId) {
+        this.matchId = matchId;
+    }
+    public String getStreetTypeCode() {
+        return streetTypeCode;
+    }
+    public void setStreetTypeCode(String streetTypeCode) {
+        this.streetTypeCode = streetTypeCode;
+    }
+    public String getStreetTypeDescription() {
+        return streetTypeDescription;
+    }
+    public void setStreetTypeDescription(String streetTypeDescription) {
+        this.streetTypeDescription = streetTypeDescription;
+    }
+    public String getStreetName() {
+        return streetName;
+    }
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+    public String getSecondaryStreetName() {
+        return secondaryStreetName;
+    }
+    public void setSecondaryStreetName(String secondaryStreetName) {
+        this.secondaryStreetName = secondaryStreetName;
+    }
+    public String getStreetBuildingIdentification() {
+        return streetBuildingIdentification;
+    }
+    public void setStreetBuildingIdentification(String streetBuildingIdentification) {
+        this.streetBuildingIdentification = streetBuildingIdentification;
+    }
+    public String getMailDeliverySubLocation() {
+        return mailDeliverySubLocation;
+    }
+    public void setMailDeliverySubLocation(String mailDeliverySubLocation) {
+        this.mailDeliverySubLocation = mailDeliverySubLocation;
+    }
+    public String getBuildingName() {
+        return buildingName;
+    }
+    public void setBuildingName(String buildingName) {
+        this.buildingName = buildingName;
+    }
+    public String getFloor() {
+        return floor;
+    }
+    public void setFloor(String floor) {
+        this.floor = floor;
+    }
+    public String getDetailCode() {
+        return detailCode;
+    }
+    public void setDetailCode(String detailCode) {
+        this.detailCode = detailCode;
+    }
+    public String getUnitType() {
+        return unitType;
+    }
+    public void setUnitType(String unitType) {
+        this.unitType = unitType;
+    }
+    public String getUnitNumber() {
+        return unitNumber;
+    }
+    public void setUnitNumber(String unitNumber) {
+        this.unitNumber = unitNumber;
+    }
+    public String getPremise() {
+        return premise;
+    }
+    public void setPremise(String premise) {
+        this.premise = premise;
+    }
+    public String getAlternativePremise() {
+        return alternativePremise;
+    }
+    public void setAlternativePremise(String alternativePremise) {
+        this.alternativePremise = alternativePremise;
+    }
+    public String getDepartment() {
+        return department;
+    }
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+    public String getSubDepartment() {
+        return subDepartment;
+    }
+    public void setSubDepartment(String subDepartment) {
+        this.subDepartment = subDepartment;
+    }
+    public String getPostCodeIdentification() {
+        return postCodeIdentification;
+    }
+    public void setPostCodeIdentification(String postCodeIdentification) {
+        this.postCodeIdentification = postCodeIdentification;
+    }
+    public CodeNameDTO getTown() {
+        return town;
+    }
+    public void setTown(CodeNameDTO town) {
+        this.town = town;
+    }
+    public CodeNameDTO getState() {
+        return state;
+    }
+    public void setState(CodeNameDTO state) {
+        this.state = state;
+    }
+    public String getDistrictName() {
+        return districtName;
+    }
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
+    }
+    public String getSecondaryDistrictName() {
+        return secondaryDistrictName;
+    }
+    public void setSecondaryDistrictName(String secondaryDistrictName) {
+        this.secondaryDistrictName = secondaryDistrictName;
+    }
+    public String getMailingInstructions() {
+        return mailingInstructions;
+    }
+    public void setMailingInstructions(String mailingInstructions) {
+        this.mailingInstructions = mailingInstructions;
+    }
+    public CodeNameDTO getProvince() {
+        return province;
+    }
+    public void setProvince(CodeNameDTO province) {
+        this.province = province;
+    }
+    public CodeNameDTO getRegionIdentification() {
+        return regionIdentification;
+    }
+    public void setRegionIdentification(CodeNameDTO regionIdentification) {
+        this.regionIdentification = regionIdentification;
+    }
+    public CodeNameDTO getCountyIdentification() {
+        return countyIdentification;
+    }
+    public void setCountyIdentification(CodeNameDTO countyIdentification) {
+        this.countyIdentification = countyIdentification;
+    }
+    public CodeNameDTO getCountry() {
+        return country;
+    }
+    public void setCountry(CodeNameDTO country) {
+        this.country = country;
+    }
+    public String getMilitary() {
+        return military;
+    }
+    public void setMilitary(String military) {
+        this.military = military;
+    }
+    public String getPostOfficeBox() {
+        return postOfficeBox;
+    }
+    public void setPostOfficeBox(String postOfficeBox) {
+        this.postOfficeBox = postOfficeBox;
+    }
+    public String getPostBoxTypeCode() {
+        return postBoxTypeCode;
+    }
+    public void setPostBoxTypeCode(String postBoxTypeCode) {
+        this.postBoxTypeCode = postBoxTypeCode;
+    }
+    public String getPostBoxTypeDescription() {
+        return postBoxTypeDescription;
+    }
+    public void setPostBoxTypeDescription(String postBoxTypeDescription) {
+        this.postBoxTypeDescription = postBoxTypeDescription;
+    }
+    public List<String> getForeignAddressLines() {
+        return foreignAddressLines;
+    }
+    public void setForeignAddressLines(List<String> foreignAddressLines) {
+        this.foreignAddressLines = foreignAddressLines;
+    }
+    public String getZipCode() {
+        return zipCode;
+    }
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+    public String getZip4Code() {
+        return zip4Code;
+    }
+    public void setZip4Code(String zip4Code) {
+        this.zip4Code = zip4Code;
+    }
+    public String getRuralTypeCode() {
+        return ruralTypeCode;
+    }
+    public void setRuralTypeCode(String ruralTypeCode) {
+        this.ruralTypeCode = ruralTypeCode;
+    }
+    public String getRuralTypeDescription() {
+        return ruralTypeDescription;
+    }
+    public void setRuralTypeDescription(String ruralTypeDescription) {
+        this.ruralTypeDescription = ruralTypeDescription;
+    }
+    public String getRuralNumber() {
+        return ruralNumber;
+    }
+    public void setRuralNumber(String ruralNumber) {
+        this.ruralNumber = ruralNumber;
+    }
+
+    
 }
+
+
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.generic;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+/**
+ * Controlls all time entries
+ */
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Stadistics {
+    private String entryTime;
+    private String trxCallTime;
+    private String trxExitTime;
+    private String exitTime;
+    
+    public String getEntryTime() {
+        return entryTime;
+    }
+    public void setEntryTime(String entryTime) {
+        this.entryTime = entryTime;
+    }
+    public String getTrxCallTime() {
+        return trxCallTime;
+    }
+    public void setTrxCallTime(String trxCallTime) {
+        this.trxCallTime = trxCallTime;
+    }
+    public String getTrxExitTime() {
+        return trxExitTime;
+    }
+    public void setTrxExitTime(String trxExitTime) {
+        this.trxExitTime = trxExitTime;
+    }
+    public String getExitTime() {
+        return exitTime;
+    }
+    public void setExitTime(String exitTime) {
+        this.exitTime = exitTime;
+    }
+
+}
+
+

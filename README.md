@@ -752,4 +752,4 @@ class ExternalApisHealthIndicatorTest {
         assertEquals("UP", health.getStatus().getCode());
     }
 }
-Para GlobalExceptionHandlerTest, si te falla el constructor de MissingRequestHeaderException por versión de Spring, dime qué versión usas y te lo ajusto exacto.
+Para GlobalExceptionHandlerTest, si te falla el constructor de MissingRequestHeaderException por versión de Spring, dime qué versión usas y te lo ajus

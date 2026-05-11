@@ -1,61 +1,109 @@
 package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.impl;
 
 import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.ParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.service.ParameterApiService;
 import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.SecurityHeaders;
 import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters.DataListDTO;
 import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters.GeographiesParametersResponseDTO;
 import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.exception.error.ErrorDictionary;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.utils.GUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.Test;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class ParameterAPIImpl implements ParameterApiService {
+class ParameterAPIImplTest {
 
-    /**
-     * Person Retrofit Api
-     */
-    private final ParametersAPI parametersAPI;
+    @Test
+    void shouldGetParameterSuccessfully() throws Exception {
+        ParametersAPI parametersAPI = mock(ParametersAPI.class);
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
 
+        DataListDTO data = new DataListDTO("LIST", "CODE", "DESC");
+        GeographiesParametersResponseDTO body =
+                new GeographiesParametersResponseDTO(List.of(data));
 
-    @Override
-    public List<DataListDTO> getParameter(String parameterId, String valueCode,SecurityHeaders securityHeaders) {
-        log.info(GUtils.SLOG + "client get parameter id {} and valueCode {}", parameterId, valueCode);
+        when(parametersAPI.getParameter("PARAM", "CODE", "AUTH", "CLIENT"))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
 
-        Response<GeographiesParametersResponseDTO> responseApi;
-        try {
-            responseApi = parametersAPI.getParameter(parameterId,valueCode,securityHeaders.getAuthorization(),securityHeaders.getxSantanderClientId()).execute();
-            if (!((responseApi.isSuccessful() || responseApi.code() == 204) && responseApi.body() != null)){
-                var error = ErrorCatalog.getMsParametersResponse();
-                error.setMessage(responseApi.message());
-                error.setDescription(ErrorDictionary.MS_NAME + " - " + responseApi);
-                throw new ServiceException(HttpStatus.BAD_REQUEST, error);
-            }
-            if(responseApi.body().getParameters().isEmpty()){
-                throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersNoEntry());
-            }
-        } catch(RuntimeException e){
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersResponse());        
-        } catch(IOException e){            
-            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCatalog.getMsParametersNetworkConection());        
-        } catch (Exception e){
-            log.info("Error in ParametersAPIImpl: {}", e.getMessage());
-            throw new ServiceException(HttpStatus.BAD_REQUEST, ErrorCatalog.getMsParametersGeneral());
-        }
-        log.info(GUtils.ELOG + "client get parameter id {}", parameterId);
-        return responseApi.body().getParameters();
-    }//method closure
+        ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
 
-}//class closure
+        List<DataListDTO> result =
+                service.getParameter("PARAM", "CODE", new SecurityHeaders("AUTH", "CLIENT"));
+
+        assertEquals(1, result.size());
+        assertEquals("CODE", result.get(0).getCode());
+        assertEquals("DESC", result.get(0).getDescription());
+    }
+
+    @Test
+    void shouldThrowWhenResponseBodyIsNull() throws Exception {
+        ParametersAPI parametersAPI = mock(ParametersAPI.class);
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(null));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("PARAM", "CODE", new SecurityHeaders("AUTH", "CLIENT")));
+    }
+
+    @Test
+    void shouldThrowWhenParametersAreEmpty() throws Exception {
+        ParametersAPI parametersAPI = mock(ParametersAPI.class);
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+
+        GeographiesParametersResponseDTO body =
+                new GeographiesParametersResponseDTO(List.of());
+
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+        when(call.execute()).thenReturn(Response.success(body));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
+
+        assertThrows(ServiceException.class,
+                () -> service.getParameter("PARAM", "CODE", new SecurityHeaders("AUTH", "CLIENT")));
+    }
+
+    @Test
+    void shouldThrowInternalServerErrorWhenRuntimeExceptionOccurs() throws Exception {
+        ParametersAPI parametersAPI = mock(ParametersAPI.class);
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+        when(call.execute()).thenThrow(new RuntimeException("ERROR"));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+                () -> service.getParameter("PARAM", "CODE", new SecurityHeaders("AUTH", "CLIENT")));
+
+        assertEquals(500, exception.getCode().value());
+    }
+
+    @Test
+    void shouldThrowInternalServerErrorWhenIOExceptionOccurs() throws Exception {
+        ParametersAPI parametersAPI = mock(ParametersAPI.class);
+        Call<GeographiesParametersResponseDTO> call = mock(Call.class);
+
+        when(parametersAPI.getParameter(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+        when(call.execute()).thenThrow(new IOException("ERROR"));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(parametersAPI);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+                () -> service.getParameter("PARAM", "CODE", new SecurityHeaders("AUTH", "CLIENT")));
+
+        assertEquals(500, exception.getCode().value());
+    }
+}

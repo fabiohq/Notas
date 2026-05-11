@@ -1,11 +1,13 @@
-Aquí tienes tests para esas clases.
-ContextAPIImplTest.java
+Te faltan TrxPersonAPIImpl y ParameterAPIImpl.
+Haz tests iguales al de ContextAPIImpl.
+TrxPersonAPIImplTest.java
 Java
 package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.impl;
 
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.ContextAPI;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.context.ContextRequest;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.context.ContextResponse;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.TrxPersonAPI;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.request.TrxPersonRequest;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.host.person.response.TrxPersonResponse;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.enums.ClientEnum;
 import org.junit.jupiter.api.Test;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -13,231 +15,132 @@ import retrofit2.Response;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ContextAPIImplTest {
+class TrxPersonAPIImplTest {
 
     @Test
-    void shouldPutContext() throws Exception {
-        ContextAPI contextAPI = mock(ContextAPI.class);
-        Call<Void> call = mock(Call.class);
+    void shouldCallPostTRX() throws Exception {
 
-        when(contextAPI.putCache(any(ContextRequest.class))).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(null));
+        TrxPersonAPI api = mock(TrxPersonAPI.class);
 
-        ContextAPIImpl service = new ContextAPIImpl(contextAPI);
+        Call<TrxPersonResponse> call = mock(Call.class);
 
-        service.putContext("KEY", "VALUE");
+        TrxPersonResponse trxResponse = new TrxPersonResponse();
 
-        verify(contextAPI).putCache(any(ContextRequest.class));
+        when(api.callPostTRX(any(), anyString()))
+                .thenReturn(call);
+
+        when(call.execute())
+                .thenReturn(Response.success(trxResponse));
+
+        TrxPersonAPIImpl service = new TrxPersonAPIImpl(api);
+
+        TrxPersonResponse response =
+                service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF2);
+
+        assertNotNull(response);
+
+        verify(api).callPostTRX(any(), anyString());
         verify(call).execute();
     }
 
     @Test
-    void shouldNotThrowWhenPutContextFails() throws Exception {
-        ContextAPI contextAPI = mock(ContextAPI.class);
-        Call<Void> call = mock(Call.class);
+    void shouldThrowExceptionWhenCallFails() throws Exception {
 
-        when(contextAPI.putCache(any(ContextRequest.class))).thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("ERROR"));
+        TrxPersonAPI api = mock(TrxPersonAPI.class);
 
-        ContextAPIImpl service = new ContextAPIImpl(contextAPI);
+        Call<TrxPersonResponse> call = mock(Call.class);
 
-        assertDoesNotThrow(() -> service.putContext("KEY", "VALUE"));
-    }
+        when(api.callPostTRX(any(), anyString()))
+                .thenReturn(call);
 
-    @Test
-    void shouldGetContext() throws Exception {
-        ContextAPI contextAPI = mock(ContextAPI.class);
-        Call<ContextResponse> call = mock(Call.class);
+        when(call.execute())
+                .thenThrow(new RuntimeException("ERROR"));
 
-        ContextResponse response = new ContextResponse();
-        response.setValue("VALUE");
+        TrxPersonAPIImpl service = new TrxPersonAPIImpl(api);
 
-        when(contextAPI.getCache("KEY", "cdt")).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(response));
-
-        ContextAPIImpl service = new ContextAPIImpl(contextAPI);
-
-        Object result = service.getContext("KEY");
-
-        assertEquals("VALUE", result);
-    }
-
-    @Test
-    void shouldReturnNullWhenGetContextFails() throws Exception {
-        ContextAPI contextAPI = mock(ContextAPI.class);
-        Call<ContextResponse> call = mock(Call.class);
-
-        when(contextAPI.getCache("KEY", "cdt")).thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("ERROR"));
-
-        ContextAPIImpl service = new ContextAPIImpl(contextAPI);
-
-        assertNull(service.getContext("KEY"));
-    }
-}
-CustomerContactPointsControllerTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.controller;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.service.TrxPersonService;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.put.request.ContactPointsRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.customer.contactpoint.response.ContactPointsResponseDTO;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.service.CustomerContactPointsService;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-class CustomerContactPointsControllerTest {
-
-    @Test
-    void shouldGetCustomersOk() {
-        TrxPersonService trxPersonService = mock(TrxPersonService.class);
-        CustomerContactPointsService customerService = mock(CustomerContactPointsService.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        ContactPointsResponseDTO serviceResponse = new ContactPointsResponseDTO();
-
-        when(customerService.getCustomerDetails(eq("12345678"), any()))
-                .thenReturn(serviceResponse);
-
-        CustomerContactPointsController controller =
-                new CustomerContactPointsController(trxPersonService, customerService, objectMapper);
-
-        ResponseEntity<ContactPointsResponseDTO> response =
-                controller.getCustomers("12345678", "Bearer token", "client");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertSame(serviceResponse, response.getBody());
-    }
-
-    @Test
-    void shouldGetCustomersNoContentWhenServiceReturnsNull() {
-        TrxPersonService trxPersonService = mock(TrxPersonService.class);
-        CustomerContactPointsService customerService = mock(CustomerContactPointsService.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        when(customerService.getCustomerDetails(eq("12345678"), any()))
-                .thenReturn(null);
-
-        CustomerContactPointsController controller =
-                new CustomerContactPointsController(trxPersonService, customerService, objectMapper);
-
-        ResponseEntity<ContactPointsResponseDTO> response =
-                controller.getCustomers("12345678", "Bearer token", "client");
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertNull(response.getBody());
-    }
-
-    @Test
-    void shouldPutCustomerContactPoints() {
-        TrxPersonService trxPersonService = mock(TrxPersonService.class);
-        CustomerContactPointsService customerService = mock(CustomerContactPointsService.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        ContactPointsRequestDTO request = new ContactPointsRequestDTO();
-
-        CustomerContactPointsController controller =
-                new CustomerContactPointsController(trxPersonService, customerService, objectMapper);
-
-        ResponseEntity<Object> response =
-                controller.putCustomerContactPoints(
-                        "Bearer token",
-                        "client",
-                        "12345678",
-                        "PRI001",
-                        request
-                );
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-
-        verify(customerService).putCustomerContactPoint(
-                eq("12345678"),
-                eq("PRI001"),
-                same(request),
-                any()
+        assertThrows(Exception.class, () ->
+                service.callPostTRX(new TrxPersonRequest(), ClientEnum.PEF2)
         );
     }
 }
-IntegrationDataConfigurationTest.java
+ParameterAPIImplTest.java
 Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.config;
+package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.impl;
 
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.ApiEntry;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.ParametersAPI;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.SecurityHeaders;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters.DataListDTO;
+import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.parameters.ParameterResponse;
 import org.junit.jupiter.api.Test;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-class IntegrationDataConfigurationTest {
-
-    @Test
-    void shouldGetByApi() {
-        ApiEntry trx = new ApiEntry();
-        trx.setIntegrationType("trx_person");
-        trx.setHost("localhost");
-
-        ApiEntry context = new ApiEntry();
-        context.setIntegrationType("context");
-        context.setHost("context-host");
-
-        IntegrationDataConfiguration config = new IntegrationDataConfiguration();
-        config.setCatalogue(List.of(trx, context));
-
-        assertSame(trx, config.getByApi("trx_person"));
-        assertSame(context, config.getByApi("context"));
-        assertNull(config.getByApi("missing"));
-    }
-}
-RestClientConfigTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.config;
-
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.ContextAPI;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.ParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.client.api.TrxPersonAPI;
-import com.santander.bnc.bsn049.bncbsn049mscstmrcntctpnts.domain.integration.ApiEntry;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class RestClientConfigTest {
+class ParameterAPIImplTest {
 
     @Test
-    void shouldCreateApis() {
-        IntegrationDataConfiguration properties = mock(IntegrationDataConfiguration.class);
+    void shouldGetParameters() throws Exception {
 
-        when(properties.getByApi("trx_person")).thenReturn(apiEntry("trx_person"));
-        when(properties.getByApi("parameters")).thenReturn(apiEntry("parameters"));
-        when(properties.getByApi("context")).thenReturn(apiEntry("context"));
+        ParametersAPI api = mock(ParametersAPI.class);
 
-        RestClientConfig config = new RestClientConfig(properties);
+        Call<ParameterResponse> call = mock(Call.class);
 
-        TrxPersonAPI trxPersonAPI = config.txrTransactionApi();
-        ParametersAPI parametersAPI = config.parametersAPI();
-        ContextAPI contextAPI = config.contextAPI();
+        DataListDTO dto = new DataListDTO();
+        dto.setCode("01");
 
-        assertNotNull(trxPersonAPI);
-        assertNotNull(parametersAPI);
-        assertNotNull(contextAPI);
+        ParameterResponse parameterResponse = new ParameterResponse();
+        parameterResponse.setData(List.of(dto));
+
+        when(api.getParameters(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+
+        when(call.execute())
+                .thenReturn(Response.success(parameterResponse));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(api);
+
+        List<DataListDTO> response =
+                service.getParameter(
+                        "COUNTRY",
+                        "01",
+                        new SecurityHeaders("token", "client")
+                );
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+
+        verify(api).getParameters(anyString(), anyString(), anyString(), anyString());
+        verify(call).execute();
     }
 
-    private ApiEntry apiEntry(String type) {
-        ApiEntry apiEntry = new ApiEntry();
-        apiEntry.setIntegrationType(type);
-        apiEntry.setHttps(false);
-        apiEntry.setHost("localhost");
-        apiEntry.setPort("8080");
-        apiEntry.setEndpoint("/");
-        apiEntry.setTimeOutConn(1);
-        apiEntry.setTimeOutRead(1);
-        return apiEntry;
+    @Test
+    void shouldReturnEmptyListWhenExceptionOccurs() throws Exception {
+
+        ParametersAPI api = mock(ParametersAPI.class);
+
+        Call<ParameterResponse> call = mock(Call.class);
+
+        when(api.getParameters(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(call);
+
+        when(call.execute())
+                .thenThrow(new RuntimeException("ERROR"));
+
+        ParameterAPIImpl service = new ParameterAPIImpl(api);
+
+        List<DataListDTO> response =
+                service.getParameter(
+                        "COUNTRY",
+                        "01",
+                        new SecurityHeaders("token", "client")
+                );
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
     }
 }
-Si ContextAPIImplTest falla por el tipo de putCache, cambia Call<Void> por el tipo exacto que retorne tu interfaz ContextAPI.
+Con esos dos ya deberías dejar client.impl prácticamente en 100%.

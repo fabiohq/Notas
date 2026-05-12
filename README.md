@@ -1,76 +1,94 @@
-package com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+
+@Test
+void shouldMapFromTrxPersonHeader() {
+    TrxPersonHeader header = buildTrxPersonHeader();
+
+    TrxBP49Request request = new TrxBP49Request(header);
+
+    assertThat(request.getCabecera().getSecuencia()).isEqualTo(123);
+    assertThat(request.getCabecera().getRutaServicio()).isEqualTo("BP49");
+    assertThat(request.getCabecera().getFuncion()).isEqualTo("function");
+    assertThat(request.getCabecera().getCanal()).isEqualTo("60");
+    assertThat(request.getCabecera().getResultado()).isEqualTo("OK");
+
+    assertThat(request.getCabecera().getSesion().getEntidad()).isEqualTo("0065");
+    assertThat(request.getCabecera().getSesion().getEntorno()).isEqualTo("local");
+    assertThat(request.getCabecera().getSesion().getFechaContable()).isEqualTo("2026-01-01");
+    assertThat(request.getCabecera().getSesion().getHoraConexion()).isEqualTo("120000");
+    assertThat(request.getCabecera().getSesion().getPerfil()).isEqualTo("profile");
+    assertThat(request.getCabecera().getSesion().getSucursal()).isEqualTo("0060");
+    assertThat(request.getCabecera().getSesion().getTerminal()).isEqualTo("terminal");
+    assertThat(request.getCabecera().getSesion().getUsuario()).isEqualTo("user");
+}
+
+private TrxPersonHeader buildTrxPersonHeader() {
+    TrxPersonHeader header = new TrxPersonHeader();
+    com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session session =
+            new com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session();
+
+    session.setEntorno("local");
+    session.setFechaContable("2026-01-01");
+    session.setHoraConexion("120000");
+    session.setPerfil("profile");
+    session.setSucursal("0060");
+    session.setTerminal("terminal");
+    session.setUsuario("user");
+
+    header.setSesion(session);
+    header.setSecuencia(123);
+    header.setRutaServicio("BP49");
+    header.setFuncion("function");
+    header.setCanal("60");
+    header.setResultado("OK");
+
+    return header;
+}
 
 
-public class TrxPersonHeader {
-    public String rutaServicio;
-    public Session sesion;
-    public String funcion;
-    public Integer secuencia;
-    public String canal;
-    public String resultado;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
 
-    public TrxPersonHeader() {
-    }
+@Test
+void shouldMapFromTrxPersonHeader() {
+    TrxPersonHeader header = buildTrxPersonHeader();
 
+    PemfvRequest request = new PemfvRequest(header);
 
+    assertThat(request.getCabecera().getSecuencia()).isEqualTo(123);
+    assertThat(request.getCabecera().getRutaServicio()).isEqualTo("PEMFV");
+    assertThat(request.getCabecera().getFuncion()).isEqualTo("function");
+    assertThat(request.getCabecera().getCanal()).isEqualTo("60");
+    assertThat(request.getCabecera().getResultado()).isEqualTo("OK");
 
-    public String getRutaServicio() {
-        return rutaServicio;
-    }
+    assertThat(request.getCabecera().getSesion().getEntidad()).isEqualTo("0065");
+    assertThat(request.getCabecera().getSesion().getEntorno()).isEqualTo("local");
+    assertThat(request.getCabecera().getSesion().getFechaContable()).isEqualTo("2026-01-01");
+    assertThat(request.getCabecera().getSesion().getHoraConexion()).isEqualTo("120000");
+    assertThat(request.getCabecera().getSesion().getPerfil()).isEqualTo("profile");
+    assertThat(request.getCabecera().getSesion().getSucursal()).isEqualTo("0060");
+    assertThat(request.getCabecera().getSesion().getTerminal()).isEqualTo("terminal");
+    assertThat(request.getCabecera().getSesion().getUsuario()).isEqualTo("user");
+}
 
-    public void setRutaServicio(String rutaServicio) {
-        this.rutaServicio = rutaServicio;
-    }
+private TrxPersonHeader buildTrxPersonHeader() {
+    TrxPersonHeader header = new TrxPersonHeader();
+    com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session session =
+            new com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session();
 
-    public Session getSesion() {
-        return sesion;
-    }
+    session.setEntorno("local");
+    session.setFechaContable("2026-01-01");
+    session.setHoraConexion("120000");
+    session.setPerfil("profile");
+    session.setSucursal("0060");
+    session.setTerminal("terminal");
+    session.setUsuario("user");
 
-    public void setSesion(Session sesion) {
-        this.sesion = sesion;
-    }
+    header.setSesion(session);
+    header.setSecuencia(123);
+    header.setRutaServicio("PEMFV");
+    header.setFuncion("function");
+    header.setCanal("60");
+    header.setResultado("OK");
 
-    public String getFuncion() {
-        return funcion;
-    }
-
-    public void setFuncion(String funcion) {
-        this.funcion = funcion;
-    }
-
-    public Integer getSecuencia() {
-        return secuencia;
-    }
-
-    public void setSecuencia(Integer secuencia) {
-        this.secuencia = secuencia;
-    }
-
-    public String getCanal() {
-        return canal;
-    }
-
-    public void setCanal(String canal) {
-        this.canal = canal;
-    }
-
-    public String getResultado() {
-        return resultado;
-    }
-
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
-    }
-
-    @Override
-    public String toString() {
-        return "TrxPersonHeader{" +
-                "rutaServicio='" + rutaServicio + '\'' +
-                ", sesion=" + sesion +
-                ", funcion='" + funcion + '\'' +
-                ", secuencia=" + secuencia +
-                ", canal='" + canal + '\'' +
-                ", resultado='" + resultado + '\'' +
-                '}';
-    }
+    return header;
 }

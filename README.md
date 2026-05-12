@@ -1,1099 +1,1888 @@
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BanksDTOTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        BanksDTO dto = new BanksDTO();
+        List<BanksParametersDTO> banks = List.of(new BanksParametersDTO("0065", "Banco Santander"));
+
+        dto.setBanks(banks);
+
+        assertThat(dto.getBanks()).isEqualTo(banks);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        List<BanksParametersDTO> banks = List.of(new BanksParametersDTO("0065", "Banco Santander"));
+
+        BanksDTO dto = new BanksDTO(banks);
+
+        assertThat(dto.getBanks()).isEqualTo(banks);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        List<BanksParametersDTO> banks = List.of(new BanksParametersDTO("0065", "Banco Santander"));
+
+        BanksDTO dto = BanksDTO.builder()
+                .Banks(banks)
+                .build();
+
+        assertThat(dto.getBanks()).isEqualTo(banks);
+    }
+
+    @Test
+    void shouldValidateEqualsHashCodeAndToString() {
+        List<BanksParametersDTO> banks = List.of(new BanksParametersDTO("0065", "Banco Santander"));
+        BanksDTO dto = new BanksDTO(banks);
+        BanksDTO sameDto = new BanksDTO(banks);
+
+        assertThat(dto)
+                .isEqualTo(sameDto)
+                .hasSameHashCodeAs(sameDto);
+        assertThat(dto.toString()).contains("Banks");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BanksParametersDTOTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        BanksParametersDTO dto = new BanksParametersDTO();
+
+        dto.setBankId("0065");
+        dto.setBankName("Banco Santander");
+
+        assertThat(dto.getBankId()).isEqualTo("0065");
+        assertThat(dto.getBankName()).isEqualTo("Banco Santander");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        BanksParametersDTO dto = new BanksParametersDTO("0065", "Banco Santander");
+
+        assertThat(dto.getBankId()).isEqualTo("0065");
+        assertThat(dto.getBankName()).isEqualTo("Banco Santander");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        BanksParametersDTO dto = BanksParametersDTO.builder()
+                .bankId("0065")
+                .bankName("Banco Santander")
+                .build();
+
+        assertThat(dto.getBankId()).isEqualTo("0065");
+        assertThat(dto.getBankName()).isEqualTo("Banco Santander");
+    }
+
+    @Test
+    void shouldValidateEqualsHashCodeAndToString() {
+        BanksParametersDTO dto = new BanksParametersDTO("0065", "Banco Santander");
+        BanksParametersDTO sameDto = new BanksParametersDTO("0065", "Banco Santander");
+
+        assertThat(dto)
+                .isEqualTo(sameDto)
+                .hasSameHashCodeAs(sameDto);
+        assertThat(dto.toString()).contains("bankId", "bankName");
+    }
+}package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BanksParametersRequestTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        BanksParametersRequest request = new BanksParametersRequest();
+
+        request.setAuthorization("Bearer token");
+        request.setXSantanderClientId("client-id");
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getXSantanderClientId()).isEqualTo("client-id");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        BanksParametersRequest request = new BanksParametersRequest("Bearer token", "client-id");
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getXSantanderClientId()).isEqualTo("client-id");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        BanksParametersRequest request = BanksParametersRequest.builder()
+                .authorization("Bearer token")
+                .xSantanderClientId("client-id")
+                .build();
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getXSantanderClientId()).isEqualTo("client-id");
+    }
+
+    @Test
+    void shouldValidateEqualsHashCodeAndToString() {
+        BanksParametersRequest request = new BanksParametersRequest("Bearer token", "client-id");
+        BanksParametersRequest sameRequest = new BanksParametersRequest("Bearer token", "client-id");
+
+        assertThat(request)
+                .isEqualTo(sameRequest)
+                .hasSameHashCodeAs(sameRequest);
+        assertThat(request.toString()).contains("authorization", "xSantanderClientId");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class BanksResponseDTOTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        BanksDTO banks = BanksDTO.builder()
+                .Banks(List.of(new BanksParametersDTO("0065", "Banco Santander")))
+                .build();
+        BanksResponseDTO response = new BanksResponseDTO();
+
+        response.setBanks(banks);
+
+        assertThat(response.getBanks()).isEqualTo(banks);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        BanksDTO banks = BanksDTO.builder()
+                .Banks(List.of(new BanksParametersDTO("0065", "Banco Santander")))
+                .build();
+
+        BanksResponseDTO response = new BanksResponseDTO(banks);
+
+        assertThat(response.getBanks()).isEqualTo(banks);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        BanksDTO banks = BanksDTO.builder()
+                .Banks(List.of(new BanksParametersDTO("0065", "Banco Santander")))
+                .build();
+
+        BanksResponseDTO response = BanksResponseDTO.builder()
+                .banks(banks)
+                .build();
+
+        assertThat(response.getBanks()).isEqualTo(banks);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DepositPlacementRequestDTOTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        DepositPlacementRequestDTO request = new DepositPlacementRequestDTO();
+
+        request.setAuthorization("Bearer token");
+        request.setxSantanderClientId("client-id");
+        request.setDepositId("deposit-id");
+        request.setPlacementId("placement-id");
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getxSantanderClientId()).isEqualTo("client-id");
+        assertThat(request.getDepositId()).isEqualTo("deposit-id");
+        assertThat(request.getPlacementId()).isEqualTo("placement-id");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        DepositPlacementRequestDTO request = new DepositPlacementRequestDTO(
+                "Bearer token",
+                "client-id",
+                "deposit-id",
+                "placement-id"
+        );
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getxSantanderClientId()).isEqualTo("client-id");
+        assertThat(request.getDepositId()).isEqualTo("deposit-id");
+        assertThat(request.getPlacementId()).isEqualTo("placement-id");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        DepositPlacementRequestDTO request = DepositPlacementRequestDTO.builder()
+                .authorization("Bearer token")
+                .xSantanderClientId("client-id")
+                .depositId("deposit-id")
+                .placementId("placement-id")
+                .build();
+
+        assertThat(request.getAuthorization()).isEqualTo("Bearer token");
+        assertThat(request.getxSantanderClientId()).isEqualTo("client-id");
+        assertThat(request.getDepositId()).isEqualTo("deposit-id");
+        assertThat(request.getPlacementId()).isEqualTo("placement-id");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AccountTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Account account = new Account();
+
+        account.setNationalIdentification("12345678");
+        account.setStatusDescription("Active");
+
+        assertThat(account.getNationalIdentification()).isEqualTo("12345678");
+        assertThat(account.getStatusDescription()).isEqualTo("Active");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Account account = new Account("12345678", "Active");
+
+        assertThat(account.getNationalIdentification()).isEqualTo("12345678");
+        assertThat(account.getStatusDescription()).isEqualTo("Active");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Account account = Account.builder()
+                .nationalIdentification("12345678")
+                .statusDescription("Active")
+                .build();
+
+        assertThat(account.getNationalIdentification()).isEqualTo("12345678");
+        assertThat(account.getStatusDescription()).isEqualTo("Active");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AmountTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Amount amount = new Amount();
+
+        amount.setAmount("1000,00");
+        amount.setCurrency("COP");
+
+        assertThat(amount.getAmount()).isEqualTo("1000,00");
+        assertThat(amount.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Amount amount = new Amount("1000,00", "COP");
+
+        assertThat(amount.getAmount()).isEqualTo("1000,00");
+        assertThat(amount.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Amount amount = Amount.builder()
+                .amount("1000,00")
+                .currency("COP")
+                .build();
+
+        assertThat(amount.getAmount()).isEqualTo("1000,00");
+        assertThat(amount.getCurrency()).isEqualTo("COP");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ContractTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Product product = new Product("04", "CDT");
+        Contract contract = new Contract();
+
+        contract.setProduct(product);
+
+        assertThat(contract.getProduct()).isEqualTo(product);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Product product = new Product("04", "CDT");
+
+        Contract contract = new Contract(product);
+
+        assertThat(contract.getProduct()).isEqualTo(product);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Product product = new Product("04", "CDT");
+
+        Contract contract = Contract.builder()
+                .product(product)
+                .build();
+
+        assertThat(contract.getProduct()).isEqualTo(product);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class CurrencyTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Currency currency = new Currency();
+
+        currency.setCode("COP");
+
+        assertThat(currency.getCode()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Currency currency = new Currency("COP");
+
+        assertThat(currency.getCode()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Currency currency = Currency.builder()
+                .code("COP")
+                .build();
+
+        assertThat(currency.getCode()).isEqualTo("COP");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DepositPlacementResponseDTOTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Contract contract = Contract.builder().product(new Product("04", "CDT")).build();
+        Placement placement = Placement.builder().purposeCode("01").build();
+        DepositPlacementResponseDTO response = new DepositPlacementResponseDTO();
+
+        response.setContract(contract);
+        response.setPlacement(placement);
+
+        assertThat(response.getContract()).isEqualTo(contract);
+        assertThat(response.getPlacement()).isEqualTo(placement);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Contract contract = Contract.builder().product(new Product("04", "CDT")).build();
+        Placement placement = Placement.builder().purposeCode("01").build();
+
+        DepositPlacementResponseDTO response = new DepositPlacementResponseDTO(contract, placement);
+
+        assertThat(response.getContract()).isEqualTo(contract);
+        assertThat(response.getPlacement()).isEqualTo(placement);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Contract contract = Contract.builder().product(new Product("04", "CDT")).build();
+        Placement placement = Placement.builder().purposeCode("01").build();
+
+        DepositPlacementResponseDTO response = DepositPlacementResponseDTO.builder()
+                .contract(contract)
+                .placement(placement)
+                .build();
+
+        assertThat(response.getContract()).isEqualTo(contract);
+        assertThat(response.getPlacement()).isEqualTo(placement);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DestinationFundsTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Account account = new Account("12345678", "Active");
+        DestinationFunds destinationFunds = new DestinationFunds();
+
+        destinationFunds.setAccountIdType("CC");
+        destinationFunds.setBankcode("0065");
+        destinationFunds.setAccount(account);
+
+        assertThat(destinationFunds.getAccountIdType()).isEqualTo("CC");
+        assertThat(destinationFunds.getBankcode()).isEqualTo("0065");
+        assertThat(destinationFunds.getAccount()).isEqualTo(account);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Account account = new Account("12345678", "Active");
+
+        DestinationFunds destinationFunds = new DestinationFunds("CC", "0065", account);
+
+        assertThat(destinationFunds.getAccountIdType()).isEqualTo("CC");
+        assertThat(destinationFunds.getBankcode()).isEqualTo("0065");
+        assertThat(destinationFunds.getAccount()).isEqualTo(account);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Account account = new Account("12345678", "Active");
+
+        DestinationFunds destinationFunds = DestinationFunds.builder()
+                .accountIdType("CC")
+                .Bankcode("0065")
+                .account(account)
+                .build();
+
+        assertThat(destinationFunds.getAccountIdType()).isEqualTo("CC");
+        assertThat(destinationFunds.getBankcode()).isEqualTo("0065");
+        assertThat(destinationFunds.getAccount()).isEqualTo(account);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class InitialTotalInvestedTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        InitialTotalInvested invested = new InitialTotalInvested();
+
+        invested.setAmount("1000,00");
+        invested.setCurrency("COP");
+
+        assertThat(invested.getAmount()).isEqualTo("1000,00");
+        assertThat(invested.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        InitialTotalInvested invested = new InitialTotalInvested("1000,00", "COP");
+
+        assertThat(invested.getAmount()).isEqualTo("1000,00");
+        assertThat(invested.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        InitialTotalInvested invested = InitialTotalInvested.builder()
+                .amount("1000,00")
+                .currency("COP")
+                .build();
+
+        assertThat(invested.getAmount()).isEqualTo("1000,00");
+        assertThat(invested.getCurrency()).isEqualTo("COP");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class OriginIdentifierTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        OriginIdentifier originIdentifier = new OriginIdentifier();
+
+        originIdentifier.setCode("01");
+        originIdentifier.setDescription("Origin");
+
+        assertThat(originIdentifier.getCode()).isEqualTo("01");
+        assertThat(originIdentifier.getDescription()).isEqualTo("Origin");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        OriginIdentifier originIdentifier = new OriginIdentifier("01", "Origin");
+
+        assertThat(originIdentifier.getCode()).isEqualTo("01");
+        assertThat(originIdentifier.getDescription()).isEqualTo("Origin");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        OriginIdentifier originIdentifier = OriginIdentifier.builder()
+                .code("01")
+                .description("Origin")
+                .build();
+
+        assertThat(originIdentifier.getCode()).isEqualTo("01");
+        assertThat(originIdentifier.getDescription()).isEqualTo("Origin");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PeriodicityTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Periodicity periodicity = new Periodicity();
+
+        periodicity.setFrequency(90);
+        periodicity.setPeriodTypeCode("D");
+        periodicity.setPeriodTypeDescription("Days");
+
+        assertThat(periodicity.getFrequency()).isEqualTo(90);
+        assertThat(periodicity.getPeriodTypeCode()).isEqualTo("D");
+        assertThat(periodicity.getPeriodTypeDescription()).isEqualTo("Days");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Periodicity periodicity = new Periodicity(90, "D", "Days");
+
+        assertThat(periodicity.getFrequency()).isEqualTo(90);
+        assertThat(periodicity.getPeriodTypeCode()).isEqualTo("D");
+        assertThat(periodicity.getPeriodTypeDescription()).isEqualTo("Days");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Periodicity periodicity = Periodicity.builder()
+                .frequency(90)
+                .periodTypeCode("D")
+                .periodTypeDescription("Days")
+                .build();
+
+        assertThat(periodicity.getFrequency()).isEqualTo(90);
+        assertThat(periodicity.getPeriodTypeCode()).isEqualTo("D");
+        assertThat(periodicity.getPeriodTypeDescription()).isEqualTo("Days");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PlacementTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PlacementIdentification placementIdentification = new PlacementIdentification("ISIN123");
+        StatusInfo statusInfo = new StatusInfo("S", "Active");
+        Subproduct subproduct = new Subproduct("0250", "CDT");
+        Currency currency = new Currency("COP");
+        Periodicity periodicity = new Periodicity(90, "D", "Days");
+        OriginIdentifier originIdentifier = new OriginIdentifier("01", "Origin");
+        SettlementCondition settlementCondition = new SettlementCondition("B", "Condition");
+        DestinationFunds destinationFunds = new DestinationFunds("CC", "0065", new Account("123", "Active"));
+        ProfitabilityAtMaturity profitabilityAtMaturity = new ProfitabilityAtMaturity("100,00", "COP");
+        InitialTotalInvested initialTotalInvested = new InitialTotalInvested("1000,00", "COP");
+        List<Settlement> settlements = List.of(new Settlement(new SettlementConcept()));
+
+        Placement placement = new Placement();
+        placement.setPlacementIdentification(placementIdentification);
+        placement.setStatusInfo(statusInfo);
+        placement.setSubproduct(subproduct);
+        placement.setCurrency(currency);
+        placement.setPeriodicity(periodicity);
+        placement.setMaturityDate("2026-12-31");
+        placement.setOpeningDate("2026-01-01");
+        placement.setRenewable(true);
+        placement.setCapitalized(true);
+        placement.setBlocked(false);
+        placement.setOriginIdentifier(originIdentifier);
+        placement.setSettlementCondition(settlementCondition);
+        placement.setAnnualPercentageYield("10,0000");
+        placement.setRate("9,5000");
+        placement.setDestinationFunds(destinationFunds);
+        placement.setPurposeCode("01");
+        placement.setPurposeDescription("Purpose");
+        placement.setLastRenewalDate("2026-06-01");
+        placement.setProfitabilityAtMaturity(profitabilityAtMaturity);
+        placement.setInitialTotalInvested(initialTotalInvested);
+        placement.setSettlements(settlements);
+
+        assertThat(placement.getPlacementIdentification()).isEqualTo(placementIdentification);
+        assertThat(placement.getStatusInfo()).isEqualTo(statusInfo);
+        assertThat(placement.getSubproduct()).isEqualTo(subproduct);
+        assertThat(placement.getCurrency()).isEqualTo(currency);
+        assertThat(placement.getPeriodicity()).isEqualTo(periodicity);
+        assertThat(placement.getMaturityDate()).isEqualTo("2026-12-31");
+        assertThat(placement.getOpeningDate()).isEqualTo("2026-01-01");
+        assertThat(placement.isRenewable()).isTrue();
+        assertThat(placement.isCapitalized()).isTrue();
+        assertThat(placement.isBlocked()).isFalse();
+        assertThat(placement.getOriginIdentifier()).isEqualTo(originIdentifier);
+        assertThat(placement.getSettlementCondition()).isEqualTo(settlementCondition);
+        assertThat(placement.getAnnualPercentageYield()).isEqualTo("10,0000");
+        assertThat(placement.getRate()).isEqualTo("9,5000");
+        assertThat(placement.getDestinationFunds()).isEqualTo(destinationFunds);
+        assertThat(placement.getPurposeCode()).isEqualTo("01");
+        assertThat(placement.getPurposeDescription()).isEqualTo("Purpose");
+        assertThat(placement.getLastRenewalDate()).isEqualTo("2026-06-01");
+        assertThat(placement.getProfitabilityAtMaturity()).isEqualTo(profitabilityAtMaturity);
+        assertThat(placement.getInitialTotalInvested()).isEqualTo(initialTotalInvested);
+        assertThat(placement.getSettlements()).isEqualTo(settlements);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        List<Settlement> settlements = List.of(new Settlement(new SettlementConcept()));
+
+        Placement placement = Placement.builder()
+                .placementIdentification(new PlacementIdentification("ISIN123"))
+                .statusInfo(new StatusInfo("S", "Active"))
+                .subproduct(new Subproduct("0250", "CDT"))
+                .currency(new Currency("COP"))
+                .periodicity(new Periodicity(90, "D", "Days"))
+                .maturityDate("2026-12-31")
+                .openingDate("2026-01-01")
+                .isRenewable(true)
+                .isCapitalized(true)
+                .isBlocked(false)
+                .originIdentifier(new OriginIdentifier("01", "Origin"))
+                .settlementCondition(new SettlementCondition("B", "Condition"))
+                .annualPercentageYield("10,0000")
+                .rate("9,5000")
+                .destinationFunds(new DestinationFunds("CC", "0065", new Account("123", "Active")))
+                .purposeCode("01")
+                .purposeDescription("Purpose")
+                .lastRenewalDate("2026-06-01")
+                .profitabilityAtMaturity(new ProfitabilityAtMaturity("100,00", "COP"))
+                .initialTotalInvested(new InitialTotalInvested("1000,00", "COP"))
+                .settlements(settlements)
+                .build();
+
+        assertThat(placement.getPlacementIdentification().getIsin()).isEqualTo("ISIN123");
+        assertThat(placement.getStatusInfo().getStatusCode()).isEqualTo("S");
+        assertThat(placement.getSubproduct().getSubproductId()).isEqualTo("0250");
+        assertThat(placement.getCurrency().getCode()).isEqualTo("COP");
+        assertThat(placement.getPeriodicity().getFrequency()).isEqualTo(90);
+        assertThat(placement.isRenewable()).isTrue();
+        assertThat(placement.isCapitalized()).isTrue();
+        assertThat(placement.isBlocked()).isFalse();
+        assertThat(placement.getSettlements()).isEqualTo(settlements);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PlacementIdentificationTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PlacementIdentification identification = new PlacementIdentification();
+
+        identification.setIsin("ISIN123");
+
+        assertThat(identification.getIsin()).isEqualTo("ISIN123");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        PlacementIdentification identification = new PlacementIdentification("ISIN123");
+
+        assertThat(identification.getIsin()).isEqualTo("ISIN123");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PlacementIdentification identification = PlacementIdentification.builder()
+                .isin("ISIN123")
+                .build();
+
+        assertThat(identification.getIsin()).isEqualTo("ISIN123");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ProductTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Product product = new Product();
+
+        product.setProductCode("04");
+        product.setProductDescription("CDT");
+
+        assertThat(product.getProductCode()).isEqualTo("04");
+        assertThat(product.getProductDescription()).isEqualTo("CDT");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Product product = new Product("04", "CDT");
+
+        assertThat(product.getProductCode()).isEqualTo("04");
+        assertThat(product.getProductDescription()).isEqualTo("CDT");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Product product = Product.builder()
+                .productCode("04")
+                .productDescription("CDT")
+                .build();
+
+        assertThat(product.getProductCode()).isEqualTo("04");
+        assertThat(product.getProductDescription()).isEqualTo("CDT");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ProfitabilityAtMaturityTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        ProfitabilityAtMaturity profitability = new ProfitabilityAtMaturity();
+
+        profitability.setAmount("100,00");
+        profitability.setCurrency("COP");
+
+        assertThat(profitability.getAmount()).isEqualTo("100,00");
+        assertThat(profitability.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        ProfitabilityAtMaturity profitability = new ProfitabilityAtMaturity("100,00", "COP");
+
+        assertThat(profitability.getAmount()).isEqualTo("100,00");
+        assertThat(profitability.getCurrency()).isEqualTo("COP");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        ProfitabilityAtMaturity profitability = ProfitabilityAtMaturity.builder()
+                .amount("100,00")
+                .currency("COP")
+                .build();
+
+        assertThat(profitability.getAmount()).isEqualTo("100,00");
+        assertThat(profitability.getCurrency()).isEqualTo("COP");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SettlementTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        SettlementConcept concept = new SettlementConcept();
+        Settlement settlement = new Settlement();
+
+        settlement.setSettlementConcept(concept);
+
+        assertThat(settlement.getSettlementConcept()).isEqualTo(concept);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        SettlementConcept concept = new SettlementConcept();
+
+        Settlement settlement = new Settlement(concept);
+
+        assertThat(settlement.getSettlementConcept()).isEqualTo(concept);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        SettlementConcept concept = new SettlementConcept();
+
+        Settlement settlement = Settlement.builder()
+                .settlementConcept(concept)
+                .build();
+
+        assertThat(settlement.getSettlementConcept()).isEqualTo(concept);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SettlementConceptTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Amount amount = new Amount("100,00", "COP");
+        SettlementConcept concept = new SettlementConcept();
+
+        concept.setCode("BGMF");
+        concept.setDescription("Concept");
+        concept.setTypeCode("A");
+        concept.setTypeDescription("Type");
+        concept.setRate("1,0000");
+        concept.setAmount(amount);
+
+        assertThat(concept.getCode()).isEqualTo("BGMF");
+        assertThat(concept.getDescription()).isEqualTo("Concept");
+        assertThat(concept.getTypeCode()).isEqualTo("A");
+        assertThat(concept.getTypeDescription()).isEqualTo("Type");
+        assertThat(concept.getRate()).isEqualTo("1,0000");
+        assertThat(concept.getAmount()).isEqualTo(amount);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Amount amount = new Amount("100,00", "COP");
+
+        SettlementConcept concept = new SettlementConcept(
+                "BGMF",
+                "Concept",
+                "A",
+                "Type",
+                "1,0000",
+                amount
+        );
+
+        assertThat(concept.getCode()).isEqualTo("BGMF");
+        assertThat(concept.getDescription()).isEqualTo("Concept");
+        assertThat(concept.getTypeCode()).isEqualTo("A");
+        assertThat(concept.getTypeDescription()).isEqualTo("Type");
+        assertThat(concept.getRate()).isEqualTo("1,0000");
+        assertThat(concept.getAmount()).isEqualTo(amount);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Amount amount = new Amount("100,00", "COP");
+
+        SettlementConcept concept = SettlementConcept.builder()
+                .code("BGMF")
+                .description("Concept")
+                .typeCode("A")
+                .typeDescription("Type")
+                .rate("1,0000")
+                .amount(amount)
+                .build();
+
+        assertThat(concept.getCode()).isEqualTo("BGMF");
+        assertThat(concept.getDescription()).isEqualTo("Concept");
+        assertThat(concept.getTypeCode()).isEqualTo("A");
+        assertThat(concept.getTypeDescription()).isEqualTo("Type");
+        assertThat(concept.getRate()).isEqualTo("1,0000");
+        assertThat(concept.getAmount()).isEqualTo(amount);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SettlementConditionTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        SettlementCondition condition = new SettlementCondition();
+
+        condition.setCode("B");
+        condition.setDescription("Condition");
+
+        assertThat(condition.getCode()).isEqualTo("B");
+        assertThat(condition.getDescription()).isEqualTo("Condition");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        SettlementCondition condition = new SettlementCondition("B", "Condition");
+
+        assertThat(condition.getCode()).isEqualTo("B");
+        assertThat(condition.getDescription()).isEqualTo("Condition");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        SettlementCondition condition = SettlementCondition.builder()
+                .code("B")
+                .description("Condition")
+                .build();
+
+        assertThat(condition.getCode()).isEqualTo("B");
+        assertThat(condition.getDescription()).isEqualTo("Condition");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class StatusInfoTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        StatusInfo statusInfo = new StatusInfo();
+
+        statusInfo.setStatusCode("S");
+        statusInfo.setStatusDescription("Active");
+
+        assertThat(statusInfo.getStatusCode()).isEqualTo("S");
+        assertThat(statusInfo.getStatusDescription()).isEqualTo("Active");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        StatusInfo statusInfo = new StatusInfo("S", "Active");
+
+        assertThat(statusInfo.getStatusCode()).isEqualTo("S");
+        assertThat(statusInfo.getStatusDescription()).isEqualTo("Active");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        StatusInfo statusInfo = StatusInfo.builder()
+                .statusCode("S")
+                .statusDescription("Active")
+                .build();
+
+        assertThat(statusInfo.getStatusCode()).isEqualTo("S");
+        assertThat(statusInfo.getStatusDescription()).isEqualTo("Active");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.depositplacement.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SubproductTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Subproduct subproduct = new Subproduct();
+
+        subproduct.setSubproductId("0250");
+        subproduct.setName("CDT");
+
+        assertThat(subproduct.getSubproductId()).isEqualTo("0250");
+        assertThat(subproduct.getName()).isEqualTo("CDT");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        Subproduct subproduct = new Subproduct("0250", "CDT");
+
+        assertThat(subproduct.getSubproductId()).isEqualTo("0250");
+        assertThat(subproduct.getName()).isEqualTo("CDT");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Subproduct subproduct = Subproduct.builder()
+                .subproductId("0250")
+                .name("CDT")
+                .build();
+
+        assertThat(subproduct.getSubproductId()).isEqualTo("0250");
+        assertThat(subproduct.getName()).isEqualTo("CDT");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxBP49DataRequestTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        TrxBP49DataRequest request = new TrxBP49DataRequest();
+
+        request.setBuscarPor("C");
+        request.setEnt("0065");
+        request.setOfic("0060");
+        request.setCuenta("1234567890");
+        request.setSecuencia("001");
+        request.setNumeroCertificado("00001");
+        request.setDocumentoCajero("12345678");
+
+        assertThat(request.getBuscarPor()).isEqualTo("C");
+        assertThat(request.getEnt()).isEqualTo("0065");
+        assertThat(request.getOfic()).isEqualTo("0060");
+        assertThat(request.getCuenta()).isEqualTo("1234567890");
+        assertThat(request.getSecuencia()).isEqualTo("001");
+        assertThat(request.getNumeroCertificado()).isEqualTo("00001");
+        assertThat(request.getDocumentoCajero()).isEqualTo("12345678");
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        TrxBP49DataRequest request = new TrxBP49DataRequest(
+                "C", "0065", "0060", "1234567890", "001", "00001", "12345678"
+        );
+
+        assertThat(request.getBuscarPor()).isEqualTo("C");
+        assertThat(request.getEnt()).isEqualTo("0065");
+        assertThat(request.getOfic()).isEqualTo("0060");
+        assertThat(request.getCuenta()).isEqualTo("1234567890");
+        assertThat(request.getSecuencia()).isEqualTo("001");
+        assertThat(request.getNumeroCertificado()).isEqualTo("00001");
+        assertThat(request.getDocumentoCajero()).isEqualTo("12345678");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        TrxBP49DataRequest request = TrxBP49DataRequest.builder()
+                .buscarPor("C")
+                .ent("0065")
+                .ofic("0060")
+                .cuenta("1234567890")
+                .secuencia("001")
+                .numeroCertificado("00001")
+                .documentoCajero("12345678")
+                .build();
+
+        assertThat(request.getBuscarPor()).isEqualTo("C");
+        assertThat(request.getEnt()).isEqualTo("0065");
+        assertThat(request.getOfic()).isEqualTo("0060");
+        assertThat(request.getCuenta()).isEqualTo("1234567890");
+        assertThat(request.getSecuencia()).isEqualTo("001");
+        assertThat(request.getNumeroCertificado()).isEqualTo("00001");
+        assertThat(request.getDocumentoCajero()).isEqualTo("12345678");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.request;
+
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxBP49RequestTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        TrxHeader header = new TrxHeader();
+        TrxBP49DataRequest data = new TrxBP49DataRequest();
+        TrxBP49Request request = new TrxBP49Request();
+
+        request.setCabecera(header);
+        request.setData(data);
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        TrxHeader header = new TrxHeader();
+        TrxBP49DataRequest data = new TrxBP49DataRequest();
+
+        TrxBP49Request request = new TrxBP49Request(header, data);
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        TrxHeader header = new TrxHeader();
+        TrxBP49DataRequest data = new TrxBP49DataRequest();
+
+        TrxBP49Request request = TrxBP49Request.builder()
+                .cabecera(header)
+                .data(data)
+                .build();
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxBP49DataTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        TrxBP49Data data = new TrxBP49Data();
+
+        data.setCdtDat("cdtDat");
+        data.setCERTIFI("certifi");
+        data.setFecha("2026-01-01");
+        data.setSecuencia("001");
+        data.setRETEN("reten");
+        data.setSecRen("secRen");
+        data.setINTABON("intabon");
+        data.setEstado("S");
+        data.setNumMov("1");
+        data.setInteresPendienteLiquidar("100,00");
+        data.setPago("pago");
+        data.setConcepto("concepto");
+        data.setValor("1000,00");
+
+        assertThat(data.getCdtDat()).isEqualTo("cdtDat");
+        assertThat(data.getCERTIFI()).isEqualTo("certifi");
+        assertThat(data.getFecha()).isEqualTo("2026-01-01");
+        assertThat(data.getSecuencia()).isEqualTo("001");
+        assertThat(data.getRETEN()).isEqualTo("reten");
+        assertThat(data.getSecRen()).isEqualTo("secRen");
+        assertThat(data.getINTABON()).isEqualTo("intabon");
+        assertThat(data.getEstado()).isEqualTo("S");
+        assertThat(data.getNumMov()).isEqualTo("1");
+        assertThat(data.getInteresPendienteLiquidar()).isEqualTo("100,00");
+        assertThat(data.getPago()).isEqualTo("pago");
+        assertThat(data.getConcepto()).isEqualTo("concepto");
+        assertThat(data.getValor()).isEqualTo("1000,00");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        TrxBP49Data data = TrxBP49Data.builder()
+                .cdtDat("cdtDat")
+                .CERTIFI("certifi")
+                .fecha("2026-01-01")
+                .secuencia("001")
+                .RETEN("reten")
+                .secRen("secRen")
+                .INTABON("intabon")
+                .estado("S")
+                .numMov("1")
+                .interesPendienteLiquidar("100,00")
+                .pago("pago")
+                .concepto("concepto")
+                .valor("1000,00")
+                .build();
+
+        assertThat(data.getCdtDat()).isEqualTo("cdtDat");
+        assertThat(data.getCERTIFI()).isEqualTo("certifi");
+        assertThat(data.getValor()).isEqualTo("1000,00");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.response;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxBP49DataResponseTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        ArrayList<TrxBP49Data> movimientos = new ArrayList<>();
+        movimientos.add(new TrxBP49Data());
+        TrxBP49DataResponse response = new TrxBP49DataResponse();
+
+        response.setMovimientos(movimientos);
+
+        assertThat(response.getMovimientos()).isEqualTo(movimientos);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        ArrayList<TrxBP49Data> movimientos = new ArrayList<>();
+        movimientos.add(new TrxBP49Data());
+
+        TrxBP49DataResponse response = new TrxBP49DataResponse(movimientos);
+
+        assertThat(response.getMovimientos()).isEqualTo(movimientos);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        ArrayList<TrxBP49Data> movimientos = new ArrayList<>();
+        movimientos.add(new TrxBP49Data());
+
+        TrxBP49DataResponse response = TrxBP49DataResponse.builder()
+                .movimientos(movimientos)
+                .build();
+
+        assertThat(response.getMovimientos()).isEqualTo(movimientos);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.response;
+
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxBP49ResponseTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        TrxBP49DataResponse data = new TrxBP49DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        Object autorizacion = new Object();
+        Object paginacion = new Object();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of();
+        Object conexion = new Object();
+        TrxBP49Response response = new TrxBP49Response();
+
+        response.setData(data);
+        response.setCabecera(cabecera);
+        response.setAutorizacion(autorizacion);
+        response.setPaginacion(paginacion);
+        response.setAvisos(avisos);
+        response.setErrores(errores);
+        response.setConexion(conexion);
+        response.setOk(true);
+
+        assertThat(response.getData()).isEqualTo(data);
+        assertThat(response.getCabecera()).isEqualTo(cabecera);
+        assertThat(response.getAutorizacion()).isEqualTo(autorizacion);
+        assertThat(response.getPaginacion()).isEqualTo(paginacion);
+        assertThat(response.getAvisos()).isEqualTo(avisos);
+        assertThat(response.getErrores()).isEqualTo(errores);
+        assertThat(response.getConexion()).isEqualTo(conexion);
+        assertThat(response.getOk()).isTrue();
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        TrxBP49DataResponse data = new TrxBP49DataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of();
+
+        TrxBP49Response response = TrxBP49Response.builder()
+                .data(data)
+                .cabecera(cabecera)
+                .autorizacion("auth")
+                .paginacion("page")
+                .avisos(avisos)
+                .errores(errores)
+                .conexion("connection")
+                .ok(true)
+                .build();
+
+        assertThat(response.getData()).isEqualTo(data);
+        assertThat(response.getCabecera()).isEqualTo(cabecera);
+        assertThat(response.getAvisos()).isEqualTo(avisos);
+        assertThat(response.getErrores()).isEqualTo(errores);
+        assertThat(response.getOk()).isTrue();
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SessionTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Session session = new Session();
+
+        session.setUsuario("user");
+        session.setTerminal("terminal");
+        session.setHoraConexion("120000");
+        session.setEntorno("local");
+        session.setPerfil("profile");
+        session.setSucursal("0060");
+        session.setEntidad("0065");
+        session.setDiasRestantesCambioClave("10");
+        session.setFechaContable("2026-01-01");
+        session.setTurno("1");
+
+        assertThat(session.getUsuario()).isEqualTo("user");
+        assertThat(session.getTerminal()).isEqualTo("terminal");
+        assertThat(session.getHoraConexion()).isEqualTo("120000");
+        assertThat(session.getEntorno()).isEqualTo("local");
+        assertThat(session.getPerfil()).isEqualTo("profile");
+        assertThat(session.getSucursal()).isEqualTo("0060");
+        assertThat(session.getEntidad()).isEqualTo("0065");
+        assertThat(session.getDiasRestantesCambioClave()).isEqualTo("10");
+        assertThat(session.getFechaContable()).isEqualTo("2026-01-01");
+        assertThat(session.getTurno()).isEqualTo("1");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Session session = Session.builder()
+                .usuario("user")
+                .terminal("terminal")
+                .horaConexion("120000")
+                .entorno("local")
+                .perfil("profile")
+                .sucursal("0060")
+                .entidad("0065")
+                .diasRestantesCambioClave("10")
+                .fechaContable("2026-01-01")
+                .turno("1")
+                .build();
+
+        assertThat(session.getUsuario()).isEqualTo("user");
+        assertThat(session.getTerminal()).isEqualTo("terminal");
+        assertThat(session.getEntidad()).isEqualTo("0065");
+        assertThat(session.getTurno()).isEqualTo("1");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TrxHeaderTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        Session session = new Session();
+        TrxHeader header = new TrxHeader();
+
+        header.setRutaServicio("route");
+        header.setSesion(session);
+        header.setFuncion("function");
+        header.setSecuencia(1);
+        header.setCanal("60");
+        header.setResultado("OK");
+
+        assertThat(header.getRutaServicio()).isEqualTo("route");
+        assertThat(header.getSesion()).isEqualTo(session);
+        assertThat(header.getFuncion()).isEqualTo("function");
+        assertThat(header.getSecuencia()).isEqualTo(1);
+        assertThat(header.getCanal()).isEqualTo("60");
+        assertThat(header.getResultado()).isEqualTo("OK");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        Session session = new Session();
+
+        TrxHeader header = TrxHeader.builder()
+                .rutaServicio("route")
+                .sesion(session)
+                .funcion("function")
+                .secuencia(1)
+                .canal("60")
+                .resultado("OK")
+                .build();
+
+        assertThat(header.getRutaServicio()).isEqualTo("route");
+        assertThat(header.getSesion()).isEqualTo(session);
+        assertThat(header.getFuncion()).isEqualTo("function");
+        assertThat(header.getSecuencia()).isEqualTo(1);
+        assertThat(header.getCanal()).isEqualTo("60");
+        assertThat(header.getResultado()).isEqualTo("OK");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvDataRequestTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PemfvInfoAdicional info = new PemfvInfoAdicional();
+        PemfvDataRequest request = new PemfvDataRequest();
+
+        request.setInfAdicional(info);
+
+        assertThat(request.getInfAdicional()).isEqualTo(info);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        PemfvInfoAdicional info = new PemfvInfoAdicional();
+
+        PemfvDataRequest request = new PemfvDataRequest(info);
+
+        assertThat(request.getInfAdicional()).isEqualTo(info);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PemfvInfoAdicional info = new PemfvInfoAdicional();
+
+        PemfvDataRequest request = PemfvDataRequest.builder()
+                .infAdicional(info)
+                .build();
+
+        assertThat(request.getInfAdicional()).isEqualTo(info);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvInfoAdicionalTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PemfvInfoAdicional info = new PemfvInfoAdicional();
+
+        info.setNumper("12345678");
+        info.setCanalVenta("60");
+        info.setAutorizoEnvioInformacion(true);
+
+        assertThat(info.getNumper()).isEqualTo("12345678");
+        assertThat(info.getCanalVenta()).isEqualTo("60");
+        assertThat(info.isAutorizoEnvioInformacion()).isTrue();
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        PemfvInfoAdicional info = new PemfvInfoAdicional("12345678", "60", true);
+
+        assertThat(info.getNumper()).isEqualTo("12345678");
+        assertThat(info.getCanalVenta()).isEqualTo("60");
+        assertThat(info.isAutorizoEnvioInformacion()).isTrue();
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PemfvInfoAdicional info = PemfvInfoAdicional.builder()
+                .numper("12345678")
+                .canalVenta("60")
+                .autorizoEnvioInformacion(true)
+                .build();
+
+        assertThat(info.getNumper()).isEqualTo("12345678");
+        assertThat(info.getCanalVenta()).isEqualTo("60");
+        assertThat(info.isAutorizoEnvioInformacion()).isTrue();
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request;
+
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvRequestTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        TrxHeader header = new TrxHeader();
+        PemfvDataRequest data = new PemfvDataRequest();
+        PemfvRequest request = new PemfvRequest();
+
+        request.setCabecera(header);
+        request.setData(data);
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        TrxHeader header = new TrxHeader();
+        PemfvDataRequest data = new PemfvDataRequest();
+
+        PemfvRequest request = new PemfvRequest(header, data);
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        TrxHeader header = new TrxHeader();
+        PemfvDataRequest data = new PemfvDataRequest();
+
+        PemfvRequest request = PemfvRequest.builder()
+                .cabecera(header)
+                .data(data)
+                .build();
+
+        assertThat(request.getCabecera()).isEqualTo(header);
+        assertThat(request.getData()).isEqualTo(data);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvDataResponseTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PemfvPEMFV0AResponse pemfv0A = new PemfvPEMFV0AResponse();
+        PemfvDataResponse response = new PemfvDataResponse();
+
+        response.setPemfv0A(pemfv0A);
+
+        assertThat(response.getPemfv0A()).isEqualTo(pemfv0A);
+    }
+
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        PemfvPEMFV0AResponse pemfv0A = new PemfvPEMFV0AResponse();
+
+        PemfvDataResponse response = new PemfvDataResponse(pemfv0A);
+
+        assertThat(response.getPemfv0A()).isEqualTo(pemfv0A);
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PemfvPEMFV0AResponse pemfv0A = new PemfvPEMFV0AResponse();
+
+        PemfvDataResponse response = PemfvDataResponse.builder()
+                .pemfv0A(pemfv0A)
+                .build();
+
+        assertThat(response.getPemfv0A()).isEqualTo(pemfv0A);
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.response;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvPEMFV0AResponseTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PemfvPEMFV0AResponse response = new PemfvPEMFV0AResponse();
+
+        response.setOFICIAL("OFICIAL");
+        response.setIDNOAPL("IDNOAPL");
+        response.setHONORAR("HONORAR");
+        response.setREPORTA("REPORTA");
+        response.setSALARIO("SALARIO");
+        response.setSECDOC("SECDOC");
+        response.setSITCLN("SITCLN");
+        response.setPRESERV("PRESERV");
+        response.setNROIDT2("NROIDT2");
+        response.setNROIDT3("NROIDT3");
+        response.setPENSION("PENSION");
+        response.setNROIDT1("NROIDT1");
+        response.setACTIND("ACTIND");
+        response.setNUMDOC("NUMDOC");
+        response.setUNINEG("UNINEG");
+        response.setARRIEND("ARRIEND");
+        response.setCANVTA("CANVTA");
+        response.setSUCURAL("SUCURAL");
+        response.setIDCRECO("IDCRECO");
+        response.setPAIRE01("PAIRE01");
+        response.setAUTCOME("AUTCOME");
+        response.setPAIRE02("PAIRE02");
+        response.setPAIRE03("PAIRE03");
+        response.setIDCRS("IDCRS");
+        response.setDONHERE("DONHERE");
+        response.setIDPREPU("IDPREPU");
+        response.setIDFATCA("IDFATCA");
+        response.setOFOTRO("OFOTRO");
+        response.setNUMPER("NUMPER");
+        response.setMESADA("MESADA");
+        response.setTIPDOC("TIPDOC");
+        response.setFECCLN("FECCLN");
+        response.setIDPPEXP("IDPPEXP");
+        response.setIDPEXPO("IDPEXPO");
+
+        assertThat(response.getOFICIAL()).isEqualTo("OFICIAL");
+        assertThat(response.getIDNOAPL()).isEqualTo("IDNOAPL");
+        assertThat(response.getHONORAR()).isEqualTo("HONORAR");
+        assertThat(response.getREPORTA()).isEqualTo("REPORTA");
+        assertThat(response.getSALARIO()).isEqualTo("SALARIO");
+        assertThat(response.getSECDOC()).isEqualTo("SECDOC");
+        assertThat(response.getSITCLN()).isEqualTo("SITCLN");
+        assertThat(response.getPRESERV()).isEqualTo("PRESERV");
+        assertThat(response.getNROIDT2()).isEqualTo("NROIDT2");
+        assertThat(response.getNROIDT3()).isEqualTo("NROIDT3");
+        assertThat(response.getPENSION()).isEqualTo("PENSION");
+        assertThat(response.getNROIDT1()).isEqualTo("NROIDT1");
+        assertThat(response.getACTIND()).isEqualTo("ACTIND");
+        assertThat(response.getNUMDOC()).isEqualTo("NUMDOC");
+        assertThat(response.getUNINEG()).isEqualTo("UNINEG");
+        assertThat(response.getARRIEND()).isEqualTo("ARRIEND");
+        assertThat(response.getCANVTA()).isEqualTo("CANVTA");
+        assertThat(response.getSUCURAL()).isEqualTo("SUCURAL");
+        assertThat(response.getIDCRECO()).isEqualTo("IDCRECO");
+        assertThat(response.getPAIRE01()).isEqualTo("PAIRE01");
+        assertThat(response.getAUTCOME()).isEqualTo("AUTCOME");
+        assertThat(response.getPAIRE02()).isEqualTo("PAIRE02");
+        assertThat(response.getPAIRE03()).isEqualTo("PAIRE03");
+        assertThat(response.getIDCRS()).isEqualTo("IDCRS");
+        assertThat(response.getDONHERE()).isEqualTo("DONHERE");
+        assertThat(response.getIDPREPU()).isEqualTo("IDPREPU");
+        assertThat(response.getIDFATCA()).isEqualTo("IDFATCA");
+        assertThat(response.getOFOTRO()).isEqualTo("OFOTRO");
+        assertThat(response.getNUMPER()).isEqualTo("NUMPER");
+        assertThat(response.getMESADA()).isEqualTo("MESADA");
+        assertThat(response.getTIPDOC()).isEqualTo("TIPDOC");
+        assertThat(response.getFECCLN()).isEqualTo("FECCLN");
+        assertThat(response.getIDPPEXP()).isEqualTo("IDPPEXP");
+        assertThat(response.getIDPEXPO()).isEqualTo("IDPEXPO");
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PemfvPEMFV0AResponse response = PemfvPEMFV0AResponse.builder()
+                .OFICIAL("OFICIAL")
+                .IDNOAPL("IDNOAPL")
+                .HONORAR("HONORAR")
+                .REPORTA("REPORTA")
+                .SALARIO("SALARIO")
+                .SECDOC("SECDOC")
+                .SITCLN("SITCLN")
+                .PRESERV("PRESERV")
+                .NROIDT2("NROIDT2")
+                .NROIDT3("NROIDT3")
+                .PENSION("PENSION")
+                .NROIDT1("NROIDT1")
+                .ACTIND("ACTIND")
+                .NUMDOC("NUMDOC")
+                .UNINEG("UNINEG")
+                .ARRIEND("ARRIEND")
+                .CANVTA("CANVTA")
+                .SUCURAL("SUCURAL")
+                .IDCRECO("IDCRECO")
+                .PAIRE01("PAIRE01")
+                .AUTCOME("AUTCOME")
+                .PAIRE02("PAIRE02")
+                .PAIRE03("PAIRE03")
+                .IDCRS("IDCRS")
+                .DONHERE("DONHERE")
+                .IDPREPU("IDPREPU")
+                .IDFATCA("IDFATCA")
+                .OFOTRO("OFOTRO")
+                .NUMPER("NUMPER")
+                .MESADA("MESADA")
+                .TIPDOC("TIPDOC")
+                .FECCLN("FECCLN")
+                .IDPPEXP("IDPPEXP")
+                .IDPEXPO("IDPEXPO")
+                .build();
+
+        assertThat(response.getOFICIAL()).isEqualTo("OFICIAL");
+        assertThat(response.getIDPEXPO()).isEqualTo("IDPEXPO");
+    }
+}
+
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.response;
+
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.response.ErrorTrxDTO;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class PemfvResponseTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        PemfvDataResponse data = new PemfvDataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        Object autorizacion = new Object();
+        Object paginacion = new Object();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of();
+        Object conexion = new Object();
+        PemfvResponse response = new PemfvResponse();
+
+        response.setData(data);
+        response.setCabecera(cabecera);
+        response.setAutorizacion(autorizacion);
+        response.setPaginacion(paginacion);
+        response.setAvisos(avisos);
+        response.setErrores(errores);
+        response.setConexion(conexion);
+        response.setOk(true);
+
+        assertThat(response.getData()).isEqualTo(data);
+        assertThat(response.getCabecera()).isEqualTo(cabecera);
+        assertThat(response.getAutorizacion()).isEqualTo(autorizacion);
+        assertThat(response.getPaginacion()).isEqualTo(paginacion);
+        assertThat(response.getAvisos()).isEqualTo(avisos);
+        assertThat(response.getErrores()).isEqualTo(errores);
+        assertThat(response.getConexion()).isEqualTo(conexion);
+        assertThat(response.getOk()).isTrue();
+    }
+
+    @Test
+    void shouldCreateWithBuilder() {
+        PemfvDataResponse data = new PemfvDataResponse();
+        TrxHeader cabecera = new TrxHeader();
+        List<Object> avisos = List.of("aviso");
+        List<ErrorTrxDTO> errores = List.of();
+
+        PemfvResponse response = PemfvResponse.builder()
+                .data(data)
+                .cabecera(cabecera)
+                .autorizacion("auth")
+                .paginacion("page")
+                .avisos(avisos)
+                .errores(errores)
+                .conexion("connection")
+                .ok(true)
+                .build();
+
+        assertThat(response.getData()).isEqualTo(data);
+        assertThat(response.getCabecera()).isEqualTo(cabecera);
+        assertThat(response.getAvisos()).isEqualTo(avisos);
+        assertThat(response.getErrores()).isEqualTo(errores);
+        assertThat(response.getOk()).isTrue();
+    }
+}
+
 package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.integration;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-/**
- * params from properties.yml
- */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ApiEntry {
-    private String integrationType;
-    private String host;
-    private String port;
-    private boolean https;
-    private String endpoint;
-    private Integer timeOutConn;
-    private Integer timeOutRead;
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ConsentStatusInfo {
-    @NotNull(message = "{errors.general.null}")
-    private String statusCode;
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PartiesConsentsRequest {
-    @Valid
-    @NotNull(message = "{errors.general.null}")
-    private ConsentStatusInfo statusInfo;
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AmountRangeRequest {
-    
-    private String authorization;
-    private String xSantanderClientId;
-    private String productId;
-
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AmountRangeResponse {
-
-    private MaxAndMinAmountDto minimunAmount;
-    private MaxAndMinAmountDto maximumAmount;
-    
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class MaxAndMinAmountDto {
-
-    private String amount;
-    private String currency;
-
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TermDepositParametersDTO {
-    private String code;
-    private String content;
-    private String description;
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TermDepositParametersRequest {
-    private String productId;
-    private String authorization;
-    private String xSantanderClientId;
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TermDepositParametersResponse {
-    private List<TermDepositParametersDTO> parameters;
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.request;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TermDepositTransactionRequest {
-    private String authorization;
-    private String client_id;
-    private String deposit_id;
-    private String placement_id;
-    private Integer type_code;
-    private String credit_debit_indicator;
-    private String start_date;
-    private String end_date;
-    private Integer minim_amount;
-    private Integer maxim_amount;
-    private String offset;
-    private String limit;
-
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AmountDTO {
-    private String amount;
-    private String currency;
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BalanceResultDTO {
-    private AmountDTO amount;
-    private String creditDebitIndicator;
-
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BalanceTypeDTO {
-    private String typeCode;
-    private String typeDescription;
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class HrefDTO {
-    private String href;
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LinksDTO {
-    private HrefDTO _first;
-    private HrefDTO _prev;
-    private HrefDTO _next;
-
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ListTransactionDTO {
-    //private String transactionId;
-   // private String creationDate;
-    private String valueDate;
-    private AmountDTO amount;
-    //private String creditDebitIndicator;
-    //private BalanceResultDTO balanceResult;
-    private String description;
-    //private String processedDate;
-    //private String accountingReference;
-    //private String localReferenceCode;
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response;
-
-import java.util.ArrayList;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TermDepositTransactionResponse {
-    //private BalanceTypeDTO balanceType;
-    private ArrayList<ListTransactionDTO> listTransactions;
-    //private LinksDTO _linksDTOResponse;
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils;
-
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.service.BanksService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.service.ProductDirectoryService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.service.TermDepositParametersService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request.PartiesConsentsRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error.ErrorService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-/**
- * Handle all Products utils
- */
-@Component
-@RequiredArgsConstructor
-public class DataConsentManagementUtils {
-    
-    final RegexUtils regexUtils;
-    final ErrorService errorService;
-    final ProductDirectoryService productDirectoryService;
-    final TermDepositParametersService termDepositParametersService;
-    final BanksService banksService;
-
-    @Value("${params.commons.productCode}")
-    private String productCode;
-    @Value("${params.commons.subproductCode}")
-    private String subproductCode;
-
-    @Value("#{'${params.frequencies}'.split(',')}")
-    private String [] validFrecuencies;
-    @Value("#{'${params.settlements}'.split(',')}")
-    private String [] validSettlements;
-    @Value("${params.condition-codes}")
-    private String SETTLEMENT_CONDITON_CODES;
-    @Value("${params.commons.bankId}")
-    private String bankId;
-    @Value("${params.commons.centerId}")
-    private String centerId;
-
-    private String PARTY_ID_FIELDNAME = "party_id";
-    private String STATUS_CODE_FIELDNAME = "statusInfo.statusCode";
-
-    public void partiesConsentInputValidation(String partyId, PartiesConsentsRequest partiesConsentsRequest){
-        //Party Id validation
-        errorService.isBlank(partyId,PARTY_ID_FIELDNAME);
-        errorService.isNull(partyId,PARTY_ID_FIELDNAME);
-        regexUtils.validateRegex("party_id_format",partyId,PARTY_ID_FIELDNAME);
-        regexUtils.validateRegex("party_id_length",partyId,PARTY_ID_FIELDNAME);
-
-        //Request Validation
-        errorService.isBlank(partiesConsentsRequest.getStatusInfo().getStatusCode(),STATUS_CODE_FIELDNAME);
-        regexUtils.validateRegex("status_code_format",partiesConsentsRequest.getStatusInfo().getStatusCode(),STATUS_CODE_FIELDNAME);
-        regexUtils.validateRegex("status_code_length",partiesConsentsRequest.getStatusInfo().getStatusCode(),STATUS_CODE_FIELDNAME);
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ApiEntryTest {
+
+    @Test
+    void shouldCreateWithNoArgsConstructorAndSetters() {
+        ApiEntry apiEntry = new ApiEntry();
+
+        apiEntry.setIntegrationType("sanba");
+        apiEntry.setHost("localhost");
+        apiEntry.setPort("8080");
+        apiEntry.setHttps(true);
+        apiEntry.setEndpoint("/service");
+        apiEntry.setTimeOutConn(1000);
+        apiEntry.setTimeOutRead(2000);
+
+        assertThat(apiEntry.getIntegrationType()).isEqualTo("sanba");
+        assertThat(apiEntry.getHost()).isEqualTo("localhost");
+        assertThat(apiEntry.getPort()).isEqualTo("8080");
+        assertThat(apiEntry.isHttps()).isTrue();
+        assertThat(apiEntry.getEndpoint()).isEqualTo("/service");
+        assertThat(apiEntry.getTimeOutConn()).isEqualTo(1000);
+        assertThat(apiEntry.getTimeOutRead()).isEqualTo(2000);
     }
 
+    @Test
+    void shouldCreateWithAllArgsConstructor() {
+        ApiEntry apiEntry = new ApiEntry("sanba", "localhost", "8080", true, "/service", 1000, 2000);
 
-    public static String format15DigitNumber(String number){
-
-        if(number == null || number.isBlank() || number.isEmpty()) return "0,00";
-
-        String noZerosNumber = number.replaceFirst("^0+(?!$)", "");
-
-        if(noZerosNumber.length() == 1) return "0,0" + noZerosNumber;
-        if(noZerosNumber.length() == 2) return "0," + noZerosNumber;        
-
-        return noZerosNumber.substring(0, noZerosNumber.length()-2) + "," + noZerosNumber.substring(noZerosNumber.length() - 2, noZerosNumber.length());
+        assertThat(apiEntry.getIntegrationType()).isEqualTo("sanba");
+        assertThat(apiEntry.getHost()).isEqualTo("localhost");
+        assertThat(apiEntry.getPort()).isEqualTo("8080");
+        assertThat(apiEntry.isHttps()).isTrue();
+        assertThat(apiEntry.getEndpoint()).isEqualTo("/service");
+        assertThat(apiEntry.getTimeOutConn()).isEqualTo(1000);
+        assertThat(apiEntry.getTimeOutRead()).isEqualTo(2000);
     }
 
-    public static String removeLeadingZeros(String number){
+    @Test
+    void shouldValidateEqualsHashCodeAndToString() {
+        ApiEntry apiEntry = new ApiEntry("sanba", "localhost", "8080", true, "/service", 1000, 2000);
+        ApiEntry sameApiEntry = new ApiEntry("sanba", "localhost", "8080", true, "/service", 1000, 2000);
 
-        if(number == null || number.isBlank() || number.isEmpty()) return "0";
-
-        return number.replaceFirst("^0+(?!$)", "");
-
-    }
-
-}//class closure
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils;
-
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.HashMap;
-
-@Data
-@Configuration
-@ConfigurationProperties(prefix = "mov")
-public class MovementConceptUtils {
-    private HashMap<String, String> type;
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils;
-
-
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
-
-import lombok.Data;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-@Data
-@Configuration
-@ConfigurationProperties(prefix = "regex")
-public class RegexUtils {
-
-    @Value("${params.appName}")
-    private String MS_NAME;
-    @Value("${params.appVersion}")
-    private String MS_VERSION;
-    @Value("${errors.level}")
-    private String LEVEL;
-    @Value("${regex.error.code}")
-    private String CODE;
-
-    private HashMap<String, String> type;
-    
-
-    public void validateRegex(String regexType, String value, String fieldName) {
-
-        String regularExpression = type.get(regexType);
-        String message = type.get(regexType + "_error") != null ? type.get(regexType + "_error") : "Invalid format";
-
-        var pattern = Pattern.compile(regularExpression);
-        var matcher = pattern.matcher(value);
-        boolean match = false;
-        while (matcher.find()) {
-            match = true;
-        }
-
-        if (!match) {
-
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code(MS_NAME + "-" + CODE)
-                    .level(LEVEL)
-                    .message("'" + fieldName + "': " + message)
-                    .description(MS_NAME.toLowerCase() + "-" + MS_VERSION + ": '" + fieldName + "': " + message)
-                    .build();
-            throw new ServiceException(HttpStatus.BAD_REQUEST, errorDTO);
-        }
-
-    }
-
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error;
-
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-
-import java.util.HashMap;
-
-@Service
-@Data
-@ConfigurationProperties(prefix = "errors")
-@RequiredArgsConstructor
-public class ErrorService {
-
-
-    private String msName;
-    private String msVersion;
-    private String level;
-    private String functional;
-    private String technical;
-    private HashMap<String, String> general;
-
-    @Value("${errors.general.invalid_value}")
-    public String INVALID_VALUE;
-
-    @Value(("${errors.general.blank_data}"))
-    public String BLANK_DATA;
-    @Value(("${errors.general.null}"))
-    public String NULL_DATA;
-
-    public ServiceException serviceExceptionBuilder(HttpStatus status, String message, ErrorType type) {
-
-        String errorType = type == ErrorType.FUNCTIONAL ? functional : technical;
-
-        var error = ErrorDTO.builder()
-                .code(msName + "-" + errorType + "-9" + status.value())
-                .level(level)
-                .message(message)
-                .description(msName.toLowerCase() + "-" + msVersion + ": " + message)
-                .build();
-
-        return new ServiceException(status, error);
-    }
-
-    public ErrorDTO errorBuilder(HttpStatus status, String message, ErrorType type) {
-
-        String errorType = type == ErrorType.FUNCTIONAL ? functional : technical;
-
-        return ErrorDTO.builder()
-                .code(msName + "-" + errorType + "-9" + status.value())
-                .level(level)
-                .message(message)
-                .description(msName.toLowerCase() + "-" + msVersion + ": " + message)
-                .build();
-
-    }
-
-    public void isBlank(String value, String fieldName) {
-        if (value.isBlank()) {
-            var message = "'" + fieldName + "': " + BLANK_DATA;
-
-            throw serviceExceptionBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-        }
-    }
-
-    public void isNull(String value, String fieldName) {
-        if (value == null) {
-            var message = "'" + fieldName + "': " + NULL_DATA;
-
-            throw serviceExceptionBuilder(HttpStatus.BAD_REQUEST, message, ErrorType.FUNCTIONAL);
-        }
+        assertThat(apiEntry)
+                .isEqualTo(sameApiEntry)
+                .hasSameHashCodeAs(sameApiEntry);
+        assertThat(apiEntry.toString()).contains("integrationType", "host", "endpoint");
     }
 }
 
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error;
-
-public enum ErrorType {
-    FUNCTIONAL,
-    TECHNICAL;
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception;
-
-
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceExceptionClient;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorCatalog;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorResponseDTO;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestHeaderException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author Freddy Paredes
- * This class handle all Exceptions
- */
-
-@Slf4j
-@ControllerAdvice
-public class GlobalExceptionHandler {
-
-    @Value("${params.app-name}")
-    private String MS_NAME;
-
-    private static final String LEVEL = "error";
-    private static final String PF400 = "-P-F-9400";
-    private static final String NOTSPECIFIED = " not specified";
-
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponseDTO> handleException(Exception e) {
-
-        log.info("Error type: {}", e.getClass().getName());
-        log.info("Error: {}", e.getMessage());
-
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-T-9409")
-                .message("Unhandled exception")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Unhandled exception")
-                .build());
-        return buildResponseEntity(errors, HttpStatus.CONFLICT);
-    }//method closure
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<ErrorDTO> errors = new ArrayList<>();
-
-
-        result.getAllErrors().forEach(error -> {
-            String field = ((FieldError) error).getField();
-            log.info(error.toString());
-
-            String errorMessage = "'" + field + "': " + error.getDefaultMessage();
-
-            errors.add(ErrorDTO.builder()
-                    .code(MS_NAME + PF400)
-                    .level(LEVEL)
-                    .message(errorMessage)
-                    .description(MS_NAME.toLowerCase() + "-api-services-v5: " + errorMessage).build());
-        });
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(NoResourceFoundException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-F-9404")
-                .message("Not Found")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Not Found")
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingServletRequestParameterException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF400)
-                .message("Required query parameter " + ex.getParameterName() + NOTSPECIFIED)
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Required query parameter " + ex.getParameterName() + NOTSPECIFIED)
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(IllegalArgumentException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF400)
-                .message(ex.getMessage())
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Bad request")
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MissingRequestHeaderException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF400)
-                .message("Required header " + ex.getHeaderName() + NOTSPECIFIED)
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Required header " + ex.getHeaderName() + NOTSPECIFIED)
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Main exception hanlder
-     * @param ex Exception
-     * @param request Web Request
-     * @return Structured Santander Exception format
-     */
-    @ExceptionHandler({ ServiceException.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceException ex, WebRequest request) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ex.getError());
-
-        return buildResponseEntity(errors, ex.getCode());
-    }
-
-    @ExceptionHandler({ ServiceExceptionClient.class })
-    public ResponseEntity<ErrorResponseDTO> handleSchemaException(ServiceExceptionClient ex, WebRequest request) {
-        log.error("ERRORRS {}", ex.getErrorResponseDTO());
-        return buildResponseEntity2(ex.getErrorResponseDTO(), HttpStatus.BAD_REQUEST);
-    }
-
-
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity2(ErrorResponseDTO newErrorDTO, HttpStatus status) {
-
-        newErrorDTO.getErrors().forEach( error-> {
-                    error.setCode(error.getCode().replaceAll(ErrorCatalog.MS_NAME,MS_NAME));
-                    error.setDescription(error.getDescription().replaceAll(ErrorCatalog.MS_NAME,MS_NAME.toLowerCase()));
-                    log.error(error.getMessage());
-                }
-        );
-        return new ResponseEntity<>(newErrorDTO, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
-
-/**
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
-
-        ErrorResponseDTO responseError = new ErrorResponseDTO();
-        responseError.setErrors(errors);
-        if(errors != null){
-            errors.forEach( error-> {
-                        error.setCode(error.getCode().replaceAll(ErrorCatalog.MS_NAME,MS_NAME));
-                        error.setDescription(error.getDescription().replaceAll(ErrorCatalog.MS_NAME,MS_NAME.toLowerCase()));
-                        log.error(error.getMessage());
-                    }
-            );
-        }
-        return new ResponseEntity<>(responseError, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
-*/
-    public ResponseEntity<ErrorResponseDTO> buildResponseEntity(List<ErrorDTO> errors, HttpStatus status) {
-
-        ErrorResponseDTO responseError = new ErrorResponseDTO();
-        responseError.setErrors(errors);
-        if (errors != null) {
-            // 1. REGISTRO SEGURO (Logging interno para diagnóstico de devs)
-            // Registramos todos los detalles originales ANTES de limpiarlos.
-            log.error("Se detectaron {} errores técnicos detallados:", errors.size());
-            errors.forEach(error -> 
-                log.error("Código de Error Técnico: {}, Descripción Técnica Detallada: {}", error.getCode(), error.getDescription())
-            );
-        }
-         // 2. CREACIÓN DE RESPUESTA DESDE CERO (Interrupción de flujo)
-         // No usamos 'responseError.setErrors(sanitizedErrors)' sobre un objeto que tocó datos viejos.
-         ErrorResponseDTO cleanResponse = new ErrorResponseDTO();
-         List<ErrorDTO> externalErrors = new ArrayList<>();
-
-         if (errors != null) {
-             for (ErrorDTO original : errors) {
-                 // Creamos un DTO nuevo por cada error, sin copiar referencias sospechosas
-                 ErrorDTO safeDto = new ErrorDTO();
-                 
-                 // Usamos constantes o valores fijos para la descripción externa
-                 // Esto garantiza a Fortify que el 'Sink' no recibe el 'Source' original
-                 safeDto.setCode(original.getCode()); 
-                 safeDto.setDescription("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-                 
-                 externalErrors.add(safeDto);
-             }
-         }
-
-         cleanResponse.setErrors(externalErrors);
-
-         // 3. RETORNO SEGURO
-         // Al usar 'cleanResponse', que solo contiene datos generados localmente ("hardcoded"),
-         // Fortify debería validar la línea como segura.
-         return new ResponseEntity<>(cleanResponse, status != null ? status : HttpStatus.BAD_REQUEST);
-    }//method closure
-    
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(HttpMessageNotReadableException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + PF400)
-                .message("Invalid body structure")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Invalid body structure")
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponseDTO> handleMethodNotAllowedExceptions(HttpRequestMethodNotSupportedException ex) {
-        List<ErrorDTO> errors = new ArrayList<>();
-        errors.add(ErrorDTO.builder()
-                .code(MS_NAME + "-P-F-9405")
-                .message("Method not allowed")
-                .level(LEVEL)
-                .description(MS_NAME.toLowerCase() + "-api-services-v5: Method not allowed")
-                .build());
-
-        return buildResponseEntity(errors, HttpStatus.METHOD_NOT_ALLOWED);
-    }
-}//class closure
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.mappers;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.response.TrxBP49Response;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response.AmountDTO;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response.ListTransactionDTO;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdeposittransaction.response.TermDepositTransactionResponse;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error.ErrorService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils.MovementConceptUtils;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils.RegexUtils;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils.DataConsentManagementUtils;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import java.util.ArrayList;
-
-@Component
-@RequiredArgsConstructor
-public class TermDepositTransactionMappers {
-    final DataConsentManagementUtils dataConsentManagementUtils;
-    final RegexUtils regexUtils;
-    final ErrorService errorService;
-    final MovementConceptUtils movementConceptUtils;
-    public TermDepositTransactionResponse transactionResponse(TrxBP49Response trxBP49Response){
-        TermDepositTransactionResponse response = new TermDepositTransactionResponse();
-        ArrayList<ListTransactionDTO> listTransactions = new ArrayList<>();
-
-      trxBP49Response.getData().getMovimientos().forEach(motion -> {
-          ListTransactionDTO listTrasaction= new ListTransactionDTO();
-            AmountDTO amount = new AmountDTO();
-            amount.setCurrency("COP");
-            String valueEntry = motion.getValor();
-
-            String valueFinal;
-            if (valueEntry.contains("-")){
-                valueFinal = "-" + DataConsentManagementUtils.format15DigitNumber(valueEntry.replace("-",""));
-            }else{
-                valueFinal = DataConsentManagementUtils.format15DigitNumber(valueEntry);
-            }
-            amount.setAmount(valueFinal);
-            listTrasaction.setAmount(amount);
-            String date = motion.getFecha();
-            listTrasaction.setValueDate(date);
-
-            listTrasaction.setDescription(setConcept(motion.getConcepto()));
-            listTransactions.add(listTrasaction);
-            response.setListTransactions(listTransactions);
-        });
-
-        return response;
-    }
-    private String setConcept( String conceptCode){
-        String conceptDescription;
-        if (movementConceptUtils.getType().containsKey(conceptCode)) {
-            conceptDescription = movementConceptUtils.getType().get(conceptCode);
-        } else {
-            conceptDescription = "OTROS";
-        }
-        return  conceptDescription;
-    }
-}
-
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.observability;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.stereotype.Component;
-
-@Component("externalApis") 
-public class ExternalApisHealthIndicator implements HealthIndicator{
-	private final ExternalApisHealthProperties properties;
-	private final HttpClient httpClient;
-
-	public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
-	    this.properties = properties;
-	    this.httpClient = HttpClient.newBuilder()
-	            .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
-	            .build();
-	}
-
-	@Override
-	public Health health() {
-	    Map<String, Object> details = new LinkedHashMap<>(properties.getChecks().size());
-	    boolean allCriticalUp = true;
-
-	    for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
-	        ApiResult result = checkApi(api);
-
-	        Map<String, Object> apiDetail = new LinkedHashMap<>(5);
-	        apiDetail.put("status", result.up ? "UP" : "DOWN");
-	        apiDetail.put("url", api.getUrl());
-	        apiDetail.put("critical", api.isCritical());
-
-	        if (result.httpStatus != null) {
-	            apiDetail.put("httpStatus", result.httpStatus);
-	        }
-	        if (result.error != null) {
-	            apiDetail.put("error", result.error);
-	        }
-
-	        details.put(api.getName(), apiDetail);
-
-	        if (api.isCritical() && !result.up) {
-	            allCriticalUp = false;
-	        }
-	    }
-
-	    return allCriticalUp
-	            ? Health.up().withDetails(details).build()
-	            : Health.down().withDetails(details).build();
-	}
-
-	private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
-	    try {
-	        HttpRequest request = HttpRequest.newBuilder()
-	                .uri(URI.create(api.getUrl()))
-	                .timeout(Duration.ofMillis(properties.getTimeoutMs()))
-	                .GET()
-	                .build();
-
-	        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-
-	        int status = response.statusCode();
-	        boolean up = isAcceptedStatus(status,api);
-
-	        return new ApiResult(up, status, null);
-	    } catch (InterruptedException e) {
-	    	Thread.currentThread().interrupt();
-	        return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
-	    }catch (IOException e) {
-	        return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
-	    }
-	}
-
-	private static class ApiResult {
-	    private final boolean up;
-	    private final Integer httpStatus;
-	    private final String error;
-
-	    private ApiResult(boolean up, Integer httpStatus, String error) {
-	        this.up = up;
-	        this.httpStatus = httpStatus;
-	        this.error = error;
-	    }
-
-		public boolean isUp() {
-			return up;
-		}
-
-		public Integer getHttpStatus() {
-			return httpStatus;
-		}
-
-		public String getError() {
-			return error;
-		}
-	    
-	}
-	
-	private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
-		if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
-			return api.getAcceptedStatuses().contains(status);
-		}
-		return status >= 200 && status < 300;
-	}
-
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.observability;
-
-import java.util.ArrayList; import java.util.List;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-@ConfigurationProperties(prefix = "observability.external-apis")
-public class ExternalApisHealthProperties {
-
-	private int timeoutMs = 2000;
-	private List<ApiCheck> checks = new ArrayList<>();
-
-	public int getTimeoutMs() {
-	    return timeoutMs;
-	}
-
-	public void setTimeoutMs(int timeoutMs) {
-	    this.timeoutMs = timeoutMs;
-	}
-
-	public List<ApiCheck> getChecks() {
-	    return checks;
-	}
-
-	public void setChecks(List<ApiCheck> checks) {
-	    this.checks = checks;
-	}
-
-	public static class ApiCheck {
-	    private String name;
-	    private String url;
-	    private boolean critical = true;
-	    private List<Integer> acceptedStatuses;
-
-	    public String getName() {
-	        return name;
-	    }
-
-	    public void setName(String name) {
-	        this.name = name;
-	    }
-
-	    public String getUrl() {
-	        return url;
-	    }
-
-	    public void setUrl(String url) {
-	        this.url = url;
-	    }
-
-	    public boolean isCritical() {
-	        return critical;
-	    }
-
-	    public void setCritical(boolean critical) {
-	        this.critical = critical;
-	    }
-
-		public List<Integer> getAcceptedStatuses() {
-			return acceptedStatuses;
-		}
-
-		public void setAcceptedStatuses(List<Integer> acceptedStatuses) {
-			this.acceptedStatuses = acceptedStatuses;
-		}
-	    
-	}
-}
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.service.impl;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.service.TrxSanbaService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request.PemfvDataRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request.PemfvInfoAdicional;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request.PemfvRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.response.PemfvResponse;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request.PartiesConsentsRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error.ErrorService;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.mappers.TermDepositTransactionMappers;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.service.DataConsentManagementService;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils.RegexUtils;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.utils.DataConsentManagementUtils;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.utils.ClientUtils;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-@Service
-@RequiredArgsConstructor
-
-public class DataConsentManagementServiceImpl implements DataConsentManagementService {
-
-    final TrxSanbaService trxSanbaService;
-
-    final DataConsentManagementUtils dataConsentManagementUtils;
-    final RegexUtils regexUtils;
-    final ErrorService errorService;
-    final TermDepositTransactionMappers transactionMappers;
-    @Value("${service-route-trx.PEMFV}")
-    private String PEMFV_SERVICE_ROUTE;
-
-    public void getPartiesConsent(String partyId, PartiesConsentsRequest partiesConsentsRequest) {
-        dataConsentManagementUtils.partiesConsentInputValidation(partyId,partiesConsentsRequest);
-        trxPEMFVcall(partyId,partiesConsentsRequest);
-    }
-
-    public PemfvResponse trxPEMFVcall(String partyId,PartiesConsentsRequest partiesConsentsRequest){
-        PemfvRequest request = new PemfvRequest(ClientUtils.buildHeader(PEMFV_SERVICE_ROUTE));
-        var trxPemfvData = new PemfvDataRequest();
-        var pemfvInfoAdicional = new PemfvInfoAdicional();
-        pemfvInfoAdicional.setNumper(partyId);
-        pemfvInfoAdicional.setCanalVenta("ODS");
-        if (partiesConsentsRequest.getStatusInfo().getStatusCode().equals("S")){
-            pemfvInfoAdicional.setAutorizoEnvioInformacion(true);
-        }else if (partiesConsentsRequest.getStatusInfo().getStatusCode().equals("N")){
-            pemfvInfoAdicional.setAutorizoEnvioInformacion(false);
-        }
-        trxPemfvData.setInfAdicional(pemfvInfoAdicional);
-        request.setData(trxPemfvData);
-        return trxSanbaService.trxPemfv(request);
-    }
-}

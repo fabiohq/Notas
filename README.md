@@ -1,7 +1,7 @@
-Te falta declarar el objeto request.
-Pon esto arriba de los tests de trxBP49:
+Sí. Para PEMFV también debes crear la variable de clase.
+Arriba del test:
 Java
-private TrxBP49Request request;
+private PemfvRequest pemfvRequest;
 y en el @BeforeEach:
 Java
 @BeforeEach
@@ -15,20 +15,13 @@ void setUp() {
 
     request = new TrxBP49Request();
     request.setCabecera(header);
+
+    pemfvRequest = new PemfvRequest();
+    pemfvRequest.setCabecera(header);
 }
-También necesitas importar:
-Java
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.request.TrxBP49Request;
-Y para PEMFV:
-Java
-private PemfvRequest pemfvRequest;
-en el mismo setUp():
-Java
-pemfvRequest = new PemfvRequest();
-pemfvRequest.setCabecera(header);
-Import:
+Imports:
 Java
 import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request.PemfvRequest;
-Con eso ya compilan todos los tests que te pasé.
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.trx.generic.TrxPersonHeader;
+Con eso desaparece ese error.

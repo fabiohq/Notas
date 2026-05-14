@@ -1,268 +1,182 @@
-@Test
-void handleMethodArgumentNotValidShouldHandleMultipleErrors() {
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    BindingResult bindingResult = mock(BindingResult.class);
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.stereotype.Component;
 
-    FieldError fieldError1 =
-            new FieldError("object", "field1", "invalid1");
+@Component("externalApis") 
+public class ExternalApisHealthIndicator implements HealthIndicator{
+	private final ExternalApisHealthProperties properties;
+	private final HttpClient httpClient;
 
-    FieldError fieldError2 =
-            new FieldError("object", "field2", "invalid2");
+	public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
+	    this.properties = properties;
+	    this.httpClient = HttpClient.newBuilder()
+	            .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
+	            .build();
+	}
 
-    when(bindingResult.getAllErrors())
-            .thenReturn(List.of(fieldError1, fieldError2));
+	@Override
+	public Health health() {
+	    Map<String, Object> details = new LinkedHashMap<>(properties.getChecks().size());
+	    boolean allCriticalUp = true;
 
-    MethodArgumentNotValidException exception =
-            new MethodArgumentNotValidException(
-                    mock(org.springframework.core.MethodParameter.class),
-                    bindingResult
-            );
+	    for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
+	        ApiResult result = checkApi(api);
 
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleValidationExceptions(exception);
+	        Map<String, Object> apiDetail = new LinkedHashMap<>(5);
+	        apiDetail.put("status", result.up ? "UP" : "DOWN");
+	        apiDetail.put("url", api.getUrl());
+	        apiDetail.put("critical", api.isCritical());
 
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
+	        if (result.httpStatus != null) {
+	            apiDetail.put("httpStatus", result.httpStatus);
+	        }
+	        if (result.error != null) {
+	            apiDetail.put("error", result.error);
+	        }
 
-    assertThat(response.getBody()).isNotNull();
+	        details.put(api.getName(), apiDetail);
 
-    assertThat(response.getBody().getErrors())
-            .hasSize(2);
+	        if (api.isCritical() && !result.up) {
+	            allCriticalUp = false;
+	        }
+	    }
+
+	    return allCriticalUp
+	            ? Health.up().withDetails(details).build()
+	            : Health.down().withDetails(details).build();
+	}
+
+	private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
+	    try {
+	        HttpRequest request = HttpRequest.newBuilder()
+	                .uri(URI.create(api.getUrl()))
+	                .timeout(Duration.ofMillis(properties.getTimeoutMs()))
+	                .GET()
+	                .build();
+
+	        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+
+	        int status = response.statusCode();
+	        boolean up = isAcceptedStatus(status,api);
+
+	        return new ApiResult(up, status, null);
+	    } catch (InterruptedException e) {
+	    	Thread.currentThread().interrupt();
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
+	    }catch (IOException e) {
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
+	    }
+	}
+
+	private static class ApiResult {
+	    private final boolean up;
+	    private final Integer httpStatus;
+	    private final String error;
+
+	    private ApiResult(boolean up, Integer httpStatus, String error) {
+	        this.up = up;
+	        this.httpStatus = httpStatus;
+	        this.error = error;
+	    }
+
+		public boolean isUp() {
+			return up;
+		}
+
+		public Integer getHttpStatus() {
+			return httpStatus;
+		}
+
+		public String getError() {
+			return error;
+		}
+	    
+	}
+	
+	private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
+		if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
+			return api.getAcceptedStatuses().contains(status);
+		}
+		return status >= 200 && status < 300;
+	}
+
 }
 
-@Test
-void handleServiceExceptionClientShouldReturnBadRequest() {
 
-    ErrorDTO error = ErrorDTO.builder()
-            .code("MS_NAME-P-F-9400")
-            .description("ms_name-description")
-            .message("client error")
-            .build();
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.observability;
 
-    ErrorResponseDTO dto = new ErrorResponseDTO();
-    dto.setErrors(List.of(error));
+import java.util.ArrayList; import java.util.List;
 
-    ServiceExceptionClient exception =
-            mock(ServiceExceptionClient.class);
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-    when(exception.getErrorResponseDTO()).thenReturn(dto);
+@ConfigurationProperties(prefix = "observability.external-apis")
+public class ExternalApisHealthProperties {
 
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleSchemaException(
-                    exception,
-                    mock(WebRequest.class)
-            );
+	private int timeoutMs = 2000;
+	private List<ApiCheck> checks = new ArrayList<>();
 
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
+	public int getTimeoutMs() {
+	    return timeoutMs;
+	}
 
-    assertThat(response.getBody()).isNotNull();
+	public void setTimeoutMs(int timeoutMs) {
+	    this.timeoutMs = timeoutMs;
+	}
 
-    assertThat(response.getBody().getErrors())
-            .hasSize(1);
-}
+	public List<ApiCheck> getChecks() {
+	    return checks;
+	}
 
-@Test
-void handleServiceExceptionShouldReturnCustomStatus() {
+	public void setChecks(List<ApiCheck> checks) {
+	    this.checks = checks;
+	}
 
-    ErrorDTO error = ErrorDTO.builder()
-            .code("CODE")
-            .description("description")
-            .message("message")
-            .build();
+	public static class ApiCheck {
+	    private String name;
+	    private String url;
+	    private boolean critical = true;
+	    private List<Integer> acceptedStatuses;
 
-    ServiceException exception =
-            new ServiceException(HttpStatus.NOT_FOUND, error);
+	    public String getName() {
+	        return name;
+	    }
 
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleSchemaException(
-                    exception,
-                    mock(WebRequest.class)
-            );
+	    public void setName(String name) {
+	        this.name = name;
+	    }
 
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.NOT_FOUND);
+	    public String getUrl() {
+	        return url;
+	    }
 
-    assertThat(response.getBody()).isNotNull();
-}
+	    public void setUrl(String url) {
+	        this.url = url;
+	    }
 
-@Test
-void buildResponseEntityShouldHandleNullErrors() {
+	    public boolean isCritical() {
+	        return critical;
+	    }
 
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.buildResponseEntity(
-                    null,
-                    HttpStatus.BAD_REQUEST
-            );
+	    public void setCritical(boolean critical) {
+	        this.critical = critical;
+	    }
 
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
+		public List<Integer> getAcceptedStatuses() {
+			return acceptedStatuses;
+		}
 
-    assertThat(response.getBody()).isNotNull();
-
-    assertThat(response.getBody().getErrors())
-            .isNull();
-}
-
-@Test
-void buildResponseEntityShouldUseDefaultStatusWhenNull() {
-
-    ErrorDTO error = ErrorDTO.builder()
-            .code("CODE")
-            .description("description")
-            .build();
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.buildResponseEntity(
-                    List.of(error),
-                    null
-            );
-
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
-}
-
-@Test
-void buildResponseEntity2ShouldHandleMultipleErrors() {
-
-    ErrorDTO error1 = ErrorDTO.builder()
-            .code("MS_NAME-001")
-            .description("ms_name-description1")
-            .message("message1")
-            .build();
-
-    ErrorDTO error2 = ErrorDTO.builder()
-            .code("MS_NAME-002")
-            .description("ms_name-description2")
-            .message("message2")
-            .build();
-
-    ErrorResponseDTO dto = new ErrorResponseDTO();
-    dto.setErrors(List.of(error1, error2));
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.buildResponseEntity2(
-                    dto,
-                    HttpStatus.BAD_REQUEST
-            );
-
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
-
-    assertThat(response.getBody()).isNotNull();
-
-    assertThat(response.getBody().getErrors())
-            .hasSize(2);
-}
-
-@Test
-void handleExceptionShouldReturnConflictStatus() {
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleException(
-                    new RuntimeException("unexpected")
-            );
-
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.CONFLICT);
-}
-
-@Test
-void handleMissingServletRequestParameterShouldContainParameterName() {
-
-    MissingServletRequestParameterException exception =
-            new MissingServletRequestParameterException(
-                    "page",
-                    "String"
-            );
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleValidationExceptions(exception);
-
-    assertThat(response.getBody()).isNotNull();
-
-    assertThat(response.getBody()
-            .getErrors()
-            .get(0)
-            .getDescription())
-            .contains("Ocurrió un error");
-}
-
-@Test
-void handleMissingRequestHeaderShouldContainHeaderName() {
-
-    MissingRequestHeaderException exception =
-            new MissingRequestHeaderException(
-                    "authorization",
-                    mock(org.springframework.core.MethodParameter.class)
-            );
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleValidationExceptions(exception);
-
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.BAD_REQUEST);
-}
-
-@Test
-void handleHttpRequestMethodNotSupportedShouldReturnMethodNotAllowed() {
-
-    HttpRequestMethodNotSupportedException exception =
-            new HttpRequestMethodNotSupportedException("POST");
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.handleMethodNotAllowedExceptions(exception);
-
-    assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
-}
-
-@Test
-void buildResponseEntityShouldSanitizeDescriptions() {
-
-    ErrorDTO error = ErrorDTO.builder()
-            .code("CODE")
-            .description("sensitive internal detail")
-            .build();
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.buildResponseEntity(
-                    List.of(error),
-                    HttpStatus.BAD_REQUEST
-            );
-
-    assertThat(response.getBody()).isNotNull();
-
-    String description =
-            response.getBody()
-                    .getErrors()
-                    .get(0)
-                    .getDescription();
-
-    assertThat(description)
-            .doesNotContain("sensitive");
-
-    assertThat(description)
-            .contains("Ocurrió un error");
-}
-
-@Test
-void buildResponseEntityShouldPreserveErrorCount() {
-
-    List<ErrorDTO> errors = List.of(
-            ErrorDTO.builder().code("1").description("d1").build(),
-            ErrorDTO.builder().code("2").description("d2").build(),
-            ErrorDTO.builder().code("3").description("d3").build()
-    );
-
-    ResponseEntity<ErrorResponseDTO> response =
-            handler.buildResponseEntity(
-                    errors,
-                    HttpStatus.BAD_REQUEST
-            );
-
-    assertThat(response.getBody()).isNotNull();
-
-    assertThat(response.getBody().getErrors())
-            .hasSize(3);
+		public void setAcceptedStatuses(List<Integer> acceptedStatuses) {
+			this.acceptedStatuses = acceptedStatuses;
+		}
+	    
+	}
 }

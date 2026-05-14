@@ -1,5 +1,3 @@
-Agrega este helper al final de TrxSanbaServiceImplTest, antes del último }:
-Java
 private TrxBP49Request buildRequest() {
     Session session = new Session();
     session.setUsuario("original-user");
@@ -13,8 +11,7 @@ private TrxBP49Request buildRequest() {
 
     return request;
 }
-Imports necesarios:
-Java
+
 import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
 import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.request.TrxBP49Request;

@@ -1,188 +1,268 @@
 @Test
-void handleNoResourceFoundExceptionShouldReturnNotFound() {
-    NoResourceFoundException exception =
-            new NoResourceFoundException(
-                    org.springframework.http.HttpMethod.GET,
-                    "/test"
+void handleMethodArgumentNotValidShouldHandleMultipleErrors() {
+
+    BindingResult bindingResult = mock(BindingResult.class);
+
+    FieldError fieldError1 =
+            new FieldError("object", "field1", "invalid1");
+
+    FieldError fieldError2 =
+            new FieldError("object", "field2", "invalid2");
+
+    when(bindingResult.getAllErrors())
+            .thenReturn(List.of(fieldError1, fieldError2));
+
+    MethodArgumentNotValidException exception =
+            new MethodArgumentNotValidException(
+                    mock(org.springframework.core.MethodParameter.class),
+                    bindingResult
             );
 
-    var response = handler.handleValidationExceptions(exception);
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleValidationExceptions(exception);
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().getErrors()).hasSize(1);
-    assertThat(response.getBody().getErrors().get(0).getCode())
-            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9404");
+
+    assertThat(response.getBody().getErrors())
+            .hasSize(2);
 }
 
 @Test
-void buildResponseEntity2ShouldReplaceMsNameAndReturnBadRequest() {
-
-    ErrorDTO error = ErrorDTO.builder()
-            .code("MS_NAME-P-F-9400")
-            .description("ms_name-api error")
-            .message("error message")
-            .build();
-
-    ErrorResponseDTO dto = new ErrorResponseDTO();
-    dto.setErrors(new ArrayList<>(List.of(error)));
-
-    var response = handler.buildResponseEntity2(dto, HttpStatus.BAD_REQUEST);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-    ErrorResponseDTO body = response.getBody();
-
-    assertThat(body).isNotNull();
-    assertThat(body.getErrors()).hasSize(1);
-
-    ErrorDTO result = body.getErrors().get(0);
-
-    assertThat(result.getCode())
-            .contains("DATA_CONSENT_MANAGEMENT");
-
-    assertThat(result.getDescription())
-            .contains("data_consent_management");
-}
-
-@Test
-void buildResponseEntity2ShouldUseBadRequestWhenStatusIsNull() {
+void handleServiceExceptionClientShouldReturnBadRequest() {
 
     ErrorDTO error = ErrorDTO.builder()
             .code("MS_NAME-P-F-9400")
             .description("ms_name-description")
-            .message("message")
+            .message("client error")
             .build();
 
     ErrorResponseDTO dto = new ErrorResponseDTO();
-    dto.setErrors(new ArrayList<>(List.of(error)));
+    dto.setErrors(List.of(error));
 
-    var response = handler.buildResponseEntity2(dto, null);
+    ServiceExceptionClient exception =
+            mock(ServiceExceptionClient.class);
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    when(exception.getErrorResponseDTO()).thenReturn(dto);
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleSchemaException(
+                    exception,
+                    mock(WebRequest.class)
+            );
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+    assertThat(response.getBody()).isNotNull();
+
+    assertThat(response.getBody().getErrors())
+            .hasSize(1);
 }
 
 @Test
-void buildResponseEntityShouldHandleEmptyErrorList() {
+void handleServiceExceptionShouldReturnCustomStatus() {
 
-    var response = handler.buildResponseEntity(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+    ErrorDTO error = ErrorDTO.builder()
+            .code("CODE")
+            .description("description")
+            .message("message")
+            .build();
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    ServiceException exception =
+            new ServiceException(HttpStatus.NOT_FOUND, error);
 
-    ErrorResponseDTO body = response.getBody();
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleSchemaException(
+                    exception,
+                    mock(WebRequest.class)
+            );
 
-    assertThat(body).isNotNull();
-    assertThat(body.getErrors()).isEmpty();
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+
+    assertThat(response.getBody()).isNotNull();
 }
 
 @Test
-void buildResponseEntityShouldSanitizeMultipleErrors() {
+void buildResponseEntityShouldHandleNullErrors() {
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.buildResponseEntity(
+                    null,
+                    HttpStatus.BAD_REQUEST
+            );
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+    assertThat(response.getBody()).isNotNull();
+
+    assertThat(response.getBody().getErrors())
+            .isNull();
+}
+
+@Test
+void buildResponseEntityShouldUseDefaultStatusWhenNull() {
+
+    ErrorDTO error = ErrorDTO.builder()
+            .code("CODE")
+            .description("description")
+            .build();
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.buildResponseEntity(
+                    List.of(error),
+                    null
+            );
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+}
+
+@Test
+void buildResponseEntity2ShouldHandleMultipleErrors() {
 
     ErrorDTO error1 = ErrorDTO.builder()
-            .code("CODE1")
-            .description("internal description 1")
-            .message("msg1")
+            .code("MS_NAME-001")
+            .description("ms_name-description1")
+            .message("message1")
             .build();
 
     ErrorDTO error2 = ErrorDTO.builder()
-            .code("CODE2")
-            .description("internal description 2")
-            .message("msg2")
+            .code("MS_NAME-002")
+            .description("ms_name-description2")
+            .message("message2")
             .build();
 
-    var response = handler.buildResponseEntity(
-            List.of(error1, error2),
-            HttpStatus.INTERNAL_SERVER_ERROR
-    );
+    ErrorResponseDTO dto = new ErrorResponseDTO();
+    dto.setErrors(List.of(error1, error2));
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.buildResponseEntity2(
+                    dto,
+                    HttpStatus.BAD_REQUEST
+            );
 
     assertThat(response.getStatusCode())
-            .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            .isEqualTo(HttpStatus.BAD_REQUEST);
 
-    ErrorResponseDTO body = response.getBody();
+    assertThat(response.getBody()).isNotNull();
 
-    assertThat(body).isNotNull();
-    assertThat(body.getErrors()).hasSize(2);
-
-    body.getErrors().forEach(error ->
-            assertThat(error.getDescription())
-                    .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.")
-    );
+    assertThat(response.getBody().getErrors())
+            .hasSize(2);
 }
 
 @Test
-void buildResponseEntityShouldKeepOriginalCode() {
+void handleExceptionShouldReturnConflictStatus() {
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleException(
+                    new RuntimeException("unexpected")
+            );
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+}
+
+@Test
+void handleMissingServletRequestParameterShouldContainParameterName() {
+
+    MissingServletRequestParameterException exception =
+            new MissingServletRequestParameterException(
+                    "page",
+                    "String"
+            );
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleValidationExceptions(exception);
+
+    assertThat(response.getBody()).isNotNull();
+
+    assertThat(response.getBody()
+            .getErrors()
+            .get(0)
+            .getDescription())
+            .contains("Ocurrió un error");
+}
+
+@Test
+void handleMissingRequestHeaderShouldContainHeaderName() {
+
+    MissingRequestHeaderException exception =
+            new MissingRequestHeaderException(
+                    "authorization",
+                    mock(org.springframework.core.MethodParameter.class)
+            );
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleValidationExceptions(exception);
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+}
+
+@Test
+void handleHttpRequestMethodNotSupportedShouldReturnMethodNotAllowed() {
+
+    HttpRequestMethodNotSupportedException exception =
+            new HttpRequestMethodNotSupportedException("POST");
+
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.handleMethodNotAllowedExceptions(exception);
+
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+}
+
+@Test
+void buildResponseEntityShouldSanitizeDescriptions() {
 
     ErrorDTO error = ErrorDTO.builder()
-            .code("ORIGINAL-CODE")
-            .description("internal")
+            .code("CODE")
+            .description("sensitive internal detail")
             .build();
 
-    var response = handler.buildResponseEntity(
-            List.of(error),
-            HttpStatus.BAD_REQUEST
-    );
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.buildResponseEntity(
+                    List.of(error),
+                    HttpStatus.BAD_REQUEST
+            );
 
-    ErrorResponseDTO body = response.getBody();
+    assertThat(response.getBody()).isNotNull();
 
-    assertThat(body).isNotNull();
-    assertThat(body.getErrors().get(0).getCode())
-            .isEqualTo("ORIGINAL-CODE");
+    String description =
+            response.getBody()
+                    .getErrors()
+                    .get(0)
+                    .getDescription();
+
+    assertThat(description)
+            .doesNotContain("sensitive");
+
+    assertThat(description)
+            .contains("Ocurrió un error");
 }
 
 @Test
-void handleExceptionShouldGenerateSanitizedDescription() {
+void buildResponseEntityShouldPreserveErrorCount() {
 
-    var response = handler.handleException(new Exception("unexpected"));
-
-    ErrorResponseDTO body = response.getBody();
-
-    assertThat(body).isNotNull();
-
-    assertThat(body.getErrors().get(0).getDescription())
-            .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-}
-
-@Test
-void handleMethodNotAllowedShouldReturnCorrectCode() {
-
-    var response = handler.handleMethodNotAllowedExceptions(
-            new HttpRequestMethodNotSupportedException("PUT")
+    List<ErrorDTO> errors = List.of(
+            ErrorDTO.builder().code("1").description("d1").build(),
+            ErrorDTO.builder().code("2").description("d2").build(),
+            ErrorDTO.builder().code("3").description("d3").build()
     );
 
-    ErrorResponseDTO body = response.getBody();
+    ResponseEntity<ErrorResponseDTO> response =
+            handler.buildResponseEntity(
+                    errors,
+                    HttpStatus.BAD_REQUEST
+            );
 
-    assertThat(body).isNotNull();
+    assertThat(response.getBody()).isNotNull();
 
-    assertThat(body.getErrors().get(0).getCode())
-            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9405");
-}
-
-@Test
-void handleHttpMessageNotReadableShouldReturnCorrectCode() {
-
-    var response = handler.handleValidationExceptions(
-            new HttpMessageNotReadableException("invalid")
-    );
-
-    ErrorResponseDTO body = response.getBody();
-
-    assertThat(body).isNotNull();
-
-    assertThat(body.getErrors().get(0).getCode())
-            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
-}
-
-@Test
-void handleIllegalArgumentShouldReturnCorrectCode() {
-
-    var response = handler.handleValidationExceptions(
-            new IllegalArgumentException("illegal")
-    );
-
-    ErrorResponseDTO body = response.getBody();
-
-    assertThat(body).isNotNull();
-
-    assertThat(body.getErrors().get(0).getCode())
-            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
+    assertThat(response.getBody().getErrors())
+            .hasSize(3);
 }

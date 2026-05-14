@@ -1,102 +1,112 @@
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.controller;
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request.ConsentStatusInfo;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.partiesconsents.request.PartiesConsentsRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.service.DataConsentManagementService;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.BanksApi;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.ProductDirectoryAPI;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TermDepositParametersAPI;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TrxSanbaAPI;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.integration.ApiEntry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class DataConsentManagementControllerTest {
+class RestClientConfigTest {
 
-    @Mock
-    private DataConsentManagementService dataConsentManagementService;
+    private RestClientConfig config;
 
-    @Mock
-    private ObjectMapper objectMapper;
+    private IntegrationDataConfiguration properties;
 
-    @InjectMocks
-    private DataConsentManagementController controller;
+    @BeforeEach
+    void setUp() {
 
-    @Test
-    void getPartiesConsentShouldReturnCreated() throws Exception {
-        PartiesConsentsRequest request = PartiesConsentsRequest.builder()
-                .statusInfo(new ConsentStatusInfo("S"))
-                .build();
+        properties = mock(IntegrationDataConfiguration.class);
 
-        when(objectMapper.writeValueAsString(request))
-                .thenReturn("{\"statusInfo\":{\"statusCode\":\"S\"}}");
+        config = new RestClientConfig(properties);
 
-        var response = controller.getPartiesConsent(
-                "Bearer token",
-                "client-id",
-                "12345678",
-                request
-        );
+        when(properties.getByApi("sanba"))
+                .thenReturn(buildApiEntry());
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        when(properties.getByApi("product-directory"))
+                .thenReturn(buildApiEntry());
 
-        verify(dataConsentManagementService)
-                .getPartiesConsent("12345678", request);
+        when(properties.getByApi("term-deposit-parameters"))
+                .thenReturn(buildApiEntry());
 
-        verify(objectMapper)
-                .writeValueAsString(request);
+        when(properties.getByApi("banks"))
+                .thenReturn(buildApiEntry());
     }
 
     @Test
-    void getPartiesConsentShouldReturnCreatedWhenObjectMapperThrowsException() throws Exception {
-        PartiesConsentsRequest request = PartiesConsentsRequest.builder()
-                .statusInfo(new ConsentStatusInfo("N"))
-                .build();
+    void txrTransactionApiShouldCreateApi() {
 
-        when(objectMapper.writeValueAsString(request))
-                .thenThrow(new JsonProcessingException("error") {});
+        TrxSanbaAPI api = config.txrTransactionApi();
 
-        var response = controller.getPartiesConsent(
-                "Bearer token",
-                "client-id",
-                "12345678",
-                request
-        );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
-        verify(dataConsentManagementService)
-                .getPartiesConsent("12345678", request);
-
-        verify(objectMapper)
-                .writeValueAsString(request);
+        assertThat(api).isNotNull();
     }
 
     @Test
-    void getPartiesConsentShouldPropagateServiceException() {
-        PartiesConsentsRequest request = PartiesConsentsRequest.builder()
-                .statusInfo(new ConsentStatusInfo("S"))
-                .build();
+    void productDirectoryAPIShouldCreateApi() {
 
-        doThrow(new RuntimeException("service error"))
-                .when(dataConsentManagementService)
-                .getPartiesConsent("12345678", request);
+        ProductDirectoryAPI api = config.productDirectoryAPI();
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-                controller.getPartiesConsent(
-                        "Bearer token",
-                        "client-id",
-                        "12345678",
-                        request
-                )
-        ).isInstanceOf(RuntimeException.class);
+        assertThat(api).isNotNull();
+    }
 
-        verify(dataConsentManagementService)
-                .getPartiesConsent("12345678", request);
+    @Test
+    void termDepositParametersAPIShouldCreateApi() {
+
+        TermDepositParametersAPI api = config.termDepositParametersAPI();
+
+        assertThat(api).isNotNull();
+    }
+
+    @Test
+    void banksAPIShouldCreateApi() {
+
+        BanksApi api = config.banksAPI();
+
+        assertThat(api).isNotNull();
+    }
+
+    @Test
+    void lambdaLoggingShouldExecute() throws Exception {
+
+        Method method = RestClientConfig.class.getDeclaredMethod(
+                "getHttpClient",
+                okhttp3.logging.HttpLoggingInterceptor.Level.class,
+                long.class,
+                long.class
+        );
+
+        method.setAccessible(true);
+
+        Object client = method.invoke(
+                config,
+                okhttp3.logging.HttpLoggingInterceptor.Level.BODY,
+                1L,
+                1L
+        );
+
+        assertThat(client).isNotNull();
+    }
+
+    private ApiEntry buildApiEntry() {
+
+        ApiEntry entry = new ApiEntry();
+
+        entry.setIntegrationType("test");
+        entry.setHost("localhost");
+        entry.setPort("8080");
+        entry.setHttps(false);
+        entry.setEndpoint("/");
+        entry.setTimeOutConn(1);
+        entry.setTimeOutRead(1);
+
+        return entry;
     }
 }

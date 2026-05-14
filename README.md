@@ -1,289 +1,253 @@
-Aquí tienes los tests para ese bloque, separados por clase.
-BanksServiceImplTest.java
-Java
 package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.impl;
 
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.BanksApi;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks.BanksDTO;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks.BanksParametersDTO;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.banks.BanksParametersRequest;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TrxSanbaAPI;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.Session;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.generic.TrxHeader;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.request.TrxBP49Request;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.bp49.response.TrxBP49Response;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.request.PemfvRequest;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.host.pemfv.response.PemfvResponse;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error.ErrorService;
+import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception.error.ErrorType;
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import java.util.List;
+import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class BanksServiceImplTest {
+class TrxSanbaServiceImplTest {
 
     @Mock
-    BanksApi banksApi;
+    private TrxSanbaAPI trxSanbaAPI;
 
     @Mock
-    Call<BanksDTO> call;
+    private ErrorService errorService;
+
+    @Mock
+    private Call<TrxBP49Response> bp49Call;
+
+    @Mock
+    private Call<PemfvResponse> pemfvCall;
+
+    @InjectMocks
+    private TrxSanbaServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "BP49_SERVICE_ROUTE", "BP49");
+        ReflectionTestUtils.setField(service, "BP49_SERVICE_PEMFV", "PEMFV");
+        ReflectionTestUtils.setField(service, "mqRoute", "MQ");
+        ReflectionTestUtils.setField(service, "channel", "60");
+        ReflectionTestUtils.setField(service, "user", "@NETE781");
+    }
 
     @Test
-    void banksResponseShouldReturnBodyWhenApiCallIsSuccessful() throws Exception {
-        BanksServiceImpl service = new BanksServiceImpl(banksApi);
-        BanksParametersRequest request = new BanksParametersRequest("Bearer token", "client-id");
-        BanksDTO expected = BanksDTO.builder()
-                .Banks(List.of(new BanksParametersDTO("0065", "Banco Santander")))
+    void trxBP49ShouldReturnBodyWhenApiIsSuccessful() throws Exception {
+        TrxBP49Request request = buildBP49Request();
+        TrxBP49Response expected = TrxBP49Response.builder()
+                .ok(true)
                 .build();
 
-        when(banksApi.callBanks("Bearer token", "client-id")).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(expected));
+        when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "MQ"))
+                .thenReturn(bp49Call);
+        when(bp49Call.execute())
+                .thenReturn(Response.success(expected));
 
-        BanksDTO response = service.banksResponse(request);
+        TrxBP49Response result = service.trxBP49(request);
 
-        assertThat(response).isEqualTo(expected);
+        assertThat(result).isEqualTo(expected);
+        assertThat(request.getCabecera().getCanal()).isEqualTo("60");
+        assertThat(request.getCabecera().getSesion().getUsuario()).isEqualTo("@NETE781");
     }
 
     @Test
-    void banksResponseShouldReturnNullWhenApiThrowsException() throws Exception {
-        BanksServiceImpl service = new BanksServiceImpl(banksApi);
-        BanksParametersRequest request = new BanksParametersRequest("Bearer token", "client-id");
+    void trxBP49ShouldThrowServiceExceptionWhenRuntimeExceptionOccurs() throws Exception {
+        TrxBP49Request request = buildBP49Request();
 
-        when(banksApi.callBanks("Bearer token", "client-id")).thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("api error"));
+        when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "MQ"))
+                .thenThrow(new RuntimeException("runtime error"));
 
-        BanksDTO response = service.banksResponse(request);
-
-        assertThat(response).isNull();
+        assertThatThrownBy(() -> service.trxBP49(request))
+                .isInstanceOf(ServiceException.class);
     }
-}
-ProductDirectoryServiceImplTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.impl;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.ProductDirectoryAPI;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory.AmountRangeRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory.AmountRangeResponse;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.productdirectory.MaxAndMinAmountDto;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import retrofit2.Call;
-import retrofit2.Response;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
-class ProductDirectoryServiceImplTest {
-
-    @Mock
-    ProductDirectoryAPI productDirectoryAPI;
-
-    @Mock
-    Call<AmountRangeResponse> call;
 
     @Test
-    void amountRangeShouldReturnBodyWhenApiCallIsSuccessful() throws Exception {
-        ProductDirectoryServiceImpl service = new ProductDirectoryServiceImpl(productDirectoryAPI);
-        AmountRangeRequest request = new AmountRangeRequest("Bearer token", "client-id", "04");
-        AmountRangeResponse expected = new AmountRangeResponse(
-                new MaxAndMinAmountDto("1000,00", "COP"),
-                new MaxAndMinAmountDto("9999,00", "COP")
+    void trxBP49ShouldThrowServiceExceptionWhenIOExceptionOccurs() throws Exception {
+        TrxBP49Request request = buildBP49Request();
+
+        when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "MQ"))
+                .thenReturn(bp49Call);
+        when(bp49Call.execute())
+                .thenThrow(new IOException("network error"));
+
+        assertThatThrownBy(() -> service.trxBP49(request))
+                .isInstanceOf(ServiceException.class);
+    }
+
+    @Test
+    void trxBP49ShouldThrowServiceExceptionWhenGenericExceptionOccurs() throws Exception {
+        TrxBP49Request request = buildBP49Request();
+
+        when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "MQ"))
+                .thenReturn(bp49Call);
+        when(bp49Call.execute())
+                .thenThrow(new Exception("generic error"));
+
+        assertThatThrownBy(() -> service.trxBP49(request))
+                .isInstanceOf(ServiceException.class);
+    }
+
+    @Test
+    void trxBP49ShouldThrowConflictWhenErrorBodyCannotBeParsed() throws Exception {
+        TrxBP49Request request = buildBP49Request();
+
+        ResponseBody errorBody = ResponseBody.create(
+                "invalid-json",
+                MediaType.parse("application/json")
         );
 
-        when(productDirectoryAPI.callAmountRange("04", "Bearer token", "client-id")).thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(expected));
+        when(trxSanbaAPI.callBP49(request, "BP49", "BP49", "MQ"))
+                .thenReturn(bp49Call);
+        when(bp49Call.execute())
+                .thenReturn(Response.error(400, errorBody));
 
-        AmountRangeResponse response = service.amountRange(request);
+        when(errorService.serviceExceptionBuilder(
+                eq(HttpStatus.CONFLICT),
+                anyString(),
+                eq(ErrorType.TECHNICAL)
+        )).thenReturn(new ServiceException(
+                HttpStatus.CONFLICT,
+                ErrorDTO.builder().code("ERROR").message("error").build()
+        ));
 
-        assertThat(response).isEqualTo(expected);
+        assertThatThrownBy(() -> service.trxBP49(request))
+                .isInstanceOf(ServiceException.class);
     }
 
     @Test
-    void amountRangeShouldReturnNullWhenApiThrowsException() throws Exception {
-        ProductDirectoryServiceImpl service = new ProductDirectoryServiceImpl(productDirectoryAPI);
-        AmountRangeRequest request = new AmountRangeRequest("Bearer token", "client-id", "04");
+    void trxPemfvShouldReturnBodyWhenApiIsSuccessful() throws Exception {
+        PemfvRequest request = buildPemfvRequest();
+        PemfvResponse expected = PemfvResponse.builder()
+                .ok(true)
+                .build();
 
-        when(productDirectoryAPI.callAmountRange("04", "Bearer token", "client-id")).thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("api error"));
+        when(trxSanbaAPI.callPEMFV(request, "PEMFV", "PEMFV", "MQ"))
+                .thenReturn(pemfvCall);
+        when(pemfvCall.execute())
+                .thenReturn(Response.success(expected));
 
-        AmountRangeResponse response = service.amountRange(request);
+        PemfvResponse result = service.trxPemfv(request);
 
-        assertThat(response).isNull();
+        assertThat(result).isEqualTo(expected);
+        assertThat(request.getCabecera().getCanal()).isEqualTo("60");
+        assertThat(request.getCabecera().getSesion().getUsuario()).isEqualTo("@NETE781");
     }
-}
-TermDepositParametersServiceImplTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.impl;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TermDepositParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters.TermDepositParametersDTO;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters.TermDepositParametersRequest;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.termdepositparameters.TermDepositParametersResponse;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import retrofit2.Call;
-import retrofit2.Response;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
-class TermDepositParametersServiceImplTest {
-
-    @Mock
-    TermDepositParametersAPI termDepositParametersAPI;
-
-    @Mock
-    Call<TermDepositParametersResponse> call;
 
     @Test
-    void termDepositParametersShouldReturnBodyWhenApiCallIsSuccessful() throws Exception {
-        TermDepositParametersServiceImpl service = new TermDepositParametersServiceImpl(termDepositParametersAPI);
-        TermDepositParametersRequest request = new TermDepositParametersRequest("04", "Bearer token", "client-id");
-        TermDepositParametersResponse expected = new TermDepositParametersResponse(
-                List.of(new TermDepositParametersDTO("90", "content", "description"))
+    void trxPemfvShouldThrowServiceExceptionWhenRuntimeExceptionOccurs() throws Exception {
+        PemfvRequest request = buildPemfvRequest();
+
+        when(trxSanbaAPI.callPEMFV(request, "PEMFV", "PEMFV", "MQ"))
+                .thenThrow(new RuntimeException("runtime error"));
+
+        assertThatThrownBy(() -> service.trxPemfv(request))
+                .isInstanceOf(ServiceException.class);
+    }
+
+    @Test
+    void trxPemfvShouldThrowServiceExceptionWhenIOExceptionOccurs() throws Exception {
+        PemfvRequest request = buildPemfvRequest();
+
+        when(trxSanbaAPI.callPEMFV(request, "PEMFV", "PEMFV", "MQ"))
+                .thenReturn(pemfvCall);
+        when(pemfvCall.execute())
+                .thenThrow(new IOException("network error"));
+
+        assertThatThrownBy(() -> service.trxPemfv(request))
+                .isInstanceOf(ServiceException.class);
+    }
+
+    @Test
+    void trxPemfvShouldThrowServiceExceptionWhenGenericExceptionOccurs() throws Exception {
+        PemfvRequest request = buildPemfvRequest();
+
+        when(trxSanbaAPI.callPEMFV(request, "PEMFV", "PEMFV", "MQ"))
+                .thenReturn(pemfvCall);
+        when(pemfvCall.execute())
+                .thenThrow(new Exception("generic error"));
+
+        assertThatThrownBy(() -> service.trxPemfv(request))
+                .isInstanceOf(ServiceException.class);
+    }
+
+    @Test
+    void trxPemfvShouldThrowConflictWhenErrorBodyCannotBeParsed() throws Exception {
+        PemfvRequest request = buildPemfvRequest();
+
+        ResponseBody errorBody = ResponseBody.create(
+                "invalid-json",
+                MediaType.parse("application/json")
         );
 
-        when(termDepositParametersAPI.callTermDepositParameters("04", "Bearer token", "client-id"))
-                .thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(expected));
+        when(trxSanbaAPI.callPEMFV(request, "PEMFV", "PEMFV", "MQ"))
+                .thenReturn(pemfvCall);
+        when(pemfvCall.execute())
+                .thenReturn(Response.error(400, errorBody));
 
-        TermDepositParametersResponse response = service.termDepositParameters(request);
+        when(errorService.serviceExceptionBuilder(
+                eq(HttpStatus.CONFLICT),
+                anyString(),
+                eq(ErrorType.TECHNICAL)
+        )).thenReturn(new ServiceException(
+                HttpStatus.CONFLICT,
+                ErrorDTO.builder().code("ERROR").message("error").build()
+        ));
 
-        assertThat(response).isEqualTo(expected);
+        assertThatThrownBy(() -> service.trxPemfv(request))
+                .isInstanceOf(ServiceException.class);
     }
 
-    @Test
-    void termDepositParametersShouldReturnNullWhenApiThrowsException() throws Exception {
-        TermDepositParametersServiceImpl service = new TermDepositParametersServiceImpl(termDepositParametersAPI);
-        TermDepositParametersRequest request = new TermDepositParametersRequest("04", "Bearer token", "client-id");
+    private TrxBP49Request buildBP49Request() {
+        Session session = new Session();
+        session.setUsuario("original-user");
 
-        when(termDepositParametersAPI.callTermDepositParameters("04", "Bearer token", "client-id"))
-                .thenReturn(call);
-        when(call.execute()).thenThrow(new RuntimeException("api error"));
+        TrxHeader header = new TrxHeader();
+        header.setSesion(session);
+        header.setCanal("original-channel");
 
-        TermDepositParametersResponse response = service.termDepositParameters(request);
+        TrxBP49Request request = new TrxBP49Request();
+        request.setCabecera(header);
 
-        assertThat(response).isNull();
-    }
-}
-IntegrationDataConfigurationTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.config;
-
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.integration.ApiEntry;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class IntegrationDataConfigurationTest {
-
-    @Test
-    void getByApiShouldReturnApiEntryByIntegrationType() {
-        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
-
-        ApiEntry sanba = new ApiEntry("sanba", "localhost", "8080", false, "/service", 1, 1);
-        ApiEntry banks = new ApiEntry("banks", "banks-host", "443", true, "/v2/banks/", 1, 1);
-
-        configuration.setCatalogue(List.of(sanba, banks));
-
-        ApiEntry result = configuration.getByApi("banks");
-
-        assertThat(result).isEqualTo(banks);
+        return request;
     }
 
-    @Test
-    void getByApiShouldReturnNullWhenIntegrationTypeDoesNotExist() {
-        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
+    private PemfvRequest buildPemfvRequest() {
+        Session session = new Session();
+        session.setUsuario("original-user");
 
-        ApiEntry sanba = new ApiEntry("sanba", "localhost", "8080", false, "/service", 1, 1);
+        TrxHeader header = new TrxHeader();
+        header.setSesion(session);
+        header.setCanal("original-channel");
 
-        configuration.setCatalogue(List.of(sanba));
+        PemfvRequest request = new PemfvRequest();
+        request.setCabecera(header);
 
-        ApiEntry result = configuration.getByApi("unknown");
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    void getByApiShouldReuseLoadedCatalogueMap() {
-        IntegrationDataConfiguration configuration = new IntegrationDataConfiguration();
-
-        ApiEntry sanba = new ApiEntry("sanba", "localhost", "8080", false, "/service", 1, 1);
-
-        configuration.setCatalogue(List.of(sanba));
-
-        assertThat(configuration.getByApi("sanba")).isEqualTo(sanba);
-        assertThat(configuration.getByApi("sanba")).isEqualTo(sanba);
+        return request;
     }
 }
-RestClientConfigTest.java
-Java
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.config;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.integration.ApiEntry;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-import retrofit2.Retrofit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class RestClientConfigTest {
-
-    @Test
-    void buildURLShouldReturnHttpsUrlWhenHttpsIsTrue() {
-        IntegrationDataConfiguration properties = new IntegrationDataConfiguration();
-        RestClientConfig config = new RestClientConfig(properties);
-
-        ApiEntry apiEntry = new ApiEntry("banks", "localhost", "443", true, "/v2/banks/", 1, 1);
-
-        String result = ReflectionTestUtils.invokeMethod(config, "buildURL", apiEntry);
-
-        assertThat(result).isEqualTo("https://localhost:443/v2/banks/");
-    }
-
-    @Test
-    void buildURLShouldReturnHttpUrlWhenHttpsIsFalse() {
-        IntegrationDataConfiguration properties = new IntegrationDataConfiguration();
-        RestClientConfig config = new RestClientConfig(properties);
-
-        ApiEntry apiEntry = new ApiEntry("sanba", "localhost", "8080", false, "/service/", 1, 1);
-
-        String result = ReflectionTestUtils.invokeMethod(config, "buildURL", apiEntry);
-
-        assertThat(result).isEqualTo("http://localhost:8080/service/");
-    }
-
-    @Test
-    void getRetrofitConfigShouldCreateBuilder() {
-        IntegrationDataConfiguration properties = new IntegrationDataConfiguration();
-        RestClientConfig config = new RestClientConfig(properties);
-
-        ApiEntry apiEntry = new ApiEntry("sanba", "localhost", "8080", false, "/service/", 1, 1);
-
-        Retrofit.Builder builder = ReflectionTestUtils.invokeMethod(config, "getRetrofitConfig", apiEntry);
-
-        assertThat(builder).isNotNull();
-    }
-
-    @Test
-    void getObjectMapperShouldReturnConfiguredObjectMapper() {
-        IntegrationDataConfiguration properties = new IntegrationDataConfiguration();
-        RestClientConfig config = new RestClientConfig(properties);
-
-        ObjectMapper mapper = ReflectionTestUtils.invokeMethod(config, "getObjectMapper", new ObjectMapper());
-
-        assertThat(mapper).isNotNull();
-    }
-}
-Para TrxSanbaServiceImpl, lo ideal es hacerlo separado porque tiene más ramas: success, IOException, RuntimeException, error body JSON válido, error body JSON inválido, “SECUENCIA NO EXISTE” y PEMFV.

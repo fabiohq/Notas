@@ -1,182 +1,195 @@
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.LinkedHashMap;
+package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.observability;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.Status;
+
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.stereotype.Component;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Component("externalApis") 
-public class ExternalApisHealthIndicator implements HealthIndicator{
-	private final ExternalApisHealthProperties properties;
-	private final HttpClient httpClient;
+class ExternalApisHealthIndicatorTest {
 
-	public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
-	    this.properties = properties;
-	    this.httpClient = HttpClient.newBuilder()
-	            .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
-	            .build();
-	}
+    @Test
+    void healthShouldBeUpWhenThereAreNoChecks() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+        properties.setChecks(List.of());
 
-	@Override
-	public Health health() {
-	    Map<String, Object> details = new LinkedHashMap<>(properties.getChecks().size());
-	    boolean allCriticalUp = true;
+        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
 
-	    for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
-	        ApiResult result = checkApi(api);
+        Health health = indicator.health();
 
-	        Map<String, Object> apiDetail = new LinkedHashMap<>(5);
-	        apiDetail.put("status", result.up ? "UP" : "DOWN");
-	        apiDetail.put("url", api.getUrl());
-	        apiDetail.put("critical", api.isCritical());
+        assertThat(health.getStatus()).isEqualTo(Status.UP);
+        assertThat(health.getDetails()).isEmpty();
+    }
 
-	        if (result.httpStatus != null) {
-	            apiDetail.put("httpStatus", result.httpStatus);
-	        }
-	        if (result.error != null) {
-	            apiDetail.put("error", result.error);
-	        }
+    @Test
+    void healthShouldBeUpWhenNonCriticalApiIsDown() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+        properties.setTimeoutMs(100);
 
-	        details.put(api.getName(), apiDetail);
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
+        check.setName("non-critical-api");
+        check.setUrl("http://localhost:1/health");
+        check.setCritical(false);
+        check.setAcceptedStatuses(List.of(200));
 
-	        if (api.isCritical() && !result.up) {
-	            allCriticalUp = false;
-	        }
-	    }
+        properties.setChecks(List.of(check));
 
-	    return allCriticalUp
-	            ? Health.up().withDetails(details).build()
-	            : Health.down().withDetails(details).build();
-	}
+        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
 
-	private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
-	    try {
-	        HttpRequest request = HttpRequest.newBuilder()
-	                .uri(URI.create(api.getUrl()))
-	                .timeout(Duration.ofMillis(properties.getTimeoutMs()))
-	                .GET()
-	                .build();
+        Health health = indicator.health();
 
-	        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+        assertThat(health.getStatus()).isEqualTo(Status.UP);
+        assertThat(health.getDetails()).containsKey("non-critical-api");
 
-	        int status = response.statusCode();
-	        boolean up = isAcceptedStatus(status,api);
+        Map<String, Object> detail =
+                (Map<String, Object>) health.getDetails().get("non-critical-api");
 
-	        return new ApiResult(up, status, null);
-	    } catch (InterruptedException e) {
-	    	Thread.currentThread().interrupt();
-	        return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
-	    }catch (IOException e) {
-	        return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
-	    }
-	}
+        assertThat(detail.get("status")).isEqualTo("DOWN");
+        assertThat(detail.get("critical")).isEqualTo(false);
+        assertThat(detail.get("url")).isEqualTo("http://localhost:1/health");
+        assertThat(detail).containsKey("error");
+    }
 
-	private static class ApiResult {
-	    private final boolean up;
-	    private final Integer httpStatus;
-	    private final String error;
+    @Test
+    void healthShouldBeDownWhenCriticalApiIsDown() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+        properties.setTimeoutMs(100);
 
-	    private ApiResult(boolean up, Integer httpStatus, String error) {
-	        this.up = up;
-	        this.httpStatus = httpStatus;
-	        this.error = error;
-	    }
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
+        check.setName("critical-api");
+        check.setUrl("http://localhost:1/health");
+        check.setCritical(true);
+        check.setAcceptedStatuses(List.of(200));
 
-		public boolean isUp() {
-			return up;
-		}
+        properties.setChecks(List.of(check));
 
-		public Integer getHttpStatus() {
-			return httpStatus;
-		}
+        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
 
-		public String getError() {
-			return error;
-		}
-	    
-	}
-	
-	private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
-		if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
-			return api.getAcceptedStatuses().contains(status);
-		}
-		return status >= 200 && status < 300;
-	}
+        Health health = indicator.health();
 
+        assertThat(health.getStatus()).isEqualTo(Status.DOWN);
+        assertThat(health.getDetails()).containsKey("critical-api");
+
+        Map<String, Object> detail =
+                (Map<String, Object>) health.getDetails().get("critical-api");
+
+        assertThat(detail.get("status")).isEqualTo("DOWN");
+        assertThat(detail.get("critical")).isEqualTo(true);
+        assertThat(detail).containsKey("error");
+    }
+
+    @Test
+    void healthShouldBeDownWhenOneCriticalApiIsDownEvenIfAnotherIsNonCritical() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+        properties.setTimeoutMs(100);
+
+        ExternalApisHealthProperties.ApiCheck critical = new ExternalApisHealthProperties.ApiCheck();
+        critical.setName("critical-api");
+        critical.setUrl("http://localhost:1/health");
+        critical.setCritical(true);
+
+        ExternalApisHealthProperties.ApiCheck nonCritical = new ExternalApisHealthProperties.ApiCheck();
+        nonCritical.setName("non-critical-api");
+        nonCritical.setUrl("http://localhost:1/health");
+        nonCritical.setCritical(false);
+
+        properties.setChecks(List.of(critical, nonCritical));
+
+        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
+
+        Health health = indicator.health();
+
+        assertThat(health.getStatus()).isEqualTo(Status.DOWN);
+        assertThat(health.getDetails()).containsKeys("critical-api", "non-critical-api");
+    }
+
+    @Test
+    void healthShouldHandleInvalidUrlAsDown() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
+        check.setName("invalid-api");
+        check.setUrl("http://");
+        check.setCritical(true);
+
+        properties.setChecks(List.of(check));
+
+        ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
+
+        Health health = indicator.health();
+
+        assertThat(health.getStatus()).isEqualTo(Status.DOWN);
+        assertThat(health.getDetails()).containsKey("invalid-api");
+
+        Map<String, Object> detail =
+                (Map<String, Object>) health.getDetails().get("invalid-api");
+
+        assertThat(detail.get("status")).isEqualTo("DOWN");
+    }
 }
-
 
 package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.observability;
 
-import java.util.ArrayList; import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import java.util.List;
 
-@ConfigurationProperties(prefix = "observability.external-apis")
-public class ExternalApisHealthProperties {
+import static org.assertj.core.api.Assertions.assertThat;
 
-	private int timeoutMs = 2000;
-	private List<ApiCheck> checks = new ArrayList<>();
+class ExternalApisHealthPropertiesTest {
 
-	public int getTimeoutMs() {
-	    return timeoutMs;
-	}
+    @Test
+    void shouldHaveDefaultValues() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
 
-	public void setTimeoutMs(int timeoutMs) {
-	    this.timeoutMs = timeoutMs;
-	}
+        assertThat(properties.getTimeoutMs()).isEqualTo(2000);
+        assertThat(properties.getChecks()).isEmpty();
+    }
 
-	public List<ApiCheck> getChecks() {
-	    return checks;
-	}
+    @Test
+    void shouldSetAndGetTimeoutMs() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
 
-	public void setChecks(List<ApiCheck> checks) {
-	    this.checks = checks;
-	}
+        properties.setTimeoutMs(5000);
 
-	public static class ApiCheck {
-	    private String name;
-	    private String url;
-	    private boolean critical = true;
-	    private List<Integer> acceptedStatuses;
+        assertThat(properties.getTimeoutMs()).isEqualTo(5000);
+    }
 
-	    public String getName() {
-	        return name;
-	    }
+    @Test
+    void shouldSetAndGetChecks() {
+        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
 
-	    public void setName(String name) {
-	        this.name = name;
-	    }
+        check.setName("backend-for-frontend");
+        check.setUrl("http://localhost:8080/actuator/health");
+        check.setCritical(false);
+        check.setAcceptedStatuses(List.of(200, 404));
 
-	    public String getUrl() {
-	        return url;
-	    }
+        properties.setChecks(List.of(check));
 
-	    public void setUrl(String url) {
-	        this.url = url;
-	    }
+        assertThat(properties.getChecks()).hasSize(1);
+        assertThat(properties.getChecks().get(0).getName()).isEqualTo("backend-for-frontend");
+        assertThat(properties.getChecks().get(0).getUrl()).isEqualTo("http://localhost:8080/actuator/health");
+        assertThat(properties.getChecks().get(0).isCritical()).isFalse();
+        assertThat(properties.getChecks().get(0).getAcceptedStatuses()).containsExactly(200, 404);
+    }
 
-	    public boolean isCritical() {
-	        return critical;
-	    }
+    @Test
+    void apiCheckShouldBeCriticalByDefault() {
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
 
-	    public void setCritical(boolean critical) {
-	        this.critical = critical;
-	    }
+        assertThat(check.isCritical()).isTrue();
+    }
 
-		public List<Integer> getAcceptedStatuses() {
-			return acceptedStatuses;
-		}
+    @Test
+    void apiCheckShouldAllowNullAcceptedStatuses() {
+        ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
 
-		public void setAcceptedStatuses(List<Integer> acceptedStatuses) {
-			this.acceptedStatuses = acceptedStatuses;
-		}
-	    
-	}
+        check.setAcceptedStatuses(null);
+
+        assertThat(check.getAcceptedStatuses()).isNull();
+    }
 }

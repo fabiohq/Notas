@@ -1,112 +1,293 @@
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.config;
+@Test
+void handleErrorResponseShouldThrowConflictWhenJsonMappingFails() throws Exception {
 
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.BanksApi;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.ProductDirectoryAPI;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TermDepositParametersAPI;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.client.api.TrxSanbaAPI;
-import com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.domain.integration.ApiEntry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+    TrxBP49Request request = buildRequest();
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
+    retrofit2.Call<TrxBP49Response> call = mock(retrofit2.Call.class);
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    "invalid-json",
+                    MediaType.parse("application/json")
+            );
 
-class RestClientConfigTest {
+    Response<TrxBP49Response> response =
+            Response.error(400, errorBody);
 
-    private RestClientConfig config;
+    when(trxSanbaAPI.callBP49(any(), any(), any(), any()))
+            .thenReturn(call);
 
-    private IntegrationDataConfiguration properties;
+    when(call.execute())
+            .thenReturn(response);
 
-    @BeforeEach
-    void setUp() {
+    assertThatThrownBy(() -> service.trxBP49(request))
+            .isInstanceOf(ServiceException.class);
+}
 
-        properties = mock(IntegrationDataConfiguration.class);
+@Test
+void handleErrorResponseShouldThrowNotFoundWhenSequenceNotExists() throws Exception {
 
-        config = new RestClientConfig(properties);
+    TrxBP49Request request = buildRequest();
 
-        when(properties.getByApi("sanba"))
-                .thenReturn(buildApiEntry());
+    retrofit2.Call<TrxBP49Response> call = mock(retrofit2.Call.class);
 
-        when(properties.getByApi("product-directory"))
-                .thenReturn(buildApiEntry());
+    String json =
+            """
+            {
+              "errores":[
+                {
+                  "mensaje":"SECUENCIA NO EXISTE"
+                }
+              ]
+            }
+            """;
 
-        when(properties.getByApi("term-deposit-parameters"))
-                .thenReturn(buildApiEntry());
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
 
-        when(properties.getByApi("banks"))
-                .thenReturn(buildApiEntry());
-    }
+    Response<TrxBP49Response> response =
+            Response.error(400, errorBody);
 
-    @Test
-    void txrTransactionApiShouldCreateApi() {
+    when(trxSanbaAPI.callBP49(any(), any(), any(), any()))
+            .thenReturn(call);
 
-        TrxSanbaAPI api = config.txrTransactionApi();
+    when(call.execute())
+            .thenReturn(response);
 
-        assertThat(api).isNotNull();
-    }
+    when(errorService.errorBuilder(any(), any(), any()))
+            .thenReturn(
+                    ErrorDTO.builder()
+                            .message("SECUENCIA NO EXISTE")
+                            .build()
+            );
 
-    @Test
-    void productDirectoryAPIShouldCreateApi() {
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.NOT_FOUND),
+            any(),
+            eq(ErrorType.FUNCTIONAL)))
+            .thenReturn(
+                    new ServiceException(
+                            HttpStatus.NOT_FOUND,
+                            ErrorDTO.builder().message("error").build()
+                    )
+            );
 
-        ProductDirectoryAPI api = config.productDirectoryAPI();
+    assertThatThrownBy(() -> service.trxBP49(request))
+            .isInstanceOf(ServiceException.class);
+}
 
-        assertThat(api).isNotNull();
-    }
+@Test
+void handleErrorResponseShouldThrowBadRequestWhenErrorsExist() throws Exception {
 
-    @Test
-    void termDepositParametersAPIShouldCreateApi() {
+    TrxBP49Request request = buildRequest();
 
-        TermDepositParametersAPI api = config.termDepositParametersAPI();
+    retrofit2.Call<TrxBP49Response> call = mock(retrofit2.Call.class);
 
-        assertThat(api).isNotNull();
-    }
+    String json =
+            """
+            {
+              "errores":[
+                {
+                  "mensaje":"ERROR FUNCIONAL"
+                }
+              ]
+            }
+            """;
 
-    @Test
-    void banksAPIShouldCreateApi() {
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
 
-        BanksApi api = config.banksAPI();
+    Response<TrxBP49Response> response =
+            Response.error(400, errorBody);
 
-        assertThat(api).isNotNull();
-    }
+    when(trxSanbaAPI.callBP49(any(), any(), any(), any()))
+            .thenReturn(call);
 
-    @Test
-    void lambdaLoggingShouldExecute() throws Exception {
+    when(call.execute())
+            .thenReturn(response);
 
-        Method method = RestClientConfig.class.getDeclaredMethod(
-                "getHttpClient",
-                okhttp3.logging.HttpLoggingInterceptor.Level.class,
-                long.class,
-                long.class
-        );
+    when(errorService.errorBuilder(any(), any(), any()))
+            .thenReturn(
+                    ErrorDTO.builder()
+                            .message("ERROR FUNCIONAL")
+                            .build()
+            );
 
-        method.setAccessible(true);
+    assertThatThrownBy(() -> service.trxBP49(request))
+            .isInstanceOf(ServiceException.class);
+}
 
-        Object client = method.invoke(
-                config,
-                okhttp3.logging.HttpLoggingInterceptor.Level.BODY,
-                1L,
-                1L
-        );
+@Test
+void handlePemfvErrorResponseShouldThrowConflictWhenJsonFails() throws Exception {
 
-        assertThat(client).isNotNull();
-    }
+    PemfvRequest pemfvRequest = buildPemfvRequest();
 
-    private ApiEntry buildApiEntry() {
+    retrofit2.Call<PemfvResponse> call = mock(retrofit2.Call.class);
 
-        ApiEntry entry = new ApiEntry();
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    "invalid-json",
+                    MediaType.parse("application/json")
+            );
 
-        entry.setIntegrationType("test");
-        entry.setHost("localhost");
-        entry.setPort("8080");
-        entry.setHttps(false);
-        entry.setEndpoint("/");
-        entry.setTimeOutConn(1);
-        entry.setTimeOutRead(1);
+    Response<PemfvResponse> response =
+            Response.error(400, errorBody);
 
-        return entry;
-    }
+    when(trxSanbaAPI.callPEMFV(any(), any(), any(), any()))
+            .thenReturn(call);
+
+    when(call.execute())
+            .thenReturn(response);
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.CONFLICT),
+            any(),
+            eq(ErrorType.TECHNICAL)))
+            .thenReturn(
+                    new ServiceException(
+                            HttpStatus.CONFLICT,
+                            ErrorDTO.builder().message("conflict").build()
+                    )
+            );
+
+    assertThatThrownBy(() -> service.trxPemfv(pemfvRequest))
+            .isInstanceOf(ServiceException.class);
+}
+
+@Test
+void handlePemfvErrorResponseShouldThrowNotFound() throws Exception {
+
+    PemfvRequest pemfvRequest = buildPemfvRequest();
+
+    retrofit2.Call<PemfvResponse> call = mock(retrofit2.Call.class);
+
+    String json =
+            """
+            {
+              "errores":[
+                {
+                  "mensaje":"SECUENCIA NO EXISTE"
+                }
+              ]
+            }
+            """;
+
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
+
+    Response<PemfvResponse> response =
+            Response.error(400, errorBody);
+
+    when(trxSanbaAPI.callPEMFV(any(), any(), any(), any()))
+            .thenReturn(call);
+
+    when(call.execute())
+            .thenReturn(response);
+
+    when(errorService.errorBuilder(any(), any(), any()))
+            .thenReturn(
+                    ErrorDTO.builder()
+                            .message("SECUENCIA NO EXISTE")
+                            .build()
+            );
+
+    when(errorService.serviceExceptionBuilder(
+            eq(HttpStatus.NOT_FOUND),
+            any(),
+            eq(ErrorType.FUNCTIONAL)))
+            .thenReturn(
+                    new ServiceException(
+                            HttpStatus.NOT_FOUND,
+                            ErrorDTO.builder().message("notfound").build()
+                    )
+            );
+
+    assertThatThrownBy(() -> service.trxPemfv(pemfvRequest))
+            .isInstanceOf(ServiceException.class);
+}
+
+@Test
+void handlePemfvErrorResponseShouldThrowBadRequest() throws Exception {
+
+    PemfvRequest pemfvRequest = buildPemfvRequest();
+
+    retrofit2.Call<PemfvResponse> call = mock(retrofit2.Call.class);
+
+    String json =
+            """
+            {
+              "errores":[
+                {
+                  "mensaje":"ERROR PEMFV"
+                }
+              ]
+            }
+            """;
+
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
+
+    Response<PemfvResponse> response =
+            Response.error(400, errorBody);
+
+    when(trxSanbaAPI.callPEMFV(any(), any(), any(), any()))
+            .thenReturn(call);
+
+    when(call.execute())
+            .thenReturn(response);
+
+    when(errorService.errorBuilder(any(), any(), any()))
+            .thenReturn(
+                    ErrorDTO.builder()
+                            .message("ERROR PEMFV")
+                            .build()
+            );
+
+    assertThatThrownBy(() -> service.trxPemfv(pemfvRequest))
+            .isInstanceOf(ServiceException.class);
+}
+
+@Test
+void buildErrorDTOsShouldHandleNullErrors() throws Exception {
+
+    PemfvRequest pemfvRequest = buildPemfvRequest();
+
+    retrofit2.Call<PemfvResponse> call = mock(retrofit2.Call.class);
+
+    String json =
+            """
+            {
+              "errores":[]
+            }
+            """;
+
+    ResponseBody errorBody =
+            ResponseBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
+
+    Response<PemfvResponse> response =
+            Response.error(400, errorBody);
+
+    when(trxSanbaAPI.callPEMFV(any(), any(), any(), any()))
+            .thenReturn(call);
+
+    when(call.execute())
+            .thenReturn(response);
+
+    assertThatThrownBy(() -> service.trxPemfv(pemfvRequest))
+            .isInstanceOf(ServiceException.class);
 }

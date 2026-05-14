@@ -1,155 +1,188 @@
-package com.santander.bnc.bsn049.bncbsn049msdtcnsntmngmnt.exception;
+@Test
+void handleNoResourceFoundExceptionShouldReturnNotFound() {
+    NoResourceFoundException exception =
+            new NoResourceFoundException(
+                    org.springframework.http.HttpMethod.GET,
+                    "/test"
+            );
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorResponseDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MissingRequestHeaderException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
+    var response = handler.handleValidationExceptions(exception);
 
-import java.util.List;
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getErrors()).hasSize(1);
+    assertThat(response.getBody().getErrors().get(0).getCode())
+            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9404");
+}
 
-import static org.assertj.core.api.Assertions.assertThat;
+@Test
+void buildResponseEntity2ShouldReplaceMsNameAndReturnBadRequest() {
 
-class GlobalExceptionHandlerTest {
+    ErrorDTO error = ErrorDTO.builder()
+            .code("MS_NAME-P-F-9400")
+            .description("ms_name-api error")
+            .message("error message")
+            .build();
 
-    private GlobalExceptionHandler handler;
+    ErrorResponseDTO dto = new ErrorResponseDTO();
+    dto.setErrors(new ArrayList<>(List.of(error)));
 
-    @BeforeEach
-    void setUp() {
-        handler = new GlobalExceptionHandler();
-        ReflectionTestUtils.setField(handler, "MS_NAME", "DATA_CONSENT_MANAGEMENT");
-    }
+    var response = handler.buildResponseEntity2(dto, HttpStatus.BAD_REQUEST);
 
-    @Test
-    void handleExceptionShouldReturnConflict() {
-        var response = handler.handleException(new RuntimeException("boom"));
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-        assertThat(response.getBody().getErrors().get(0).getCode())
-                .isEqualTo("DATA_CONSENT_MANAGEMENT-P-T-9409");
-        assertThat(response.getBody().getErrors().get(0).getDescription())
-                .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-    }
+    ErrorResponseDTO body = response.getBody();
 
-    @Test
-    void handleMissingServletRequestParameterExceptionShouldReturnBadRequest() {
-        var exception = new MissingServletRequestParameterException("party_id", "String");
+    assertThat(body).isNotNull();
+    assertThat(body.getErrors()).hasSize(1);
 
-        var response = handler.handleValidationExceptions(exception);
+    ErrorDTO result = body.getErrors().get(0);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-        assertThat(response.getBody().getErrors().get(0).getCode())
-                .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
-    }
+    assertThat(result.getCode())
+            .contains("DATA_CONSENT_MANAGEMENT");
 
-    @Test
-    void handleIllegalArgumentExceptionShouldReturnBadRequest() {
-        var response = handler.handleValidationExceptions(new IllegalArgumentException("Invalid argument"));
+    assertThat(result.getDescription())
+            .contains("data_consent_management");
+}
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-    }
+@Test
+void buildResponseEntity2ShouldUseBadRequestWhenStatusIsNull() {
 
-    @Test
-    void handleMissingRequestHeaderExceptionShouldReturnBadRequest() {
-        var exception = new MissingRequestHeaderException("Authorization", null);
+    ErrorDTO error = ErrorDTO.builder()
+            .code("MS_NAME-P-F-9400")
+            .description("ms_name-description")
+            .message("message")
+            .build();
 
-        var response = handler.handleValidationExceptions(exception);
+    ErrorResponseDTO dto = new ErrorResponseDTO();
+    dto.setErrors(new ArrayList<>(List.of(error)));
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-    }
+    var response = handler.buildResponseEntity2(dto, null);
 
-    @Test
-    void handleSchemaExceptionShouldReturnServiceExceptionStatus() {
-        ErrorDTO error = ErrorDTO.builder()
-                .code("DATA_CONSENT_MANAGEMENT-P-F-9400")
-                .level("error")
-                .message("Functional error")
-                .description("internal description")
-                .build();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+}
 
-        ServiceException exception = new ServiceException(HttpStatus.BAD_REQUEST, error);
+@Test
+void buildResponseEntityShouldHandleEmptyErrorList() {
 
-        var response = handler.handleSchemaException(exception, null);
+    var response = handler.buildResponseEntity(new ArrayList<>(), HttpStatus.BAD_REQUEST);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-        assertThat(response.getBody().getErrors().get(0).getDescription())
-                .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
-    @Test
-    void buildResponseEntityShouldSanitizeDescription() {
-        ErrorDTO error = ErrorDTO.builder()
-                .code("DATA_CONSENT_MANAGEMENT-P-F-9400")
-                .level("error")
-                .message("Sensitive message")
-                .description("Sensitive internal description")
-                .build();
+    ErrorResponseDTO body = response.getBody();
 
-        var response = handler.buildResponseEntity(List.of(error), HttpStatus.BAD_REQUEST);
+    assertThat(body).isNotNull();
+    assertThat(body.getErrors()).isEmpty();
+}
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-        assertThat(response.getBody().getErrors().get(0).getCode())
-                .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
-        assertThat(response.getBody().getErrors().get(0).getDescription())
-                .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
-    }
+@Test
+void buildResponseEntityShouldSanitizeMultipleErrors() {
 
-    @Test
-    void buildResponseEntityShouldUseBadRequestWhenStatusIsNull() {
-        ErrorDTO error = ErrorDTO.builder()
-                .code("CODE")
-                .description("description")
-                .build();
+    ErrorDTO error1 = ErrorDTO.builder()
+            .code("CODE1")
+            .description("internal description 1")
+            .message("msg1")
+            .build();
 
-        var response = handler.buildResponseEntity(List.of(error), null);
+    ErrorDTO error2 = ErrorDTO.builder()
+            .code("CODE2")
+            .description("internal description 2")
+            .message("msg2")
+            .build();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
+    var response = handler.buildResponseEntity(
+            List.of(error1, error2),
+            HttpStatus.INTERNAL_SERVER_ERROR
+    );
 
-    @Test
-    void handleHttpMessageNotReadableExceptionShouldReturnBadRequest() {
-        var response = handler.handleValidationExceptions(new HttpMessageNotReadableException("invalid body"));
+    assertThat(response.getStatusCode())
+            .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-    }
+    ErrorResponseDTO body = response.getBody();
 
-    @Test
-    void handleMethodNotAllowedExceptionsShouldReturnMethodNotAllowed() {
-        var response = handler.handleMethodNotAllowedExceptions(
-                new HttpRequestMethodNotSupportedException("POST")
-        );
+    assertThat(body).isNotNull();
+    assertThat(body.getErrors()).hasSize(2);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).hasSize(1);
-    }
+    body.getErrors().forEach(error ->
+            assertThat(error.getDescription())
+                    .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.")
+    );
+}
 
-    @Test
-    void buildResponseEntityShouldReturnEmptyErrorsWhenInputErrorsIsNull() {
-        var response = handler.buildResponseEntity(null, HttpStatus.BAD_REQUEST);
+@Test
+void buildResponseEntityShouldKeepOriginalCode() {
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getErrors()).isEmpty();
-    }
+    ErrorDTO error = ErrorDTO.builder()
+            .code("ORIGINAL-CODE")
+            .description("internal")
+            .build();
+
+    var response = handler.buildResponseEntity(
+            List.of(error),
+            HttpStatus.BAD_REQUEST
+    );
+
+    ErrorResponseDTO body = response.getBody();
+
+    assertThat(body).isNotNull();
+    assertThat(body.getErrors().get(0).getCode())
+            .isEqualTo("ORIGINAL-CODE");
+}
+
+@Test
+void handleExceptionShouldGenerateSanitizedDescription() {
+
+    var response = handler.handleException(new Exception("unexpected"));
+
+    ErrorResponseDTO body = response.getBody();
+
+    assertThat(body).isNotNull();
+
+    assertThat(body.getErrors().get(0).getDescription())
+            .isEqualTo("Ocurrió un error al procesar la solicitud. Consulte los logs para más detalle.");
+}
+
+@Test
+void handleMethodNotAllowedShouldReturnCorrectCode() {
+
+    var response = handler.handleMethodNotAllowedExceptions(
+            new HttpRequestMethodNotSupportedException("PUT")
+    );
+
+    ErrorResponseDTO body = response.getBody();
+
+    assertThat(body).isNotNull();
+
+    assertThat(body.getErrors().get(0).getCode())
+            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9405");
+}
+
+@Test
+void handleHttpMessageNotReadableShouldReturnCorrectCode() {
+
+    var response = handler.handleValidationExceptions(
+            new HttpMessageNotReadableException("invalid")
+    );
+
+    ErrorResponseDTO body = response.getBody();
+
+    assertThat(body).isNotNull();
+
+    assertThat(body.getErrors().get(0).getCode())
+            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
+}
+
+@Test
+void handleIllegalArgumentShouldReturnCorrectCode() {
+
+    var response = handler.handleValidationExceptions(
+            new IllegalArgumentException("illegal")
+    );
+
+    ErrorResponseDTO body = response.getBody();
+
+    assertThat(body).isNotNull();
+
+    assertThat(body.getErrors().get(0).getCode())
+            .isEqualTo("DATA_CONSENT_MANAGEMENT-P-F-9400");
 }

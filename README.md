@@ -1,146 +1,212 @@
-package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
+// ============================================================================ // TESTS - infrastructure.adapters.input.rest // ============================================================================
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+// ----------------------------------------------------------------------------- // 1) src/test/java/.../infrastructure/adapters/input/rest/DatabaseControllerTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input.UserManagementInputPort;
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.usecases.UserManagementUseCase;
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.ExampleUserRecord;
-import com.santander.darwin.core.exceptions.NotFoundDarwinException;
-import com.santander.darwin.core.exceptions.dto.GluonErrorModel;
+import static org.junit.jupiter.api.Assertions.; import static org.mockito.Mockito.;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
 
-/**
- * Example controller for Darwin Database-based applications
- */
-@RestController
-@RequestMapping("/bnc-bsn049-mswatchliscreen/databases")
-@Slf4j
-class DatabaseController {
+import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension;
 
-    private final ObjectMapper objectMapper;
-	private final UserManagementUseCase userManagementUseCase;
+import com.fasterxml.jackson.core.JsonProcessingException; import com.fasterxml.jackson.databind.ObjectMapper; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input.UserManagementInputPort; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.ExampleUserRecord; import com.santander.darwin.core.exceptions.NotFoundDarwinException;
 
-	/**
-	 * Injection of the input port for uses in several controller methods
-	 * @param userManagementInputPort to access domain layer logic
-	 */
-	public DatabaseController(UserManagementInputPort userManagementInputPort,ObjectMapper objectMapper) {
-		this.userManagementUseCase = userManagementInputPort;
-		this.objectMapper = objectMapper;
-	}
+@ExtendWith(MockitoExtension.class) class DatabaseControllerTest {
 
-	/**
-	 * Basic method to control the "/user" endpoint that, when receives a request
-	 * with a name and an email will call the Database Service to save a new User,
-	 * using a POST HTTP method.
-	 * @param name to save in the Database @RequestParam("name") String name
-	 * @param mail to save in the Database @RequestParam("mail") String mail
-	 * @return UserRecord
-	 */
-	@Operation(summary = "Create a new user", description = "Create a new user with the provided name and email")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = ExampleUserRecord.class))),
-			@ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = @Content(array = @ArraySchema(schema = @Schema(implementation = GluonErrorModel.GluonErrorModelBuilder.GluonError.class)))) })
-	@PostMapping("/user")
-	@ResponseStatus(HttpStatus.CREATED)
-	public ExampleUserRecord createUser(@RequestParam("name") String name, @RequestParam("mail") String mail) {
+@Mock
+private UserManagementInputPort userManagementInputPort;
 
-		log.info("*** INIT (POST) /bnc-bsn049-mswatchliscreen/databases/user?name={}&mail={} >>> ",name,mail);
-		
-		ExampleUserRecord response = userManagementUseCase.createUser(name, mail);
-		
-		try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sbr = new StringBuilder();
-			sbr.append(" Response=").append(jsonResponse);
-			log.info("*** FIN (POST) /bnc-bsn049-mswatchliscreen/databases/user?name={}&mail={} {}>>> ",name,mail,sbr.toString());
-		} catch (Exception e) {
-			log.error("Error serializando response");
-		}
-		return response;
-	}
+@Mock
+private ObjectMapper objectMapper;
 
-	/**
-	 * Basic method to control the "/user/{id}" endpoint that retrieves an User with
-	 * a given id requested, using a GET HTTP method.
-	 * @param id to retrieve @PathVariable("id") Long id
-	 * @return UserRecord
-	 */
-	@Operation(summary = "Create a new user", description = "Create a new user with the provided name and email")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(schema = @Schema(implementation = ExampleUserRecord.class))),
-			@ApiResponse(responseCode = "406", description = "Not Acceptable", content = @Content(array = @ArraySchema(schema = @Schema(implementation = GluonErrorModel.GluonErrorModelBuilder.GluonError.class)))) })
-	@GetMapping("/user/{id}")
-	public ExampleUserRecord retrieveUser(@PathVariable("id") Long id) {
-		
-		log.info("*** INIT (GET) /bnc-bsn049-mswatchliscreen/databases/user/{} >>> ",id);
-		
-		ExampleUserRecord response = userManagementUseCase.findById(id).orElseThrow(() -> new NotFoundDarwinException("User not found"));
-		
-		try {
-			String jsonResponse = objectMapper.writeValueAsString(response);
-			StringBuilder sbr = new StringBuilder();
-			sbr.append(" Response=").append(jsonResponse);
-			log.info("*** FIN (GET) /bnc-bsn049-mswatchliscreen/databases/user/{} {} >>> ",id,sbr.toString());
-		} catch (Exception e) {
-			log.error("Error serializando response");
-		}
-		
-		return response;
-	}
+@Mock
+private ExampleUserRecord exampleUserRecord;
+
+private DatabaseController controller;
+
+@BeforeEach
+void setUp() {
+    controller = new DatabaseController(userManagementInputPort, objectMapper);
 }
 
-package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
+@Test
+void createUser_debeRetornarUsuarioCreado() throws Exception {
+    when(userManagementInputPort.createUser("Fabio", "fabio@test.com"))
+            .thenReturn(exampleUserRecord);
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+    when(objectMapper.writeValueAsString(exampleUserRecord))
+            .thenReturn("{\"name\":\"Fabio\"}");
 
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.WatchlistScreeningRequest;
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.service.WatchlistScreeningService;
+    ExampleUserRecord result = controller.createUser("Fabio", "fabio@test.com");
 
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+    assertSame(exampleUserRecord, result);
 
-@RestController
-@RequestMapping("/v1/watchlist_screening")
-@Slf4j
-@Tag(name = "watchlist_screening", description = "Watchlist Screening")
-@RequiredArgsConstructor
-public class WatchlistScreeningControllers {
+    verify(userManagementInputPort)
+            .createUser("Fabio", "fabio@test.com");
 
-	@Autowired
-	WatchlistScreeningService termDepositService;
+    verify(objectMapper)
+            .writeValueAsString(exampleUserRecord);
 
-	@PostMapping("/validate_status")
-	public Object validateStatus(@RequestHeader("Authorization") String authorization,
-			@RequestHeader("x-santander-client-id") String clientId,
-			@Valid @RequestBody WatchlistScreeningRequest request) throws ServiceException {
+    verifyNoMoreInteractions(userManagementInputPort, objectMapper);
+}
 
-		return termDepositService.validateStatus(request);
-	}
+@Test
+void createUser_cuandoSerializacionFalla_debeRetornarUsuarioIgualmente() throws Exception {
+    when(userManagementInputPort.createUser("Fabio", "fabio@test.com"))
+            .thenReturn(exampleUserRecord);
+
+    when(objectMapper.writeValueAsString(exampleUserRecord))
+            .thenThrow(new JsonProcessingException("error") {
+                private static final long serialVersionUID = 1L;
+            });
+
+    ExampleUserRecord result = controller.createUser("Fabio", "fabio@test.com");
+
+    assertSame(exampleUserRecord, result);
+
+    verify(userManagementInputPort)
+            .createUser("Fabio", "fabio@test.com");
+
+    verify(objectMapper)
+            .writeValueAsString(exampleUserRecord);
+}
+
+@Test
+void retrieveUser_cuandoExiste_debeRetornarUsuario() throws Exception {
+    when(userManagementInputPort.findById(1L))
+            .thenReturn(Optional.of(exampleUserRecord));
+
+    when(objectMapper.writeValueAsString(exampleUserRecord))
+            .thenReturn("{\"id\":1}");
+
+    ExampleUserRecord result = controller.retrieveUser(1L);
+
+    assertSame(exampleUserRecord, result);
+
+    verify(userManagementInputPort)
+            .findById(1L);
+
+    verify(objectMapper)
+            .writeValueAsString(exampleUserRecord);
+
+    verifyNoMoreInteractions(userManagementInputPort, objectMapper);
+}
+
+@Test
+void retrieveUser_cuandoSerializacionFalla_debeRetornarUsuario() throws Exception {
+    when(userManagementInputPort.findById(1L))
+            .thenReturn(Optional.of(exampleUserRecord));
+
+    when(objectMapper.writeValueAsString(exampleUserRecord))
+            .thenThrow(new JsonProcessingException("error") {
+                private static final long serialVersionUID = 1L;
+            });
+
+    ExampleUserRecord result = controller.retrieveUser(1L);
+
+    assertSame(exampleUserRecord, result);
+
+    verify(userManagementInputPort)
+            .findById(1L);
+
+    verify(objectMapper)
+            .writeValueAsString(exampleUserRecord);
+}
+
+@Test
+void retrieveUser_cuandoNoExiste_debeLanzarNotFoundDarwinException() {
+    when(userManagementInputPort.findById(99L))
+            .thenReturn(Optional.empty());
+
+    NotFoundDarwinException exception = assertThrows(
+            NotFoundDarwinException.class,
+            () -> controller.retrieveUser(99L));
+
+    assertEquals("User not found", exception.getMessage());
+
+    verify(userManagementInputPort)
+            .findById(99L);
+
+    verifyNoInteractions(objectMapper);
+}
 
 }
 
+// ----------------------------------------------------------------------------- // 2) src/test/java/.../infrastructure/adapters/input/rest/WatchlistScreeningControllersTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
 
+import static org.junit.jupiter.api.Assertions.; import static org.mockito.Mockito.;
+
+import java.util.ArrayList;
+
+import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.InjectMocks; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.DocumentDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.PersonDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.PersonNameDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.WatchlistScreeningRequest; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception.ServiceException; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.service.WatchlistScreeningService;
+
+@ExtendWith(MockitoExtension.class) class WatchlistScreeningControllersTest {
+
+@Mock
+private WatchlistScreeningService termDepositService;
+
+@InjectMocks
+private WatchlistScreeningControllers controller;
+
+private WatchlistScreeningRequest request;
+
+@BeforeEach
+void setUp() {
+    ArrayList<DocumentDTO> documents = new ArrayList<>();
+    documents.add(DocumentDTO.builder()
+            .documentNumber("123456")
+            .documentTypeCode("CC")
+            .build());
+
+    request = WatchlistScreeningRequest.builder()
+            .person(PersonDTO.builder()
+                    .personName(PersonNameDTO.builder()
+                            .fullName("Fabio Hernandez")
+                            .build())
+                    .documents(documents)
+                    .build())
+            .build();
+}
+
+@Test
+void validateStatus_debeDelegarServicioYRetornarRespuesta() throws Exception {
+    Object expected = new Object();
+
+    when(termDepositService.validateStatus(request))
+            .thenReturn(expected);
+
+    Object result = controller.validateStatus(
+            "Bearer token",
+            "client-id",
+            request);
+
+    assertSame(expected, result);
+
+    verify(termDepositService)
+            .validateStatus(request);
+
+    verifyNoMoreInteractions(termDepositService);
+}
+
+@Test
+void validateStatus_cuandoServicioLanzaException_debePropagarla() throws Exception {
+    ServiceException exception = mock(ServiceException.class);
+
+    when(termDepositService.validateStatus(request))
+            .thenThrow(exception);
+
+    ServiceException result = assertThrows(
+            ServiceException.class,
+            () -> controller.validateStatus(
+                    "Bearer token",
+                    "client-id",
+                    request));
+
+    assertSame(exception, result);
+
+    verify(termDepositService)
+            .validateStatus(request);
+}
+
+}

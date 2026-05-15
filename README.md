@@ -1,190 +1,146 @@
-// ============================================================================ // TESTS DESDE EL PAQUETE observability EN ADELANTE // ============================================================================
+package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
 
-// ----------------------------------------------------------------------------- // 1) src/test/java/.../observability/ExternalApisHealthIndicatorTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.observability;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input.UserManagementInputPort;
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.usecases.UserManagementUseCase;
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.ExampleUserRecord;
+import com.santander.darwin.core.exceptions.NotFoundDarwinException;
+import com.santander.darwin.core.exceptions.dto.GluonErrorModel;
 
-import java.io.IOException; import java.net.InetSocketAddress; import java.util.List; import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 
-import org.junit.jupiter.api.AfterEach; import org.junit.jupiter.api.Test; import org.springframework.boot.actuate.health.Health; import org.springframework.boot.actuate.health.Status;
+/**
+ * Example controller for Darwin Database-based applications
+ */
+@RestController
+@RequestMapping("/bnc-bsn049-mswatchliscreen/databases")
+@Slf4j
+class DatabaseController {
 
-import com.sun.net.httpserver.HttpServer;
+    private final ObjectMapper objectMapper;
+	private final UserManagementUseCase userManagementUseCase;
 
-class ExternalApisHealthIndicatorTest {
+	/**
+	 * Injection of the input port for uses in several controller methods
+	 * @param userManagementInputPort to access domain layer logic
+	 */
+	public DatabaseController(UserManagementInputPort userManagementInputPort,ObjectMapper objectMapper) {
+		this.userManagementUseCase = userManagementInputPort;
+		this.objectMapper = objectMapper;
+	}
 
-private HttpServer server;
+	/**
+	 * Basic method to control the "/user" endpoint that, when receives a request
+	 * with a name and an email will call the Database Service to save a new User,
+	 * using a POST HTTP method.
+	 * @param name to save in the Database @RequestParam("name") String name
+	 * @param mail to save in the Database @RequestParam("mail") String mail
+	 * @return UserRecord
+	 */
+	@Operation(summary = "Create a new user", description = "Create a new user with the provided name and email")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = ExampleUserRecord.class))),
+			@ApiResponse(responseCode = "415", description = "Unsupported Media Type", content = @Content(array = @ArraySchema(schema = @Schema(implementation = GluonErrorModel.GluonErrorModelBuilder.GluonError.class)))) })
+	@PostMapping("/user")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ExampleUserRecord createUser(@RequestParam("name") String name, @RequestParam("mail") String mail) {
 
-@AfterEach
-void tearDown() {
-    if (server != null) {
-        server.stop(0);
-    }
+		log.info("*** INIT (POST) /bnc-bsn049-mswatchliscreen/databases/user?name={}&mail={} >>> ",name,mail);
+		
+		ExampleUserRecord response = userManagementUseCase.createUser(name, mail);
+		
+		try {
+			String jsonResponse = objectMapper.writeValueAsString(response);
+			StringBuilder sbr = new StringBuilder();
+			sbr.append(" Response=").append(jsonResponse);
+			log.info("*** FIN (POST) /bnc-bsn049-mswatchliscreen/databases/user?name={}&mail={} {}>>> ",name,mail,sbr.toString());
+		} catch (Exception e) {
+			log.error("Error serializando response");
+		}
+		return response;
+	}
+
+	/**
+	 * Basic method to control the "/user/{id}" endpoint that retrieves an User with
+	 * a given id requested, using a GET HTTP method.
+	 * @param id to retrieve @PathVariable("id") Long id
+	 * @return UserRecord
+	 */
+	@Operation(summary = "Create a new user", description = "Create a new user with the provided name and email")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(schema = @Schema(implementation = ExampleUserRecord.class))),
+			@ApiResponse(responseCode = "406", description = "Not Acceptable", content = @Content(array = @ArraySchema(schema = @Schema(implementation = GluonErrorModel.GluonErrorModelBuilder.GluonError.class)))) })
+	@GetMapping("/user/{id}")
+	public ExampleUserRecord retrieveUser(@PathVariable("id") Long id) {
+		
+		log.info("*** INIT (GET) /bnc-bsn049-mswatchliscreen/databases/user/{} >>> ",id);
+		
+		ExampleUserRecord response = userManagementUseCase.findById(id).orElseThrow(() -> new NotFoundDarwinException("User not found"));
+		
+		try {
+			String jsonResponse = objectMapper.writeValueAsString(response);
+			StringBuilder sbr = new StringBuilder();
+			sbr.append(" Response=").append(jsonResponse);
+			log.info("*** FIN (GET) /bnc-bsn049-mswatchliscreen/databases/user/{} {} >>> ",id,sbr.toString());
+		} catch (Exception e) {
+			log.error("Error serializando response");
+		}
+		
+		return response;
+	}
 }
 
-@Test
-void health_cuandoApiCriticaEstaUp_retornaUp() throws IOException {
-    int port = startServer(204);
+package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
 
-    ExternalApisHealthProperties properties = buildProperties(
-            "api-up",
-            "http://localhost:" + port,
-            true,
-            List.of(204));
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-    ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.WatchlistScreeningRequest;
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception.ServiceException;
+import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.service.WatchlistScreeningService;
 
-    Health health = indicator.health();
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-    assertEquals(Status.UP, health.getStatus());
+@RestController
+@RequestMapping("/v1/watchlist_screening")
+@Slf4j
+@Tag(name = "watchlist_screening", description = "Watchlist Screening")
+@RequiredArgsConstructor
+public class WatchlistScreeningControllers {
 
-    Map<?, ?> detail = (Map<?, ?>) health.getDetails().get("api-up");
+	@Autowired
+	WatchlistScreeningService termDepositService;
 
-    assertEquals("UP", detail.get("status"));
-    assertEquals("http://localhost:" + port, detail.get("url"));
-    assertEquals(true, detail.get("critical"));
-    assertEquals(204, detail.get("httpStatus"));
-}
+	@PostMapping("/validate_status")
+	public Object validateStatus(@RequestHeader("Authorization") String authorization,
+			@RequestHeader("x-santander-client-id") String clientId,
+			@Valid @RequestBody WatchlistScreeningRequest request) throws ServiceException {
 
-@Test
-void health_cuandoApiCriticaEstaDown_retornaDown() throws IOException {
-    int port = startServer(500);
-
-    ExternalApisHealthProperties properties = buildProperties(
-            "api-down",
-            "http://localhost:" + port,
-            true,
-            null);
-
-    ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
-
-    Health health = indicator.health();
-
-    assertEquals(Status.DOWN, health.getStatus());
-
-    Map<?, ?> detail = (Map<?, ?>) health.getDetails().get("api-down");
-
-    assertEquals("DOWN", detail.get("status"));
-    assertEquals(500, detail.get("httpStatus"));
-}
-
-@Test
-void health_cuandoApiNoCriticaEstaDown_retornaUp() {
-    ExternalApisHealthProperties properties = buildProperties(
-            "api-non-critical",
-            "http://localhost:1",
-            false,
-            null);
-
-    ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
-
-    Health health = indicator.health();
-
-    assertEquals(Status.UP, health.getStatus());
-
-    Map<?, ?> detail = (Map<?, ?>) health.getDetails().get("api-non-critical");
-
-    assertEquals("DOWN", detail.get("status"));
-    assertEquals(false, detail.get("critical"));
-    assertNotNull(detail.get("error"));
-}
-
-@Test
-void health_cuandoAcceptedStatusesEsNull_usaRango2xx() throws IOException {
-    int port = startServer(200);
-
-    ExternalApisHealthProperties properties = buildProperties(
-            "api-2xx",
-            "http://localhost:" + port,
-            true,
-            null);
-
-    ExternalApisHealthIndicator indicator = new ExternalApisHealthIndicator(properties);
-
-    Health health = indicator.health();
-
-    assertEquals(Status.UP, health.getStatus());
-}
-
-private int startServer(int status) throws IOException {
-    server = HttpServer.create(new InetSocketAddress(0), 0);
-
-    server.createContext("/", exchange -> {
-        exchange.sendResponseHeaders(status, -1);
-        exchange.close();
-    });
-
-    server.start();
-
-    return server.getAddress().getPort();
-}
-
-private ExternalApisHealthProperties buildProperties(
-        String name,
-        String url,
-        boolean critical,
-        List<Integer> acceptedStatuses) {
-
-    ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-    properties.setTimeoutMs(1000);
-
-    ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
-    check.setName(name);
-    check.setUrl(url);
-    check.setCritical(critical);
-    check.setAcceptedStatuses(acceptedStatuses);
-
-    properties.setChecks(List.of(check));
-
-    return properties;
-}
+		return termDepositService.validateStatus(request);
+	}
 
 }
 
-// ----------------------------------------------------------------------------- // 2) src/test/java/.../observability/ExternalApisHealthPropertiesTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.observability;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
-class ExternalApisHealthPropertiesTest {
-
-@Test
-void gettersSetters_timeoutYChecks() {
-    ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-
-    assertEquals(2000, properties.getTimeoutMs());
-    assertNotNull(properties.getChecks());
-    assertTrue(properties.getChecks().isEmpty());
-
-    properties.setTimeoutMs(500);
-
-    ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
-    check.setName("api");
-    check.setUrl("http://localhost:8080/health");
-    check.setCritical(false);
-    check.setAcceptedStatuses(List.of(200, 204));
-
-    properties.setChecks(List.of(check));
-
-    assertEquals(500, properties.getTimeoutMs());
-    assertEquals(1, properties.getChecks().size());
-
-    ExternalApisHealthProperties.ApiCheck result = properties.getChecks().get(0);
-
-    assertEquals("api", result.getName());
-    assertEquals("http://localhost:8080/health", result.getUrl());
-    assertFalse(result.isCritical());
-    assertEquals(List.of(200, 204), result.getAcceptedStatuses());
-}
-
-@Test
-void apiCheck_valoresPorDefecto() {
-    ExternalApisHealthProperties.ApiCheck check = new ExternalApisHealthProperties.ApiCheck();
-
-    assertTrue(check.isCritical());
-    assertNull(check.getAcceptedStatuses());
-}
-
-}

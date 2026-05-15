@@ -1,6 +1,6 @@
-// Dependencias sugeridas en pom.xml // junit-jupiter, mockito-junit-jupiter, spring-test, jackson-databind, jakarta-validation, spring-boot-starter-test
+// ============================================================================ // Tests unitarios en el MISMO ORDEN de las clases enviadas // JUnit 5 + Mockito, clase por clase, sin SpringBootTest // ============================================================================
 
-// ----------------------------------------------------------------------------- // src/test/java/.../application/ports/input/UserManagementInputPortTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input;
+// ----------------------------------------------------------------------------- // 1) src/test/java/.../application/ports/input/UserManagementInputPortTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input;
 
 import static org.junit.jupiter.api.Assertions.; import static org.mockito.Mockito.;
 
@@ -13,106 +13,165 @@ import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.outpu
 @ExtendWith(MockitoExtension.class) class UserManagementInputPortTest {
 
 @Mock
-private UserManagementOutputPort outputPort;
+private UserManagementOutputPort userManagementOutputPort;
 
 @Test
-void createUser_delegaEnOutputPort_yRetornaUsuario() {
+void createUser_debeDelegarPersistUser() {
     ExampleUserRecord expected = mock(ExampleUserRecord.class);
-    when(outputPort.persistUser("Fabio", "fabio@test.com")).thenReturn(expected);
+    when(userManagementOutputPort.persistUser("Fabio", "fabio@test.com")).thenReturn(expected);
 
-    UserManagementInputPort inputPort = new UserManagementInputPort(outputPort);
+    UserManagementInputPort port = new UserManagementInputPort(userManagementOutputPort);
 
-    ExampleUserRecord result = inputPort.createUser("Fabio", "fabio@test.com");
+    ExampleUserRecord result = port.createUser("Fabio", "fabio@test.com");
 
     assertSame(expected, result);
-    verify(outputPort).persistUser("Fabio", "fabio@test.com");
-    verifyNoMoreInteractions(outputPort);
+    verify(userManagementOutputPort).persistUser("Fabio", "fabio@test.com");
+    verifyNoMoreInteractions(userManagementOutputPort);
 }
 
 @Test
-void findById_delegaEnOutputPort_yRetornaOptionalConUsuario() {
+void findById_debeDelegarFindById_cuandoExiste() {
     ExampleUserRecord user = mock(ExampleUserRecord.class);
-    when(outputPort.findById(1L)).thenReturn(Optional.of(user));
+    when(userManagementOutputPort.findById(1L)).thenReturn(Optional.of(user));
 
-    UserManagementInputPort inputPort = new UserManagementInputPort(outputPort);
+    UserManagementInputPort port = new UserManagementInputPort(userManagementOutputPort);
 
-    Optional<?> result = inputPort.findById(1L);
+    Optional result = port.findById(1L);
 
     assertTrue(result.isPresent());
     assertSame(user, result.get());
-    verify(outputPort).findById(1L);
-    verifyNoMoreInteractions(outputPort);
+    verify(userManagementOutputPort).findById(1L);
+    verifyNoMoreInteractions(userManagementOutputPort);
 }
 
 @Test
-void findById_cuandoNoExiste_retornaOptionalVacio() {
-    when(outputPort.findById(99L)).thenReturn(Optional.empty());
+void findById_debeDelegarFindById_cuandoNoExiste() {
+    when(userManagementOutputPort.findById(99L)).thenReturn(Optional.empty());
 
-    UserManagementInputPort inputPort = new UserManagementInputPort(outputPort);
+    UserManagementInputPort port = new UserManagementInputPort(userManagementOutputPort);
 
-    Optional<?> result = inputPort.findById(99L);
+    Optional result = port.findById(99L);
 
     assertTrue(result.isEmpty());
-    verify(outputPort).findById(99L);
-    verifyNoMoreInteractions(outputPort);
+    verify(userManagementOutputPort).findById(99L);
+    verifyNoMoreInteractions(userManagementOutputPort);
 }
 
 }
 
-// ----------------------------------------------------------------------------- // src/test/java/.../domain/entity/PlainBeansTest.java // Cubre POJOs con getters/setters y valores por defecto. // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+// ----------------------------------------------------------------------------- // 2) src/test/java/.../domain/entity/AltairRequestTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList; import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-class PlainBeansTest {
+class AltairRequestTest {
 
 @Test
-void altairRequest_gettersSetters() {
-    AltairRequest bean = new AltairRequest();
+void gettersSetters_debenCubrirDataYCabecera() {
+    AltairRequest request = new AltairRequest();
     DataRequestBean data = new DataRequestBean();
     CabeceraBean cabecera = new CabeceraBean();
 
-    bean.setData(data);
-    bean.setCabecera(cabecera);
+    request.setData(data);
+    request.setCabecera(cabecera);
 
-    assertSame(data, bean.getData());
-    assertSame(cabecera, bean.getCabecera());
+    assertSame(data, request.getData());
+    assertSame(cabecera, request.getCabecera());
 }
 
+}
+
+// ----------------------------------------------------------------------------- // 3) src/test/java/.../domain/entity/AltairResponseTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+class AltairResponseTest {
+
 @Test
-void altairResponse_gettersSetters() {
-    AltairResponse bean = new AltairResponse();
+void gettersSetters_debenCubrirTodosLosCampos() {
+    AltairResponse response = new AltairResponse();
     DataResponseBean data = new DataResponseBean();
     CabeceraBean cabecera = new CabeceraBean();
     PaginacionBean paginacion = new PaginacionBean();
     List<MesageAltair> avisos = List.of(new MesageAltair());
     List<MesageAltair> errores = List.of(new MesageAltair());
 
-    bean.setData(data);
-    bean.setCabecera(cabecera);
-    bean.setAutorizacion("auth");
-    bean.setPaginacion(paginacion);
-    bean.setAvisos(avisos);
-    bean.setErrores(errores);
-    bean.setConexion("conexion");
-    bean.setOk("ok");
+    response.setData(data);
+    response.setCabecera(cabecera);
+    response.setAutorizacion("autorizacion");
+    response.setPaginacion(paginacion);
+    response.setAvisos(avisos);
+    response.setErrores(errores);
+    response.setConexion("conexion");
+    response.setOk("ok");
 
-    assertSame(data, bean.getData());
-    assertSame(cabecera, bean.getCabecera());
-    assertEquals("auth", bean.getAutorizacion());
-    assertSame(paginacion, bean.getPaginacion());
-    assertSame(avisos, bean.getAvisos());
-    assertSame(errores, bean.getErrores());
-    assertEquals("conexion", bean.getConexion());
-    assertEquals("ok", bean.getOk());
+    assertSame(data, response.getData());
+    assertSame(cabecera, response.getCabecera());
+    assertEquals("autorizacion", response.getAutorizacion());
+    assertSame(paginacion, response.getPaginacion());
+    assertSame(avisos, response.getAvisos());
+    assertSame(errores, response.getErrores());
+    assertEquals("conexion", response.getConexion());
+    assertEquals("ok", response.getOk());
 }
 
+}
+
+// ----------------------------------------------------------------------------- // 4) src/test/java/.../domain/entity/AntiMoneyLaunderingDTOTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+class AntiMoneyLaunderingDTOTest {
+
 @Test
-void basicDataBean_gettersSetters() {
+void builderGettersSettersConstructoresEqualsHashCodeToString() {
+    List<RiskCategoryDTO> categories = List.of(new RiskCategoryDTO("C1", "Categoria"));
+    List<RiskSourceDTO> sources = List.of(new RiskSourceDTO("S1", "Fuente"));
+
+    AntiMoneyLaunderingDTO dto = AntiMoneyLaunderingDTO.builder()
+            .riskCategories(categories)
+            .riskSources(sources)
+            .build();
+
+    assertEquals(categories, dto.getRiskCategories());
+    assertEquals(sources, dto.getRiskSources());
+
+    AntiMoneyLaunderingDTO empty = new AntiMoneyLaunderingDTO();
+    empty.setRiskCategories(categories);
+    empty.setRiskSources(sources);
+
+    assertEquals(dto, empty);
+    assertEquals(dto.hashCode(), empty.hashCode());
+    assertTrue(dto.toString().contains("riskCategories"));
+
+    AntiMoneyLaunderingDTO allArgs = new AntiMoneyLaunderingDTO(categories, sources);
+    assertEquals(categories, allArgs.getRiskCategories());
+    assertEquals(sources, allArgs.getRiskSources());
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 5) src/test/java/.../domain/entity/BasicDataBeanTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class BasicDataBeanTest {
+
+@Test
+void gettersSetters_debenCubrirTodosLosCampos() {
     BasicDataBean bean = new BasicDataBean();
+
     bean.setTipoIdentificacion("CC");
     bean.setNumeroIdentificacion("123");
     bean.setNombre("Fabio");
@@ -136,15 +195,31 @@ void basicDataBean_gettersSetters() {
     assertEquals("999", bean.getNumper());
 }
 
+}
+
+// ----------------------------------------------------------------------------- // 6) src/test/java/.../domain/entity/CabeceraBeanTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class CabeceraBeanTest {
+
 @Test
-void cabeceraBean_valoresPorDefecto_ySetters() {
+void valoresPorDefecto_debenSerLosEsperados() {
     CabeceraBean bean = new CabeceraBean();
+
     assertEquals("ConsultaDatosBasicosPNatural", bean.getRutaServicio());
     assertEquals("Intro", bean.getFuncion());
     assertEquals(44204, bean.getSecuencia());
     assertEquals("TFC", bean.getCanal());
+}
 
+@Test
+void gettersSetters_debenCubrirTodosLosCampos() {
+    CabeceraBean bean = new CabeceraBean();
     SesionBean sesion = new SesionBean();
+
     bean.setRutaServicio("ruta");
     bean.setSesion(sesion);
     bean.setFuncion("funcion");
@@ -158,48 +233,135 @@ void cabeceraBean_valoresPorDefecto_ySetters() {
     assertEquals("WEB", bean.getCanal());
 }
 
+}
+
+// ----------------------------------------------------------------------------- // 7) src/test/java/.../domain/entity/DataRequestBeanTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class DataRequestBeanTest {
+
 @Test
-void dataRequestBean_gettersSetters() {
+void gettersSetters_debenCubrirTodosLosCampos() {
     DataRequestBean bean = new DataRequestBean();
-    bean.setPENUMPE("p");
+
+    bean.setPENUMPE("penumpe");
     bean.setTipoDocumento("CC");
     bean.setNumDocumento("123");
     bean.setNombre("Fabio");
 
-    assertEquals("p", bean.getPENUMPE());
+    assertEquals("penumpe", bean.getPENUMPE());
     assertEquals("CC", bean.getTipoDocumento());
     assertEquals("123", bean.getNumDocumento());
     assertEquals("Fabio", bean.getNombre());
 }
 
+}
+
+// ----------------------------------------------------------------------------- // 8) src/test/java/.../domain/entity/DataResponseBeanTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class DataResponseBeanTest {
+
 @Test
-void dataResponseBean_gettersSetters() {
+void gettersSetters_debenCubrirDatosBasicos() {
     DataResponseBean bean = new DataResponseBean();
-    BasicDataBean datos = new BasicDataBean();
-    bean.setDatosBasicos(datos);
-    assertSame(datos, bean.getDatosBasicos());
+    BasicDataBean datosBasicos = new BasicDataBean();
+
+    bean.setDatosBasicos(datosBasicos);
+
+    assertSame(datosBasicos, bean.getDatosBasicos());
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 9) src/test/java/.../domain/entity/DocumentDTOTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class DocumentDTOTest {
+
+@Test
+void noArgsGettersSetters() {
+    DocumentDTO dto = new DocumentDTO();
+
+    dto.setDocumentNumber("123");
+    dto.setDocumentTypeCode("CC");
+
+    assertEquals("123", dto.getDocumentNumber());
+    assertEquals("CC", dto.getDocumentTypeCode());
 }
 
 @Test
-void documentDTO_constructoresBuilderGettersSetters() {
-    DocumentDTO empty = new DocumentDTO();
-    empty.setDocumentNumber("123");
-    empty.setDocumentTypeCode("CC");
-    assertEquals("123", empty.getDocumentNumber());
-    assertEquals("CC", empty.getDocumentTypeCode());
+void allArgsConstructor() {
+    DocumentDTO dto = new DocumentDTO("123", "CC");
 
-    DocumentDTO allArgs = new DocumentDTO("456", "TI");
-    assertEquals("456", allArgs.getDocumentNumber());
-    assertEquals("TI", allArgs.getDocumentTypeCode());
-
-    DocumentDTO built = DocumentDTO.builder().documentNumber("789").documentTypeCode("CE").build();
-    assertEquals("789", built.getDocumentNumber());
-    assertEquals("CE", built.getDocumentTypeCode());
+    assertEquals("123", dto.getDocumentNumber());
+    assertEquals("CC", dto.getDocumentTypeCode());
 }
 
 @Test
-void mesageAltair_gettersSetters() {
+void builder() {
+    DocumentDTO dto = DocumentDTO.builder()
+            .documentNumber("123")
+            .documentTypeCode("CC")
+            .build();
+
+    assertEquals("123", dto.getDocumentNumber());
+    assertEquals("CC", dto.getDocumentTypeCode());
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 10) src/test/java/.../domain/entity/ErrorDTOTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class ErrorDTOTest {
+
+@Test
+void builderAllArgsEqualsHashCodeToString() {
+    ErrorDTO dto = ErrorDTO.builder()
+            .code("code")
+            .level("level")
+            .message("message")
+            .description("description")
+            .build();
+
+    ErrorDTO allArgs = new ErrorDTO("code", "level", "message", "description");
+
+    assertEquals(allArgs, dto);
+    assertEquals(allArgs.hashCode(), dto.hashCode());
+    assertEquals("code", dto.getCode());
+    assertEquals("level", dto.getLevel());
+    assertEquals("message", dto.getMessage());
+    assertEquals("description", dto.getDescription());
+    assertTrue(dto.toString().contains("code"));
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 11) src/test/java/.../domain/entity/MesageAltairTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class MesageAltairTest {
+
+@Test
+void gettersSetters_debenCubrirTodosLosCampos() {
     MesageAltair bean = new MesageAltair();
+
     bean.setCodigo("001");
     bean.setMensaje("mensaje");
     bean.setTransaccion("tx");
@@ -209,140 +371,18 @@ void mesageAltair_gettersSetters() {
     assertEquals("tx", bean.getTransaccion());
 }
 
-@Test
-void personDTO_yPersonNameDTO_constructoresBuilderGettersSetters() {
-    PersonNameDTO name = new PersonNameDTO();
-    name.setFullName("Fabio Hernandez");
-    assertEquals("Fabio Hernandez", name.getFullName());
-
-    PersonNameDTO builtName = PersonNameDTO.builder().fullName("Otro Nombre").build();
-    assertEquals("Otro Nombre", builtName.getFullName());
-
-    ArrayList<DocumentDTO> documents = new ArrayList<>();
-    documents.add(DocumentDTO.builder().documentNumber("123").documentTypeCode("CC").build());
-
-    PersonDTO person = new PersonDTO();
-    person.setPersonName(name);
-    person.setDocuments(documents);
-
-    assertSame(name, person.getPersonName());
-    assertSame(documents, person.getDocuments());
-
-    PersonDTO built = PersonDTO.builder().personName(builtName).documents(documents).build();
-    assertSame(builtName, built.getPersonName());
-    assertSame(documents, built.getDocuments());
 }
 
-@Test
-void sesionBean_valoresPorDefecto_ySetters() {
-    SesionBean bean = new SesionBean();
-    assertEquals("@NETE781", bean.getUsuario());
-    assertEquals("N", bean.getEntorno());
-    assertEquals("GCAJASTL", bean.getPerfil());
-    assertEquals("0100", bean.getSucursal());
-    assertEquals("0065", bean.getEntidad());
-    assertEquals("29", bean.getDiasRestantesCambioClave());
-    assertEquals("2022-02-10", bean.getFechaContable());
-
-    bean.setUsuario("user");
-    bean.setTerminal("terminal");
-    bean.setHoraConexion("10:00");
-    bean.setEntorno("P");
-    bean.setPerfil("perfil");
-    bean.setSucursal("0001");
-    bean.setEntidad("0002");
-    bean.setDiasRestantesCambioClave("1");
-    bean.setFechaContable("2024-01-01");
-    bean.setTurno("turno");
-
-    assertEquals("user", bean.getUsuario());
-    assertEquals("terminal", bean.getTerminal());
-    assertEquals("10:00", bean.getHoraConexion());
-    assertEquals("P", bean.getEntorno());
-    assertEquals("perfil", bean.getPerfil());
-    assertEquals("0001", bean.getSucursal());
-    assertEquals("0002", bean.getEntidad());
-    assertEquals("1", bean.getDiasRestantesCambioClave());
-    assertEquals("2024-01-01", bean.getFechaContable());
-    assertEquals("turno", bean.getTurno());
-}
-
-@Test
-void watchlistScreeningRequest_builderGetterSetter() {
-    PersonDTO person = PersonDTO.builder()
-            .personName(PersonNameDTO.builder().fullName("Fabio").build())
-            .documents(new ArrayList<>())
-            .build();
-
-    WatchlistScreeningRequest request = WatchlistScreeningRequest.builder().person(person).build();
-    assertSame(person, request.getPerson());
-
-    WatchlistScreeningRequest empty = WatchlistScreeningRequest.builder().build();
-    empty.setPerson(person);
-    assertSame(person, empty.getPerson());
-}
-
-@Test
-void paginacionBean_sePuedeInstanciar() {
-    assertNotNull(new PaginacionBean());
-}
-
-}
-
-// ----------------------------------------------------------------------------- // src/test/java/.../domain/entity/LombokDtoTest.java // Cubre DTOs con Lombok @Data/@Builder. // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+// ----------------------------------------------------------------------------- // 12) src/test/java/.../domain/entity/OneFccRequestTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-class LombokDtoTest {
+class OneFccRequestTest {
 
 @Test
-void antiMoneyLaunderingDTO_dataBuilderConstructores() {
-    List<RiskCategoryDTO> categories = List.of(new RiskCategoryDTO("C1", "Cat 1"));
-    List<RiskSourceDTO> sources = List.of(new RiskSourceDTO("S1", "Source 1"));
-
-    AntiMoneyLaunderingDTO dto = AntiMoneyLaunderingDTO.builder()
-            .riskCategories(categories)
-            .riskSources(sources)
-            .build();
-
-    assertEquals(categories, dto.getRiskCategories());
-    assertEquals(sources, dto.getRiskSources());
-
-    AntiMoneyLaunderingDTO dto2 = new AntiMoneyLaunderingDTO();
-    dto2.setRiskCategories(categories);
-    dto2.setRiskSources(sources);
-    assertEquals(dto, dto2);
-    assertEquals(dto.hashCode(), dto2.hashCode());
-    assertTrue(dto.toString().contains("riskCategories"));
-
-    AntiMoneyLaunderingDTO dto3 = new AntiMoneyLaunderingDTO(categories, sources);
-    assertEquals(categories, dto3.getRiskCategories());
-    assertEquals(sources, dto3.getRiskSources());
-}
-
-@Test
-void errorDTO_builderAllArgs() {
-    ErrorDTO dto = ErrorDTO.builder()
-            .code("code")
-            .level("level")
-            .message("message")
-            .description("description")
-            .build();
-
-    ErrorDTO dto2 = new ErrorDTO("code", "level", "message", "description");
-    assertEquals(dto, dto2);
-    assertEquals("code", dto.getCode());
-    assertEquals("level", dto.getLevel());
-    assertEquals("message", dto.getMessage());
-    assertEquals("description", dto.getDescription());
-}
-
-@Test
-void oneFccRequest_dataBuilder() {
+void builderDataToString() {
     OneFccRequest dto = OneFccRequest.builder()
             .idDocument("123")
             .name("Fabio")
@@ -374,7 +414,31 @@ void oneFccRequest_dataBuilder() {
 }
 
 @Test
-void oneFccResponse_dataBuilder() {
+void settersDataEqualsHashCode() {
+    OneFccRequest dto = OneFccRequest.builder().build();
+    dto.setIdDocument("123");
+    dto.setName("Fabio");
+
+    OneFccRequest same = OneFccRequest.builder().idDocument("123").name("Fabio").build();
+
+    assertEquals(same, dto);
+    assertEquals(same.hashCode(), dto.hashCode());
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 13) src/test/java/.../domain/entity/OneFccResponseTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+class OneFccResponseTest {
+
+@Test
+void builderDataSettersEqualsHashCodeToString() {
     OneFccResponse dto = OneFccResponse.builder()
             .idDocument("123")
             .name("Fabio")
@@ -384,168 +448,117 @@ void oneFccResponse_dataBuilder() {
             .riskSources(List.of("S1"))
             .build();
 
-    assertEquals("123", dto.getIdDocument());
-    assertEquals("Fabio", dto.getName());
-    assertEquals("CC", dto.getDocumentType());
+    OneFccResponse same = OneFccResponse.builder().build();
+    same.setIdDocument("123");
+    same.setName("Fabio");
+    same.setDocumentType("CC");
+    same.setStatus("OK");
+    same.setRiskCategories(List.of("R1"));
+    same.setRiskSources(List.of("S1"));
+
+    assertEquals(same, dto);
+    assertEquals(same.hashCode(), dto.hashCode());
     assertEquals("OK", dto.getStatus());
-    assertEquals(List.of("R1"), dto.getRiskCategories());
-    assertEquals(List.of("S1"), dto.getRiskSources());
-}
-
-@Test
-void oneFccTokenResponse_dataBuilder() {
-    OneFccTokenResponse dto = OneFccTokenResponse.builder().jwtToken("a.b.c").build();
-    assertEquals("a.b.c", dto.getJwtToken());
-    dto.setJwtToken("x.y.z");
-    assertEquals("x.y.z", dto.getJwtToken());
-}
-
-@Test
-void resultRiskValidateDtos_dataBuilderConstructores() {
-    ResultDTO result = ResultDTO.builder().result("Match found").build();
-    assertEquals("Match found", result.getResult());
-
-    ValidationResultDTO validation = ValidationResultDTO.builder().result(result).build();
-    assertSame(result, validation.getResult());
-
-    RiskCategoryDTO category = RiskCategoryDTO.builder()
-            .riskCategoryCode("RC")
-            .riskCategoryDescription("Risk")
-            .build();
-    assertEquals("RC", category.getRiskCategoryCode());
-    assertEquals("Risk", category.getRiskCategoryDescription());
-
-    RiskSourceDTO source = RiskSourceDTO.builder()
-            .riskSourceCode("RS")
-            .riskSourceDescription("Source")
-            .build();
-    assertEquals("RS", source.getRiskSourceCode());
-    assertEquals("Source", source.getRiskSourceDescription());
-
-    AntiMoneyLaunderingDTO aml = AntiMoneyLaunderingDTO.builder()
-            .riskCategories(List.of(category))
-            .riskSources(List.of(source))
-            .build();
-
-    ValidateStatusResponse response = ValidateStatusResponse.builder()
-            .validationResult(validation)
-            .antiMoneyLaundering(aml)
-            .build();
-
-    assertSame(validation, response.getValidationResult());
-    assertSame(aml, response.getAntiMoneyLaundering());
+    assertTrue(dto.toString().contains("riskCategories"));
 }
 
 }
 
-// ----------------------------------------------------------------------------- // src/test/java/.../domain/exception/ServiceExceptionTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception;
+// ----------------------------------------------------------------------------- // 14) src/test/java/.../domain/entity/OneFccTokenResponseTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test; import org.springframework.http.HttpStatus;
-
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.ErrorDTO;
-
-class ServiceExceptionTest {
-
-@Test
-void constructorStatusError_getters() {
-    ErrorDTO error = ErrorDTO.builder().code("c").message("m").build();
-    ServiceException ex = new ServiceException(HttpStatus.BAD_REQUEST, error);
-
-    assertSame(error, ex.getError());
-    assertEquals(HttpStatus.BAD_REQUEST, ex.getStatus());
-}
-
-@Test
-void builderAllArgs_yDataMethods() {
-    ErrorDTO error = ErrorDTO.builder().code("c").build();
-    ServiceException ex = ServiceException.builder()
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .error(error)
-            .build();
-
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getStatus());
-    assertSame(error, ex.getError());
-    assertTrue(ex.toString().contains("status"));
-}
-
-}
-
-// ----------------------------------------------------------------------------- // src/test/java/.../domain/utils/SanetizacionTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.utils;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.nio.charset.StandardCharsets; import java.util.Base64;
 
 import org.junit.jupiter.api.Test;
 
-class SanetizacionTest {
-
-private static String b64(String value) {
-    return Base64.getUrlEncoder().withoutPadding()
-            .encodeToString(value.getBytes(StandardCharsets.UTF_8));
-}
+class OneFccTokenResponseTest {
 
 @Test
-void token_valido_retornaTokenRecodificado() {
-    String token = b64("header") + "." + b64("payload") + "." + b64("signature");
+void builderDataSettersEqualsHashCodeToString() {
+    OneFccTokenResponse dto = OneFccTokenResponse.builder().jwtToken("a.b.c").build();
+    OneFccTokenResponse same = OneFccTokenResponse.builder().build();
+    same.setJwtToken("a.b.c");
 
-    String result = Sanetizacion.token(" \n" + token + "\r\t ");
-
-    assertEquals(token, result);
-}
-
-@Test
-void token_nuloOVacio_lanzaIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token(null));
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token("   "));
-}
-
-@Test
-void token_largoOConSegmentosInvalidos_lanzaIllegalArgumentException() {
-    String tooLong = "a".repeat(4097) + ".b.c";
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token(tooLong));
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token("a.b"));
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token("a..c"));
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token("a.b.c.d"));
-}
-
-@Test
-void token_conCaracterNoPermitido_lanzaSecurityException() {
-    assertThrows(SecurityException.class, () -> Sanetizacion.token("abc.def$.ghi"));
-}
-
-@Test
-void token_segmentoNoBase64Url_lanzaIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> Sanetizacion.token("abc.def.ghi"));
+    assertEquals("a.b.c", dto.getJwtToken());
+    assertEquals(same, dto);
+    assertEquals(same.hashCode(), dto.hashCode());
+    assertTrue(dto.toString().contains("jwtToken"));
 }
 
 }
 
-// ----------------------------------------------------------------------------- // src/test/java/.../domain/utils/RegexUtilsTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.utils;
+// ----------------------------------------------------------------------------- // 15) src/test/java/.../domain/entity/PaginacionBeanTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.HashMap;
+import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.Test; import org.springframework.test.util.ReflectionTestUtils;
+class PaginacionBeanTest {
 
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception.ServiceException;
+@Test
+void sePuedeInstanciar() {
+    assertNotNull(new PaginacionBean());
+}
 
-class RegexUtilsTest {
+}
 
-private RegexUtils regexUtils;
+// ----------------------------------------------------------------------------- // 16) src/test/java/.../domain/entity/PersonDTOTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
 
-@BeforeEach
-void setUp() {
-    regexUtils = new RegexUtils();
-    ReflectionTestUtils.setField(regexUtils, "msName", "MS");
-    ReflectionTestUtils.setField(regexUtils, "msVersion", "1.0");
-    ReflectionTestUtils.setField(regexUtils, "level", "ERROR");
-    ReflectionTestUtils.setField(regexUtils, "code", "REGEX");
+import static org.junit.jupiter.api.Assertions.*;
 
-    HashMap<String, String> type = new HashMap<>();
-    type.put("only_numbers", "^[0-9]+$");
-    type.put("only_numbers_error", "Solo numeros");
-    type.
+import java.util.ArrayList;
+
+import org.junit.jupiter.api.Test;
+
+class PersonDTOTest {
+
+@Test
+void noArgsGettersSetters() {
+    PersonDTO dto = new PersonDTO();
+    PersonNameDTO name = PersonNameDTO.builder().fullName("Fabio Hernandez").build();
+    ArrayList<DocumentDTO> documents = new ArrayList<>();
+    documents.add(DocumentDTO.builder().documentNumber("123").documentTypeCode("CC").build());
+
+    dto.setPersonName(name);
+    dto.setDocuments(documents);
+
+    assertSame(name, dto.getPersonName());
+    assertSame(documents, dto.getDocuments());
+}
+
+@Test
+void allArgsConstructor() {
+    PersonNameDTO name = PersonNameDTO.builder().fullName("Fabio Hernandez").build();
+    ArrayList<DocumentDTO> documents = new ArrayList<>();
+
+    PersonDTO dto = new PersonDTO(name, documents);
+
+    assertSame(name, dto.getPersonName());
+    assertSame(documents, dto.getDocuments());
+}
+
+@Test
+void builder() {
+    PersonNameDTO name = PersonNameDTO.builder().fullName("Fabio Hernandez").build();
+    ArrayList<DocumentDTO> documents = new ArrayList<>();
+
+    PersonDTO dto = PersonDTO.builder()
+            .personName(name)
+            .documents(documents)
+            .build();
+
+    assertSame(name, dto.getPersonName());
+    assertSame(documents, dto.getDocuments());
+}
+
+}
+
+// ----------------------------------------------------------------------------- // 17) src/test/java/.../domain/entity/PersonNameDTOTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class PersonNameDTOTest {
+
+@Test
+void noArgsGett

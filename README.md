@@ -1,433 +1,696 @@
-/*
-
-Base de pruebas unitarias desacopladas para microservicio Spring Boot
-
-Proyecto: bnc-bsn049-msiam
-
-Stack sugerido: JUnit 5 + Mockito + AssertJ
-
-Objetivo:
-
-Probar clase por clase.
-
-
-Evitar levantar todo el contexto de Spring cuando no sea necesario.
-
-
-No acoplar pruebas a base de datos, endpoints reales, cache real ni configuración externa. */
-
-
-
-// ========================================================= // build.gradle / pom.xml - Dependencias sugeridas // =========================================================
-
-/* Maven:
-
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-</dependency>
-<dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-junit-jupiter</artifactId>
-    <scope>test</scope>
-</dependency>Gradle:
-
-testImplementation 'org.springframework.boot:spring-boot-starter-test' testImplementation 'org.mockito:mockito-junit-jupiter' */
-
-// ========================================================= // 1. Test para clase Service // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.service;
-
-import static org.assertj.core.api.Assertions.assertThat; import static org.assertj.core.api.Assertions.assertThatThrownBy; import static org.mockito.Mockito.verify; import static org.mockito.Mockito.when;
-
-import com.santander.bnc.bsn049.bncbsn049msiam.repository.UserRepository; import com.santander.bnc.bsn049.bncbsn049msiam.domain.User; import com.santander.bnc.bsn049.bncbsn049msiam.exception.BusinessException; import java.util.Optional; import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.InjectMocks; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension;
-
-@ExtendWith(MockitoExtension.class) class UserServiceTest {
-
-@Mock
-private UserRepository userRepository;
-
-@InjectMocks
-private UserService userService;
-
-private User user;
-
-@BeforeEach
-void setUp() {
-    user = new User();
-    user.setId(1L);
-    user.setUsername("fabio");
-    user.setActive(true);
-}
-
-@Test
-@DisplayName("Debe retornar usuario cuando existe por id")
-void shouldReturnUserWhenExistsById() {
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-    User result = userService.findById(1L);
-
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(1L);
-    assertThat(result.getUsername()).isEqualTo("fabio");
-    verify(userRepository).findById(1L);
-}
-
-@Test
-@DisplayName("Debe lanzar excepción cuando el usuario no existe")
-void shouldThrowExceptionWhenUserDoesNotExist() {
-    when(userRepository.findById(99L)).thenReturn(Optional.empty());
-
-    assertThatThrownBy(() -> userService.findById(99L))
-            .isInstanceOf(BusinessException.class);
-
-    verify(userRepository).findById(99L);
-}
-
-}
-
-// ========================================================= // 2. Test para clase Controller // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.controller;
-
-import static org.mockito.Mockito.when; import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get; import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath; import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.santander.bnc.bsn049.bncbsn049msiam.dto.UserResponse; import com.santander.bnc.bsn049.bncbsn049msiam.service.UserService; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest; import org.springframework.boot.test.mock.mockito.MockBean; import org.springframework.test.web.servlet.MockMvc;
-
-@WebMvcTest(UserController.class) class UserControllerTest {
-
-@Autowired
-private MockMvc mockMvc;
-
-@MockBean
-private UserService userService;
-
-@Test
-@DisplayName("Debe responder 200 cuando consulta usuario por id")
-void shouldReturnOkWhenFindUserById() throws Exception {
-    UserResponse response = new UserResponse();
-    response.setId(1L);
-    response.setUsername("fabio");
-    response.setActive(true);
-
-    when(userService.findUserResponseById(1L)).thenReturn(response);
-
-    mockMvc.perform(get("/users/{id}", 1L)
-                    .header("x-santander-client-id", "263ec146"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.username").value("fabio"))
-            .andExpect(jsonPath("$.active").value(true));
-}
-
-}
-
-// ========================================================= // 3. Test para clase Mapper // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.mapper;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.santander.bnc.bsn049.bncbsn049msiam.domain.User; import com.santander.bnc.bsn049.bncbsn049msiam.dto.UserResponse; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test;
-
-class UserMapperTest {
-
-private final UserMapper userMapper = new UserMapper();
-
-@Test
-@DisplayName("Debe mapear entidad User a UserResponse")
-void shouldMapUserToUserResponse() {
-    User user = new User();
-    user.setId(1L);
-    user.setUsername("fabio");
-    user.setActive(true);
-
-    UserResponse result = userMapper.toResponse(user);
-
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(1L);
-    assertThat(result.getUsername()).isEqualTo("fabio");
-    assertThat(result.isActive()).isTrue();
-}
-
-@Test
-@DisplayName("Debe retornar null cuando la entidad es null")
-void shouldReturnNullWhenUserIsNull() {
-    UserResponse result = userMapper.toResponse(null);
-
-    assertThat(result).isNull();
-}
-
-}
-
-// ========================================================= // 4. Test para clase Repository sin acoplar a PostgreSQL real // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.repository;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.santander.bnc.bsn049.bncbsn049msiam.domain.UserEntity; import java.util.Optional; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest; import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase; import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-
-@DataJpaTest @AutoConfigureTestDatabase(replace = Replace.ANY) class UserRepositoryTest {
-
-@Autowired
-private UserRepository userRepository;
-
-@Test
-@DisplayName("Debe encontrar usuario por username")
-void shouldFindUserByUsername() {
-    UserEntity entity = new UserEntity();
-    entity.setUsername("fabio");
-    entity.setActive(true);
-
-    userRepository.save(entity);
-
-    Optional<UserEntity> result = userRepository.findByUsername("fabio");
-
-    assertThat(result).isPresent();
-    assertThat(result.get().getUsername()).isEqualTo("fabio");
-}
-
-}
-
-// ========================================================= // 5. Test para clase Connector / Client externo // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.connector;
-
-import static org.assertj.core.api.Assertions.assertThat; import static org.mockito.ArgumentMatchers.any; import static org.mockito.Mockito.verify; import static org.mockito.Mockito.when;
-
-import com.santander.bnc.bsn049.bncbsn049msiam.dto.PkmResponse; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.InjectMocks; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension; import org.springframework.web.client.RestTemplate;
-
-@ExtendWith(MockitoExtension.class) class PkmConnectorTest {
-
-@Mock
-private RestTemplate restTemplate;
-
-@InjectMocks
-private PkmConnector pkmConnector;
-
-@Test
-@DisplayName("Debe consultar PKM sin llamar endpoint real")
-void shouldCallPkmWithoutRealEndpoint() {
-    PkmResponse expected = new PkmResponse();
-    expected.setStatus("OK");
-
-    when(restTemplate.getForObject(any(String.class), any(Class.class)))
-            .thenReturn(expected);
-
-    PkmResponse result = pkmConnector.getInformation("123");
-
-    assertThat(result).isNotNull();
-    assertThat(result.getStatus()).isEqualTo("OK");
-    verify(restTemplate).getForObject(any(String.class), any(Class.class));
-}
-
-}
-
-// ========================================================= // 6. Test para configuración de propiedades Auth // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.config;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.context.properties.EnableConfigurationProperties; import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-
-class AuthPropertiesTest {
-
-private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withUserConfiguration(TestConfig.class)
-        .withPropertyValues(
-                "auth.x-santander-client-id=263ec146",
-                "auth.jwt.iss=CO_ODS",
-                "auth.jwt.exp-claim-name=exp",
-                "auth.jwt.public-key=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A"
-        );
-
-@Test
-@DisplayName("Debe cargar propiedades de autenticación")
-void shouldLoadAuthProperties() {
-    contextRunner.run(context -> {
-        AuthProperties properties = context.getBean(AuthProperties.class);
-
-        assertThat(properties.getXSantanderClientId()).isEqualTo("263ec146");
-        assertThat(properties.getJwt().getIss()).isEqualTo("CO_ODS");
-        assertThat(properties.getJwt().getExpClaimName()).isEqualTo("exp");
-        assertThat(properties.getJwt().getPublicKey()).isNotBlank();
-    });
-}
-
-@EnableConfigurationProperties(AuthProperties.class)
-static class TestConfig {
-}
-
-}
-
-// ========================================================= // 7. Test para configuración de cache Caffeine // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.config;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.springframework.boot.test.context.runner.ApplicationContextRunner; import org.springframework.cache.CacheManager;
-
-class CacheConfigTest {
-
-private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withUserConfiguration(CacheConfig.class)
-        .withPropertyValues(
-                "spring.cache.type=CAFFEINE",
-                "spring.cache.caffeine.spec=expireAfterWrite=10m",
-                "caffeine.allow-null-values=false"
-        );
-
-@Test
-@DisplayName("Debe crear CacheManager con Caffeine")
-void shouldCreateCaffeineCacheManager() {
-    contextRunner.run(context -> {
-        assertThat(context).hasSingleBean(CacheManager.class);
-        assertThat(context.getBean(CacheManager.class)).isNotNull();
-    });
-}
+spring.profiles.active: local
+---
+darwin:
+  region: boae
+  suffix:
+  app-name: bsn049
+  logging:
+    format: GLUONLOG
+    gluon-log:
+      company: bnc
+      componentName: msiam
+      componentId: CHANGEIT_CMPT_ID
+      componentType: microservice
+      appId: CHANGEIT_APP_ID
+    entity: ESP
+    paas-app-version: "6.1.0"
+  core:
+    exceptions:
+      error-format: GLUON
+  security:
+    white-list:
+      - /**
+    connectors:
+      pkm-connector:
+        pkm-endpoint:
+          - ${env.pkm-endpoint:localhost://}
+    caffeine:
+      # disable null values in cache for performance reasons
+      allow-null-values: false
+
+datasource.url: "jdbc:postgresql://localhost:5434/postgres?currentSchema=authentication"
+datasource.driver-class-name: "org.postgresql.Driver"
+datasource.username: "postgres"
+datasource.password: "gady"
+
+spring:
+  application:
+    name: bnc-bsn049-msiam
+  session:
+    store-type: none
+  cache:
+    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
+    caffeine:
+      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
+  lifecycle.timeout-per-shutdown-phase: 2m
+  datasource:
+    url: "${datasource.url}"
+    username: "${datasource.username}"
+    password: "${datasource.password}"
+    driver-class-name: "${datasource.driver-class-name}"
+
+logging:
+  level:
+    com.santander.bnc.bsn049.bncbsn049msiam: DEBUG
+    okhttp3: INFO
+    root: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-}, %X{spanId:-}] [${spring.application.name:}] %logger{36} - %ms%n"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,ping,db
+        liveness:
+          include: livenessState
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+server:
+  max-http-request-header-size: 128KB
+  forward-headers-strategy: framework
+  shutdown: graceful
+  address: 0.0.0.0
+  port: 8083
+camel:
+  springboot:
+    main-run-controller: true
+auth:
+  x-santander-client-id: 263ec146
+  jwt:
+    iss: CO_ODS
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvtR/wGjrtb5FZMt5rhMixKynE61Sz9curpgPIYUwk/js8hvc8UlIK4vUMEb0RusUIKrccy4k3seX1Da8RcXbUeEy1VAM2SS5bFCsB5FWoGQkPgomrRVLfNWwlIb9ekn1Gal7Y84NzoxW2uJ0849phJlI8fa1snPHL396ZnwqEDEryFmbJZbdNc4zIarEc2hOYM/GTWc9RP5h2BLEU6nUD5TU94PM5AY+18WoVUOPQZ4wdRdST1D7Fq/8+BYMlPuwZMHZO2N8zhkIJm+744jGBQ8yeHubHO8E+wtlu4fqmQZNA1WissqRIMRnmS7bjh8hgn006omWrVWVAthXTT73iQIDAQAB
+    exp-claim-name: exp
+	
+	
+
+package com.santander.bnc.bsn049.bncbsn049msiam.controllers;
+
+ import org.apache.camel.Exchange;
+import org.apache.camel.builder.ExchangeBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.santander.bnc.bsn049.bncbsn049msiam.services.SecurityService;
+
+import lombok.extern.slf4j.Slf4j;
+
+ @RestController
+ @Slf4j
+ @RequestMapping("/auth")
+ public class SecurityController {
+
+		private final SecurityService securityService;
+
+		@Autowired
+		public SecurityController(SecurityService securityService) {
+			this.securityService = securityService;
+		}
+
+		@GetMapping("/validateToken")
+		public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String authorizationHeader,
+				@RequestHeader("X-Santander-Client-Id") String santanderClientIdHeader,
+				@RequestHeader("serviceEndpoint") String serviceEndpoint, @RequestHeader("apiName") String apiName) {
+			try {
+
+				log.debug("** INIT (GET) /auth/validateToken clientId={}, serviceEndpoint={} >>>",
+						santanderClientIdHeader, serviceEndpoint);
+				log.debug("** clientId={}, Authorization={} >>>", santanderClientIdHeader, authorizationHeader);
+				log.debug("** clientId={}, apiName={} >>>", santanderClientIdHeader, apiName);
+
+				// Simulación de la creación de un objeto Exchange de Apache Camel
+				Exchange exchange = ExchangeBuilder.anExchange(securityService.getCamelContext()).build();
+				exchange.getIn().setHeader("Authorization", authorizationHeader);
+				exchange.getIn().setHeader("X-Santander-Client-Id", santanderClientIdHeader);
+				exchange.getIn().setHeader("serviceEndpoint", serviceEndpoint);
+				exchange.getIn().setHeader("apiName", apiName);
+
+				Boolean isValid = securityService.validateJwt(exchange);
+
+				log.debug("** FIN (GET) /auth/validateToken clientId={}, Is the token valid={} >>>",
+						santanderClientIdHeader, isValid);
+
+				if (Boolean.TRUE.equals(isValid)) {
+					return ResponseEntity.ok("Token validation successful");
+				} else {
+					// Obtener el errorDescription del Exchange
+					String errorDescription = exchange.getIn().getHeader("errorDescription", String.class);
+					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDescription);
+				}
+			} catch (Exception e) {
+				log.error("** FIN ERROR (GET) /auth/validateToken clientId={}, Error validando Token={} >>>",
+						santanderClientIdHeader, e);
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+						.body("Ocurrió un error al procesar la solicitud de validacion token. Consulte los logs para más detalle.: ");
+			}
+		}
+ }
+
+
+package com.santander.bnc.bsn049.bncbsn049msiam.observability;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.stereotype.Component;
+
+@Component("externalApis") 
+public class ExternalApisHealthIndicator implements HealthIndicator{
+	private final ExternalApisHealthProperties properties;
+	private final HttpClient httpClient;
+
+	public ExternalApisHealthIndicator(ExternalApisHealthProperties properties) {
+	    this.properties = properties;
+	    this.httpClient = HttpClient.newBuilder()
+	            .connectTimeout(Duration.ofMillis(properties.getTimeoutMs()))
+	            .build();
+	}
+
+	@Override
+	public Health health() {
+	    Map<String, Object> details = new LinkedHashMap<>(properties.getChecks().size());
+	    boolean allCriticalUp = true;
+
+	    for (ExternalApisHealthProperties.ApiCheck api : properties.getChecks()) {
+	        ApiResult result = checkApi(api);
+
+	        Map<String, Object> apiDetail = new LinkedHashMap<>(5);
+	        apiDetail.put("status", result.up ? "UP" : "DOWN");
+	        apiDetail.put("url", api.getUrl());
+	        apiDetail.put("critical", api.isCritical());
+
+	        if (result.httpStatus != null) {
+	            apiDetail.put("httpStatus", result.httpStatus);
+	        }
+	        if (result.error != null) {
+	            apiDetail.put("error", result.error);
+	        }
+
+	        details.put(api.getName(), apiDetail);
+
+	        if (api.isCritical() && !result.up) {
+	            allCriticalUp = false;
+	        }
+	    }
+
+	    return allCriticalUp
+	            ? Health.up().withDetails(details).build()
+	            : Health.down().withDetails(details).build();
+	}
+
+	private ApiResult checkApi(ExternalApisHealthProperties.ApiCheck api) {
+	    try {
+	        HttpRequest request = HttpRequest.newBuilder()
+	                .uri(URI.create(api.getUrl()))
+	                .timeout(Duration.ofMillis(properties.getTimeoutMs()))
+	                .GET()
+	                .build();
+
+	        HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+
+	        int status = response.statusCode();
+	        boolean up = isAcceptedStatus(status,api);
+
+	        return new ApiResult(up, status, null);
+	    } catch (InterruptedException e) {
+	    	Thread.currentThread().interrupt();
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ": " + e.getMessage());
+	    }catch (IOException e) {
+	        return new ApiResult(false, null, e.getClass().getSimpleName() + ":: " + e.getMessage());
+	    }
+	}
+
+	private static class ApiResult {
+	    private final boolean up;
+	    private final Integer httpStatus;
+	    private final String error;
+
+	    private ApiResult(boolean up, Integer httpStatus, String error) {
+	        this.up = up;
+	        this.httpStatus = httpStatus;
+	        this.error = error;
+	    }
+
+		public boolean isUp() {
+			return up;
+		}
+
+		public Integer getHttpStatus() {
+			return httpStatus;
+		}
+
+		public String getError() {
+			return error;
+		}
+	    
+	}
+	
+	private boolean isAcceptedStatus(int status, ExternalApisHealthProperties.ApiCheck api) {
+		if (api.getAcceptedStatuses() != null && !api.getAcceptedStatuses().isEmpty()) {
+			return api.getAcceptedStatuses().contains(status);
+		}
+		return status >= 200 && status < 300;
+	}
 
 }
 
-// ========================================================= // 8. Test para clase de excepciones / handler global // =========================================================
+package com.santander.bnc.bsn049.bncbsn049msiam.observability;
 
-package com.santander.bnc.bsn049.bncbsn049msiam.exception;
+import java.util.ArrayList; import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test; import org.springframework.http.ResponseEntity;
+@ConfigurationProperties(prefix = "observability.external-apis")
+public class ExternalApisHealthProperties {
 
-class GlobalExceptionHandlerTest {
+	private int timeoutMs = 2000;
+	private List<ApiCheck> checks = new ArrayList<>();
 
-private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+	public int getTimeoutMs() {
+	    return timeoutMs;
+	}
 
-@Test
-@DisplayName("Debe convertir BusinessException en respuesta controlada")
-void shouldHandleBusinessException() {
-    BusinessException exception = new BusinessException("USER_NOT_FOUND", "Usuario no encontrado");
+	public void setTimeoutMs(int timeoutMs) {
+	    this.timeoutMs = timeoutMs;
+	}
 
-    ResponseEntity<ErrorResponse> response = handler.handleBusinessException(exception);
+	public List<ApiCheck> getChecks() {
+	    return checks;
+	}
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatusCode().is4xxClientError()).isTrue();
-    assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().getCode()).isEqualTo("USER_NOT_FOUND");
-    assertThat(response.getBody().getMessage()).isEqualTo("Usuario no encontrado");
+	public void setChecks(List<ApiCheck> checks) {
+	    this.checks = checks;
+	}
+
+	public static class ApiCheck {
+	    private String name;
+	    private String url;
+	    private boolean critical = true;
+	    private List<Integer> acceptedStatuses;
+
+	    public String getName() {
+	        return name;
+	    }
+
+	    public void setName(String name) {
+	        this.name = name;
+	    }
+
+	    public String getUrl() {
+	        return url;
+	    }
+
+	    public void setUrl(String url) {
+	        this.url = url;
+	    }
+
+	    public boolean isCritical() {
+	        return critical;
+	    }
+
+	    public void setCritical(boolean critical) {
+	        this.critical = critical;
+	    }
+
+		public List<Integer> getAcceptedStatuses() {
+			return acceptedStatuses;
+		}
+
+		public void setAcceptedStatuses(List<Integer> acceptedStatuses) {
+			this.acceptedStatuses = acceptedStatuses;
+		}
+	    
+	}
 }
 
+package com.santander.bnc.bsn049.bncbsn049msiam.services;
+
+
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+@Service
+public class SecurityService {
+
+    private final JdbcTemplate jdbcTemplate;
+    private final CamelContext camelContext;
+
+    @Autowired
+    public SecurityService(JdbcTemplate jdbcTemplate, CamelContext camelContext) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.camelContext = camelContext;
+    }
+
+    public CamelContext getCamelContext() {
+        return camelContext;
+    }
+
+    @Value("${auth.jwt.public-key}")
+    private String PUBLIC_KEY;
+
+    @Value("${auth.jwt.iss}")
+    private String JWT_ISS;
+
+    @Value("${auth.x-santander-client-id}")
+    private String X_SANTANDER_CLIENT_ID;
+
+    @Value("${auth.jwt.exp-claim-name:exp}")
+    private String EXP_CLAIM_NAME;
+
+    private String INVALID_JWT = "Invalid Jwt";
+    private String UNEXPECTED_JWT_TOKEN = "Unexpected Jwt token";
+    private String AUTHORIZATION_HEADER_ERROR = "Authorization header not present";
+    private String INVALID_BEARER = "Invalid bearer token";
+    private String VALID_SIGN = "Valid sign";
+    private String INVALID_SIGN = "Invalid sign";
+    private String VALID_ISS = "Valid ISS";
+    private String INVALID_ISS = "Invalid ISS";
+    private String SANTANDER_CLIENT_ID_NOT_PRESENT = "Header X-Santander-Client-Id no present";
+    private String VALID_SANTANDER_CLIENT_ID = "Valid X-Santander-Client-Id";
+    private String INVALID_SANTANDER_CLIENT_ID = "Invalid X-Santander-Client-Id";
+    private String EXPIRED_TOKEN = "Token has expired";
+    private String INVALID_CLAIMS = "Invalid claims";
+    private String INVALID_SCOPE_FOR_SERVICE = "The scope does not have the necessary permissions";
+    private String IS_JWT_VALID = "isJwtValid";
+    private String ERROR_DESCRIPTION = "errorDescription";
+
+
+    public Boolean validateJwt(Exchange ex) throws Exception {
+
+        String bearerToken = "";
+
+        try {
+            bearerToken = ex.getIn().getHeader("Authorization").toString();
+        } catch (Exception e) {
+            log.info(AUTHORIZATION_HEADER_ERROR);
+            ex.getIn().setHeader(IS_JWT_VALID, false);
+            ex.getIn().setHeader(ERROR_DESCRIPTION, AUTHORIZATION_HEADER_ERROR);
+            return false;
+        }
+
+
+        log.info("Start validate token: {}", bearerToken);
+        String token = "";
+
+        try{
+            token = bearerToken.split("Bearer ")[1];
+        }catch(Exception e){
+            log.info(INVALID_BEARER);
+            ex.getIn().setHeader(IS_JWT_VALID, false);
+            ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_BEARER);
+            return false;
+        }
+
+        try {
+            // Convierte la clave pública PEM a un objeto RSAPublicKey
+            PublicKey parsedPublicKey = parsePEM(PUBLIC_KEY);
+            if(parsedPublicKey == null){
+                log.info(INVALID_JWT);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_JWT);
+                return false;
+            }
+
+            // Configura el validador JWT
+            JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) parsedPublicKey);
+
+            // Parse JWT
+            SignedJWT signedJWT = null;
+            try {
+                signedJWT = SignedJWT.parse(token);
+            } catch (Exception e) {
+                log.info(UNEXPECTED_JWT_TOKEN);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, UNEXPECTED_JWT_TOKEN);
+                return false;
+            }
+
+            // VALIDACION DE FIRMA DIGITAL
+            // Check Jwt Sign
+            if (signedJWT.verify(verifier)) {
+                log.info(VALID_SIGN);
+            } else {
+                log.info(INVALID_SIGN);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_SIGN);
+                return false;
+            }
+
+            // Validate Santander-Client-Id
+            String santanderClientId ="";
+            try {
+                santanderClientId = ex.getIn().getHeader("X-Santander-Client-Id").toString();
+            } catch (Exception e) {
+                log.info("Error: {}", e.getMessage());
+                log.info(SANTANDER_CLIENT_ID_NOT_PRESENT);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, SANTANDER_CLIENT_ID_NOT_PRESENT);
+                return false;
+            }
+
+            if(santanderClientId.equals(X_SANTANDER_CLIENT_ID)){
+                log.info(VALID_SANTANDER_CLIENT_ID);
+            } else {
+                log.info(INVALID_SANTANDER_CLIENT_ID);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_SANTANDER_CLIENT_ID);
+                return false;
+            }
+
+            // VALIDACION DE CLAIMS
+
+            // Validate ISS
+            if(verifyIssInClaims(signedJWT)){
+                log.info(VALID_ISS);
+            } else {
+                log.info(INVALID_ISS);
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_ISS);
+                return false;
+            }
+
+            Map<String, Object> headersMap = ex.getIn().getHeaders();
+            headersMap.forEach((key, value) -> log.info("Header '{}': '{}'", key, value));
+
+
+
+            // Obtain JWTClaimsSet from token
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            // Validate if token is expired
+            if (isTokenExpired(signedJWT)) {
+                log.info("Token has expired");
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, EXPIRED_TOKEN);
+                return false;
+            }
+
+            // Validate claims
+            if (!areClaimsValid(signedJWT)) {
+                log.info("Invalid claims");
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_CLAIMS);
+                return false;
+            }
+
+
+            //VALIDACION DE SCOPES
+
+            String scope = claimsSet.getStringClaim("scope");
+            String apiName = ex.getIn().getHeader("apiName", String.class);
+
+
+            if (apiName == null || apiName.isEmpty()) {
+                log.info("The apiName is invalid or not provided.");
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, "Invalid apiName header");
+                return false;
+            }
+
+
+
+            if (!isScopeValid(scope, apiName)) {
+                log.info("Scope no autorizado para acceder al servicio de negocio.");
+                ex.getIn().setHeader(IS_JWT_VALID, false);
+                ex.getIn().setHeader(ERROR_DESCRIPTION, INVALID_SCOPE_FOR_SERVICE);
+                return false;
+            }
+
+            ex.getIn().setHeader(IS_JWT_VALID, true);
+
+        } catch (Exception e) {
+            // Maneja excepciones
+            log.error("ERROR = {} {}" , e.getCause() , e.getMessage());
+            ex.getIn().setHeader(IS_JWT_VALID, false);
+            ex.getIn().setHeader(ERROR_DESCRIPTION, e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+
+
+        return true;
+    }
+
+    private boolean isScopeValid(String scope, String apiName) {
+
+        log.info("Scope a validar:{}", scope);
+        log.info("ApiName a validar: {}", apiName);
+
+        // Verifica si el scope existe en la tabla Scopes
+        String sqlScope = "SELECT COUNT(1) FROM authentication.\"Scopes\" WHERE \"ScopeName\" = ?";
+        Integer countScope = 0;
+        try {
+            countScope = jdbcTemplate.queryForObject(sqlScope, new Object[]{scope}, Integer.class);            
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
+            log.info("Stacktrace: {}", e.getStackTrace());
+            throw e;
+        }
+        if (countScope == null || countScope == 0) {
+            return false; // El scope no existe
+        }
+
+        // Verifica si el scope puede acceder al servicio de negocio especificado
+        String sqlService = "SELECT COUNT(1) FROM authentication.\"ScopeAPICatalog\" WHERE \"ScopeName\" = ? AND \"ServiceName\" = ?";
+        Integer countService = 0 ;
+        try {
+            countService = jdbcTemplate.queryForObject(sqlService, new Object[]{scope, apiName}, Integer.class);            
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
+            log.info("Stacktrace: {}", e.getStackTrace());
+            throw e;
+        }
+        return countService != null && countService > 0;
+    }
+
+    private boolean isTokenExpired(SignedJWT signedJWT) {
+
+        JWTClaimsSet claimsSet =  null;
+
+        try {
+            claimsSet = signedJWT.getJWTClaimsSet();
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
+            return false;
+        }
+
+        Date expirationTime = claimsSet.getExpirationTime();
+        return new Date().after(expirationTime); // true si el token ha expirado
+    }
+
+    private boolean areClaimsValid(SignedJWT signedJWT) {
+
+        JWTClaimsSet claimsSet =  null;
+
+        try {
+            claimsSet = signedJWT.getJWTClaimsSet();
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
+            return false;
+        }
+
+
+        // Valida 'aud' claim
+        List<String> audience = claimsSet.getAudience();
+        if (audience == null || audience.isEmpty()) {
+            log.info("Invalid 'aud' claim");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private PublicKey parsePEM(String publicKey) throws Exception {
+
+        String pemContent = publicKey
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", ""); // Elimina caracteres de espacio en blanco
+
+        byte[] keyBytes = Base64.getDecoder().decode(pemContent);
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
+
+        PublicKey _publicKey = null;
+
+        try{
+            _publicKey = keyFactory.generatePublic(keySpec);
+        }catch(Exception e){
+            log.info(e.getMessage());
+            return null;
+        }
+
+        return _publicKey;
+    }
+
+    /*
+     * Verify that iss claim is correct
+     */
+    private boolean verifyIssInClaims(SignedJWT signedJWT){
+
+        JWTClaimsSet jwtClaimsSet =  null;
+
+        try {
+            jwtClaimsSet = signedJWT.getJWTClaimsSet();            
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
+            return false;
+        }
+
+        log.info("Claims del JWT: " + jwtClaimsSet.toJSONObject());
+        
+        String iss = jwtClaimsSet.getClaim("iss").toString();        
+        
+        if(!iss.equals(JWT_ISS)){
+            return false;
+        };
+            
+        return true;
+    }
+
+
 }
-
-// ========================================================= // 9. Test para validaciones de request DTO // =========================================================
-
-package com.santander.bnc.bsn049.bncbsn049msiam.dto;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import jakarta.validation.ConstraintViolation; import jakarta.validation.Validation; import jakarta.validation.Validator; import java.util.Set; import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.DisplayName; import org.junit.jupiter.api.Test;
-
-class UserRequestTest {
-
-private Validator validator;
-
-@BeforeEach
-void setUp() {
-    validator = Validation.buildDefaultValidatorFactory().getValidator();
-}
-
-@Test
-@DisplayName("Debe fallar cuando username está vacío")
-void shouldFailWhenUsernameIsBlank() {
-    UserRequest request = new UserRequest();
-    request.setUsername("");
-
-    Set<ConstraintViolation<UserRequest>> violations = validator.validate(request);
-
-    assertThat(violations).isNotEmpty();
-}
-
-@Test
-@DisplayName("Debe pasar cuando request es válido")
-void shouldPassWhenRequestIsValid() {
-    UserRequest request = new UserRequest();
-    request.setUsername("fabio");
-
-    Set<ConstraintViolation<UserRequest>> violations = validator.validate(request);
-
-    assertThat(violations).isEmpty();
-}
-
-}
-
-// ========================================================= // 10. application-test.yml sugerido // =========================================================
-
-/* spring: profiles: active: test datasource: url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1 driver-class-name: org.h2.Driver username: sa password: jpa: hibernate: ddl-auto: create-drop cache: type: simple
-
-connectors: pkm-connector: pkm-endpoint: - http://localhost/mock
-
-auth: x-santander-client-id: 263ec146 jwt: iss: CO_ODS public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A exp-claim-name: exp */
-
-// ========================================================= // Reglas para mantener las pruebas desacopladas // =========================================================
-
-/*
-
-1. Services:
-
-Usar @ExtendWith(MockitoExtension.class).
-
-Mockear repositories, connectors y mappers externos.
-
-No usar @SpringBootTest para lógica de negocio simple.
-
-
-
-2. Controllers:
-
-Usar @WebMvcTest(Controller.class).
-
-Mockear servicios con @MockBean.
-
-Validar status HTTP, headers y body JSON.
-
-
-
-3. Repositories:
-
-Usar @DataJpaTest.
-
-No conectarse al PostgreSQL local real.
-
-Usar H2 o Testcontainers si se necesita compatibilidad fuerte con PostgreSQL.
-
-
-
-4. Connectors:
-
-No llamar endpoints reales.
-
-Mockear RestTemplate, WebClient, FeignClient o Camel ProducerTemplate.
-
-
-
-5. Configurations:
-
-Usar ApplicationContextRunner.
-
-Probar solo que los beans se crean y las propiedades se cargan.
-
-
-
-6. DTOs:
-
-Probar validaciones con Validator.
-
-
-
-7. Excepciones:
-
-Probar handlers directamente o con @WebMvcTest si afectan endpoints. */
-
-
-

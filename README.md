@@ -1,212 +1,94 @@
-// ============================================================================ // TESTS - infrastructure.adapters.input.rest // ============================================================================
-
-// ----------------------------------------------------------------------------- // 1) src/test/java/.../infrastructure/adapters/input/rest/DatabaseControllerTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
-
-import static org.junit.jupiter.api.Assertions.; import static org.mockito.Mockito.;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.core.JsonProcessingException; import com.fasterxml.jackson.databind.ObjectMapper; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.application.ports.input.UserManagementInputPort; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.ExampleUserRecord; import com.santander.darwin.core.exceptions.NotFoundDarwinException;
-
-@ExtendWith(MockitoExtension.class) class DatabaseControllerTest {
-
-@Mock
-private UserManagementInputPort userManagementInputPort;
-
-@Mock
-private ObjectMapper objectMapper;
-
-@Mock
-private ExampleUserRecord exampleUserRecord;
-
-private DatabaseController controller;
-
-@BeforeEach
-void setUp() {
-    controller = new DatabaseController(userManagementInputPort, objectMapper);
-}
-
-@Test
-void createUser_debeRetornarUsuarioCreado() throws Exception {
-    when(userManagementInputPort.createUser("Fabio", "fabio@test.com"))
-            .thenReturn(exampleUserRecord);
-
-    when(objectMapper.writeValueAsString(exampleUserRecord))
-            .thenReturn("{\"name\":\"Fabio\"}");
-
-    ExampleUserRecord result = controller.createUser("Fabio", "fabio@test.com");
-
-    assertSame(exampleUserRecord, result);
-
-    verify(userManagementInputPort)
-            .createUser("Fabio", "fabio@test.com");
-
-    verify(objectMapper)
-            .writeValueAsString(exampleUserRecord);
-
-    verifyNoMoreInteractions(userManagementInputPort, objectMapper);
-}
-
-@Test
-void createUser_cuandoSerializacionFalla_debeRetornarUsuarioIgualmente() throws Exception {
-    when(userManagementInputPort.createUser("Fabio", "fabio@test.com"))
-            .thenReturn(exampleUserRecord);
-
-    when(objectMapper.writeValueAsString(exampleUserRecord))
-            .thenThrow(new JsonProcessingException("error") {
-                private static final long serialVersionUID = 1L;
-            });
-
-    ExampleUserRecord result = controller.createUser("Fabio", "fabio@test.com");
-
-    assertSame(exampleUserRecord, result);
-
-    verify(userManagementInputPort)
-            .createUser("Fabio", "fabio@test.com");
-
-    verify(objectMapper)
-            .writeValueAsString(exampleUserRecord);
-}
-
-@Test
-void retrieveUser_cuandoExiste_debeRetornarUsuario() throws Exception {
-    when(userManagementInputPort.findById(1L))
-            .thenReturn(Optional.of(exampleUserRecord));
-
-    when(objectMapper.writeValueAsString(exampleUserRecord))
-            .thenReturn("{\"id\":1}");
-
-    ExampleUserRecord result = controller.retrieveUser(1L);
-
-    assertSame(exampleUserRecord, result);
-
-    verify(userManagementInputPort)
-            .findById(1L);
-
-    verify(objectMapper)
-            .writeValueAsString(exampleUserRecord);
-
-    verifyNoMoreInteractions(userManagementInputPort, objectMapper);
-}
-
-@Test
-void retrieveUser_cuandoSerializacionFalla_debeRetornarUsuario() throws Exception {
-    when(userManagementInputPort.findById(1L))
-            .thenReturn(Optional.of(exampleUserRecord));
-
-    when(objectMapper.writeValueAsString(exampleUserRecord))
-            .thenThrow(new JsonProcessingException("error") {
-                private static final long serialVersionUID = 1L;
-            });
-
-    ExampleUserRecord result = controller.retrieveUser(1L);
-
-    assertSame(exampleUserRecord, result);
-
-    verify(userManagementInputPort)
-            .findById(1L);
-
-    verify(objectMapper)
-            .writeValueAsString(exampleUserRecord);
-}
-
-@Test
-void retrieveUser_cuandoNoExiste_debeLanzarNotFoundDarwinException() {
-    when(userManagementInputPort.findById(99L))
-            .thenReturn(Optional.empty());
-
-    NotFoundDarwinException exception = assertThrows(
-            NotFoundDarwinException.class,
-            () -> controller.retrieveUser(99L));
-
-    assertEquals("User not found", exception.getMessage());
-
-    verify(userManagementInputPort)
-            .findById(99L);
-
-    verifyNoInteractions(objectMapper);
-}
-
-}
-
-// ----------------------------------------------------------------------------- // 2) src/test/java/.../infrastructure/adapters/input/rest/WatchlistScreeningControllersTest.java // ----------------------------------------------------------------------------- package com.santander.bnc.bsn049.bncbsn049mswatchliscreen.infrastructure.adapters.input.rest;
-
-import static org.junit.jupiter.api.Assertions.; import static org.mockito.Mockito.;
-
-import java.util.ArrayList;
-
-import org.junit.jupiter.api.BeforeEach; import org.junit.jupiter.api.Test; import org.junit.jupiter.api.extension.ExtendWith; import org.mockito.InjectMocks; import org.mockito.Mock; import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.DocumentDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.PersonDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.PersonNameDTO; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.entity.WatchlistScreeningRequest; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.exception.ServiceException; import com.santander.bnc.bsn049.bncbsn049mswatchliscreen.domain.service.WatchlistScreeningService;
-
-@ExtendWith(MockitoExtension.class) class WatchlistScreeningControllersTest {
-
-@Mock
-private WatchlistScreeningService termDepositService;
-
-@InjectMocks
-private WatchlistScreeningControllers controller;
-
-private WatchlistScreeningRequest request;
-
-@BeforeEach
-void setUp() {
-    ArrayList<DocumentDTO> documents = new ArrayList<>();
-    documents.add(DocumentDTO.builder()
-            .documentNumber("123456")
-            .documentTypeCode("CC")
-            .build());
-
-    request = WatchlistScreeningRequest.builder()
-            .person(PersonDTO.builder()
-                    .personName(PersonNameDTO.builder()
-                            .fullName("Fabio Hernandez")
-                            .build())
-                    .documents(documents)
-                    .build())
-            .build();
-}
-
-@Test
-void validateStatus_debeDelegarServicioYRetornarRespuesta() throws Exception {
-    Object expected = new Object();
-
-    when(termDepositService.validateStatus(request))
-            .thenReturn(expected);
-
-    Object result = controller.validateStatus(
-            "Bearer token",
-            "client-id",
-            request);
-
-    assertSame(expected, result);
-
-    verify(termDepositService)
-            .validateStatus(request);
-
-    verifyNoMoreInteractions(termDepositService);
-}
-
-@Test
-void validateStatus_cuandoServicioLanzaException_debePropagarla() throws Exception {
-    ServiceException exception = mock(ServiceException.class);
-
-    when(termDepositService.validateStatus(request))
-            .thenThrow(exception);
-
-    ServiceException result = assertThrows(
-            ServiceException.class,
-            () -> controller.validateStatus(
-                    "Bearer token",
-                    "client-id",
-                    request));
-
-    assertSame(exception, result);
-
-    verify(termDepositService)
-            .validateStatus(request);
-}
-
-}
+spring.profiles.active: local
+---
+darwin:
+  region: boae
+  suffix:
+  app-name: bsn049
+  logging:
+    format: GLUONLOG
+    gluon-log:
+      company: bnc
+      componentName: msiam
+      componentId: CHANGEIT_CMPT_ID
+      componentType: microservice
+      appId: CHANGEIT_APP_ID
+    entity: ESP
+    paas-app-version: "6.1.0"
+  core:
+    exceptions:
+      error-format: GLUON
+  security:
+    white-list:
+      - /**
+    connectors:
+      pkm-connector:
+        pkm-endpoint:
+          - ${env.pkm-endpoint:localhost://}
+    caffeine:
+      # disable null values in cache for performance reasons
+      allow-null-values: false
+
+datasource.url: "jdbc:postgresql://localhost:5434/postgres?currentSchema=authentication"
+datasource.driver-class-name: "org.postgresql.Driver"
+datasource.username: "postgres"
+datasource.password: "gady"
+
+spring:
+  application:
+    name: bnc-bsn049-msiam
+  session:
+    store-type: none
+  cache:
+    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
+    caffeine:
+      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
+  lifecycle.timeout-per-shutdown-phase: 2m
+  datasource:
+    url: "${datasource.url}"
+    username: "${datasource.username}"
+    password: "${datasource.password}"
+    driver-class-name: "${datasource.driver-class-name}"
+
+logging:
+  level:
+    com.santander.bnc.bsn049.bncbsn049msiam: DEBUG
+    okhttp3: INFO
+    root: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-}, %X{spanId:-}] [${spring.application.name:}] %logger{36} - %ms%n"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,ping,db
+        liveness:
+          include: livenessState
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger-ui.html
+
+server:
+  max-http-request-header-size: 128KB
+  forward-headers-strategy: framework
+  shutdown: graceful
+  address: 0.0.0.0
+  port: 8083
+camel:
+  springboot:
+    main-run-controller: true
+auth:
+  x-santander-client-id: 263ec146
+  jwt:
+    iss: CO_ODS
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvtR/wGjrtb5FZMt5rhMixKynE61Sz9curpgPIYUwk/js8hvc8UlIK4vUMEb0RusUIKrccy4k3seX1Da8RcXbUeEy1VAM2SS5bFCsB5FWoGQkPgomrRVLfNWwlIb9ekn1Gal7Y84NzoxW2uJ0849phJlI8fa1snPHL396ZnwqEDEryFmbJZbdNc4zIarEc2hOYM/GTWc9RP5h2BLEU6nUD5TU94PM5AY+18WoVUOPQZ4wdRdST1D7Fq/8+BYMlPuwZMHZO2N8zhkIJm+744jGBQ8yeHubHO8E+wtlu4fqmQZNA1WissqRIMRnmS7bjh8hgn006omWrVWVAthXTT73iQIDAQAB
+    exp-claim-name: exp

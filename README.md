@@ -510,4 +510,233 @@ class OCServiceTest {
     }
 
     private Exchange exchangeConPenumperYContrato() {
-       
+        Exchange exchange = exchangeBase(reglasPenumperBodyYContratoUrl());
+        exchange.getIn().setHeader("serviceEndpoint", "http://localhost/clientes/" + PENUMPER + "/contratos/" + CONTRACT_ID);
+        exchange.getIn().setBody("{\"numper\":\"" + PENUMPER + "\"}");
+        return exchange;
+    }
+
+    private Exchange exchangeBase(String reglas) {
+        Exchange exchange = nuevoExchange();
+        exchange.getIn().setHeader("Authorization", "Bearer token");
+        exchange.getIn().setHeader("serviceEndpoint", "http://localhost/clientes/" + PENUMPER + "/contratos/" + CONTRACT_ID);
+        exchange.getIn().setHeader("CamelHttpUri", null);
+        exchange.getIn().setHeader("serviceMethod", "GET");
+        exchange.getIn().setHeader("X-Operative-Control-Rules", reglas);
+        return exchange;
+    }
+
+    private Exchange nuevoExchange() {
+        return ExchangeBuilder.anExchange(camelContext).build();
+    }
+
+    private Object invoke(String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
+        Method method = OCService.class.getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+        return method.invoke(service, args);
+    }
+
+    private MockedStatic<SignedJWT> mockJwt(String acr, String attPersonNumberCode) throws Exception {
+        SignedJWT signedJWT = mock(SignedJWT.class);
+        JWTClaimsSet claimsSet = mock(JWTClaimsSet.class);
+
+        MockedStatic<SignedJWT> mocked = mockStatic(SignedJWT.class);
+        mocked.when(() -> SignedJWT.parse(anyString())).thenReturn(signedJWT);
+
+        when(signedJWT.getJWTClaimsSet()).thenReturn(claimsSet);
+        when(claimsSet.getStringClaim("acr")).thenReturn(acr);
+        when(claimsSet.getStringClaim("attPersonNumberCode")).thenReturn(attPersonNumberCode);
+
+        return mocked;
+    }
+
+    private String reglasVacias() {
+        return """
+            {
+              "operativeControl": {
+                "rules": []
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperBody() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "body",
+                    "clientPosition": "$.numper",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperHeader() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "header",
+                    "clientPosition": "X-PENUMPER",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperUrl() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}",
+                    "method": "GET",
+                    "clientUbication": "url",
+                    "clientPosition": "3",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperQueryParam() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes?participant_id={customer_id}",
+                    "method": "GET",
+                    "clientUbication": "url",
+                    "clientPosition": "queryparam",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperSinLocation() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "",
+                    "clientPosition": "",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaPenumperLocationDesconocida() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "otro",
+                    "clientPosition": "$.numper",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaContratoUrl() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "",
+                    "clientPosition": "",
+                    "cccUbication": "url",
+                    "cccPosition": "5"
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglaContratoSinLocation() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "",
+                    "clientPosition": "",
+                    "cccUbication": "",
+                    "cccPosition": ""
+                  }
+                ]
+              }
+            }
+            """;
+    }
+
+    private String reglasPenumperBodyYContratoUrl() {
+        return """
+            {
+              "operativeControl": {
+                "rules": [
+                  {
+                    "active": true,
+                    "path": "/clientes/{customer_id}/contratos/{deposit_id}",
+                    "method": "GET",
+                    "clientUbication": "body",
+                    "clientPosition": "$.numper",
+                    "cccUbication": "url",
+                    "cccPosition": "5"
+                  }
+                ]
+              }
+            }
+            """;
+    }
+}

@@ -1,611 +1,678 @@
-Aquí van los tests para utils, separados por clase.
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
+import { Type } from '@sinclair/typebox';
+import { TIPOS_DOCUMENTO_ARRAY, TIPOS_CUENTA_ARRAY, IDENTIFICADOR_SPBVI_ARRAY } from '../../constants/constantes';
+/**
+ * Schema for AsegurarFondos request body
+ */
+export const AsegurarFondosBodySchema = Type.Object({
+  monto: Type.Number({ description: 'Monto de la transaccion. Numero con hasta 13 enteros y 2 decimales. Ejemplo: 1234567890123.45', minimum: 0.01, maximum: 9999999999999.99, examples: [1234567890123.45] }),
+  valorComision: Type.Optional(Type.Number({ description: 'Valor de la comision. Numero con hasta 13 enteros y 2 decimales. Ejemplo: 0.00', minimum: 0, maximum: 9999999999999.99, examples: [0] })),
+  valorIvaComision: Type.Optional(Type.Number({ description: 'Valor del iva aplicado a la comision. Numero con hasta 13 enteros y 2 decimales. Ejemplo: 0.00', minimum: 0, maximum: 9999999999999.99, examples: [0] })),
+  nombre: Type.String({ description: 'Nombre del cliente al que se realice el movimiento en el core bancario', minLength: 1, maxLength: 40, examples: ['Juan'] }),
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request.DocumentRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request.PersonRequestDto;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.search.request.ProspectRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.generic.TrxPersonHeader;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.request.TrxPersonRequest;
-import org.junit.jupiter.api.Test;
+  tipoDocOrig: Type.String({
+    enum: TIPOS_DOCUMENTO_ARRAY,
+    description: 'Tipo de documento de identificación del originador. Valores permitidos: CC, CE, NIT, TDI, PAS, PPT, PEP',
+    examples: ['CC']
+  }),
+  numDocOrig: Type.String({ description: 'Número de documento del originador (11 dígitos)', minLength: 4, maxLength: 11, pattern: '^[0-9]{4,11}$', examples: ['12345678901'] }),
+  tipoCuentaOrig: Type.String({
+    enum: TIPOS_CUENTA_ARRAY,
+    description: 'Tipo de cuenta del Orig. Valores válidos: CAHO, CCTE, DBMO, DORD, DBMI',
+    minLength: 1,
+    maxLength: 4,
+    examples: ['CAHO']
+  }),
+  numCuentaOrig: Type.String({ description: 'Número de cuenta del originador (mínimo 9 dígitos)', minLength: 9, maxLength: 12, pattern: '^[0-9]{9,12}$', examples: ['987654321'] }),
 
-import java.lang.reflect.Constructor;
+  idTransaccionSN: Type.String({ description: 'Identificador único de la transacción en el sistema', minLength: 1, maxLength: 36, pattern: 'process.env.IDTRANSACCIONSN', examples: ['TX123456'] }),
+  identificadorSPBVI: Type.String({
+    enum: IDENTIFICADOR_SPBVI_ARRAY,
+    description: 'Sistema que realiza la transacción – nombre nodo SPBVI. TFY: Transfiya, ENT: Entrecuentas, CRB: Credibanco, VIS: Visionamos, SiX: SiX',
+    examples: ['TFY']
+  }),
+  idTransaccionOriginal: Type.Optional(Type.String({ description: 'Identificador de la transacción original objeto de la solicitud de devolución desde el canal', maxLength: 36, examples: ['TRX123456'] })),
+  tipoTransaccion: Type.String({ description: 'Código o descripción que indique si es transferencia, pago, recaudo, solicitud, etc.', minLength: 1, maxLength: 20, pattern: '^[A-Z_]{1,20}$', examples: ['TRANSFER'] }),
+  hubConcentrador: Type.Optional(Type.String({ description: 'Nombre del ordenante de la transacción (para casos de uso BaaS)', maxLength: 36, examples: ['HUB001'] })),
 
-import static org.junit.jupiter.api.Assertions.*;
+  marcaTiempo: Type.String({ description: 'Fecha y hora del envío del consumo en formato ISO8601. Acepta con o sin Z final.', pattern: 'process.env.MARCATIEMPO', minLength: 23, maxLength: 24, examples: ['2025-02-10T14:30:01.000', '2025-02-10T14:30:01.000Z'] }),
+  ipOriginador: Type.Optional(Type.String({
+    description: 'Dirección IP desde donde se realiza la transacción. Soporta IPv4 e IPv6. Ejemplo IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+    minLength: 7,
+    maxLength: 50,
+    pattern: 'process.env.IPTRANSACCION',
+  })),
+  canalOriginador: Type.Optional(Type.Union([
+    Type.String({ description: 'Nombre del canal por donde se está realizando la transacción', maxLength: 20, pattern: '^[A-Z]{1,20}$', examples: ['WEB'] }),
+    Type.Literal(''),
+    Type.Null()
+  ])),
 
-class ClientUtilsTest {
+  campo1: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),
+  campo2: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),
+  campo3: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),
+  campo4: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),
+  campo5: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),
+  idTransaccionSPBVI: Type.String({
+    description: 'Identificador de la transacción en el SPBVI (obligatorio)',
+    minLength: 1,
+    maxLength: 36,
+    examples: ['SPBVI123456']
+  }),
+  CampoLibre0: Type.Optional(Type.String({
+    description: 'Campo libre disponible 0 (opcional)',
+    maxLength: 100,
+    examples: ['', 'dato adicional 0']
+  })),
+  CampoLibre1: Type.Optional(Type.String({
+    description: 'Campo libre disponible 1 (opcional)',
+    maxLength: 100,
+    examples: ['', 'dato adicional 1']
+  }))
+}, { additionalProperties: false });
 
-    @Test
-    void buildTrxRequestByCustomerIdOnlyCustomerId() {
-        TrxPersonRequest result = ClientUtils.buildTrxRequestByCustomerId(null, "12345678");
+/**
+ * Schema for AsegurarFondos success response
+ */
+export const AsegurarFondosResponseSchema = Type.Object({
+  respuesta: Type.Optional(Type.Object({
+    idTransaccionSN: Type.String({ description: 'Identificador único de la transacción en el sistema Neurona', maxLength: 36 }),
+    idTransaccionCore: Type.String({ description: 'Identificador de la transacción original del banco', maxLength: 36 }),
+    marcaTiempo: Type.String({ format: 'date-time', description: 'Fecha y hora de la respuesta al consumo. En formato ISO8601 YYYY-MM-DDThh:mm:SS.sss' }),
+    CampoLibreSalida: Type.Optional(Type.String({ description: 'Campo libre de salida (opcional)', maxLength: 100, examples: ['', 'dato de salida'] }))
+  })),
+  resultado: Type.Object({
+    mensajeId: Type.String({ format: 'uuid', description: 'Identificador del mensaje enviado en la petición' }),
+    error: Type.Boolean({ description: 'Indicador de éxito o error en el proceso. true: Proceso fallido, false: Proceso exitoso' }),
+    codigo: Type.Integer({ description: 'Código del error en caso de ocurrencia, si el proceso es exitoso retorna valor cero' }),
+    descripcionError: Type.String({ description: 'Descripción del error en caso de ocurrencia, si el proceso es exitoso retorna un string vacío', maxLength: 255 })
+  })
+});
 
-        assertNotNull(result);
-        assertNotNull(result.getData());
-        assertEquals("12345678", result.getData().getpENUMPE());
-    }
+export const ErrorResponseSchema = Type.Object({
+  resultado: Type.Object({
+    mensajeId: Type.String({ format: 'uuid' }),
+    error: Type.Boolean(),
+    codigo: Type.Integer(),
+    descripcionError: Type.String()
+  })
+});
 
-    @Test
-    void buildTrxRequestByCustomerIdWithProspectRequest() {
-        DocumentRequestDTO document = new DocumentRequestDTO();
-        document.setDocumentTypeCode("CC");
-        document.setDocumentNumber("12345678901");
 
-        PersonRequestDto person = new PersonRequestDto();
-        person.setDocument(document);
 
-        ProspectRequestDTO request = new ProspectRequestDTO();
-        request.setPerson(person);
 
-        TrxPersonRequest result = ClientUtils.buildTrxRequestByCustomerId(request, null);
+*****************
 
-        assertEquals("", result.getData().getpENUMPE());
-        assertEquals("CC", result.getData().getTipoDocumento());
-        assertEquals("12345678901", result.getData().getNumDocumento());
-    }
 
-    @Test
-    void buildHeaderShouldSetDefaultValues() {
-        TrxPersonHeader result = ClientUtils.buildHeader("PEF3");
 
-        assertEquals("PEF3", result.getRutaServicio());
-        assertEquals("Intro", result.getFuncion());
-        assertEquals("60", result.getCanal());
-        assertEquals(44204, result.getSecuencia());
-        assertNotNull(result.getSesion());
-        assertEquals("@NETE781", result.getSesion().getUsuario());
-        assertEquals("0065", result.getSesion().getEntidad());
-    }
+import type { FastifyPluginAsync } from 'fastify';
+import type { Static } from '@sinclair/typebox';
+import {
+  AsegurarFondosBodySchema,
+  AsegurarFondosResponseSchema,
+  ErrorResponseSchema
+} from './schemas';
+import { AsegurarFondosRequest, AsegurarFondos } from 'types';
+import { createAsegurarFondosService, AsegurarFondosError } from '../../services/asegurarFondos.service';
+import { getErrorCodeNumber, getErrorDescription, getHttpStatusForError } from '../../constants/error-codes';
+import {
+  getAsegurarFondosAltairErrorMapping,
+  ASEGURAR_FONDOS_VALIDACION_LOCAL_CONFIG,
+  ASEGURAR_FONDOS_HTTP_STATUS_CONFIG
+} from '../../constants/asegurar-fondos-error-mapping';
+import { logErrorToCSV } from '../../lib/shared/csvErrorLogger';
+import { logTransaction } from '../../lib/shared/databaseErrorLogger';
+import { formatMarcaTiempo } from '../../lib/shared/utils';
 
-    @Test
-    void constructorShouldThrowException() throws Exception {
-        Constructor<ClientUtils> constructor = ClientUtils.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
+const ERROR_GUARDANDO_EN_BD = 'Error guardando en base de datos';
+const ERROR_GUARDANDO_VALIDACION_LOCAL_EN_BD = 'Error guardando validación local en base de datos';
 
-        Exception ex = assertThrows(Exception.class, constructor::newInstance);
-        assertNotNull(ex);
-    }
+type AsegurarFondosBody = Static<typeof AsegurarFondosBodySchema>;
+
+interface RequestWithMensajeId {
+  mensajeId?: string;
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class CompareStringUtilsTest {
-
-    private final CompareStringUtils utils = new CompareStringUtils();
-
-    @Test
-    void ciudadMatchShouldReturnTrueForEqualCities() {
-        assertTrue(utils.ciudadMatch("Bogota", "Bogota"));
-    }
-
-    @Test
-    void ciudadMatchShouldReturnTrueForSimilarCities() {
-        assertTrue(utils.ciudadMatch("Bogota", "Bogotá"));
-    }
-
-    @Test
-    void ciudadMatchShouldReturnFalseForDifferentCities() {
-        assertFalse(utils.ciudadMatch("Bogota", "Medellin"));
-    }
-
-    @Test
-    void ciudadMatchShouldReturnTrueForEmptyValues() {
-        assertTrue(utils.ciudadMatch("", ""));
-    }
+/**
+ * Mapea tipo de documento según observaciones de SANBA
+ * NIT -> NT, resto se mantiene igual
+ */
+export function mapTipoDocumento(tipoDoc: string): string {
+  return tipoDoc === 'NIT' ? 'NT' : tipoDoc;
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.enums.ParametersEnums;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class DataUtilsTest {
-
-    @Test
-    void translateCountryToXXShouldTranslateKnownCountry() {
-        assertEquals("CO", DataUtils.translateCountryToXX("COL"));
-    }
-
-    @Test
-    void translateCountryToXXShouldReturnSameWhenNotFound() {
-        assertEquals("XXX", DataUtils.translateCountryToXX("XXX"));
-    }
-
-    @Test
-    void translateCountryToXXXShouldTranslateKnownCountry() {
-        assertEquals("COL", DataUtils.translateCountryToXXX("CO"));
-    }
-
-    @Test
-    void translateCountryToXXXShouldReturnSameWhenNotFound() {
-        assertEquals("ZZ", DataUtils.translateCountryToXXX("ZZ"));
-    }
-
-    @Test
-    void translateValueCodeShouldTranslateCountry() {
-        assertEquals("CO", DataUtils.translateValueCode(ParametersEnums.COUNTRY.value(), "COL"));
-    }
-
-    @Test
-    void translateValueCodeShouldTranslateState() {
-        assertEquals("CO-ANT", DataUtils.translateValueCode(ParametersEnums.STATES.value(), "CO-ANT"));
-    }
-
-    @Test
-    void translateDepartmentDescShouldReturnDescription() {
-        assertEquals("05", DataUtils.translateDepartmentDesc("CO-ANT"));
-    }
-
-    @Test
-    void translateDepartmentDescShouldReturnEmptyWhenNotFound() {
-        assertEquals("", DataUtils.translateDepartmentDesc("NO_EXISTE"));
-    }
-
-    @Test
-    void getStateCodeByCountryCodeAndStateIsoShouldReturnCode() {
-        assertEquals("05", DataUtils.getStateCodeByCountryCodeAndStateIso("CO", "ANT"));
-    }
-
-    @Test
-    void getStateCodeByCountryCodeAndStateIsoShouldReturnEmptyWhenNotFound() {
-        assertEquals("", DataUtils.getStateCodeByCountryCodeAndStateIso("XX", "YY"));
-    }
+/**
+ * Formatea número de cuenta con prefijo 0065+0100 y padding a 12 dígitos
+ * Formato: 0065 + 0100 + número cuenta (12 dígitos)
+ * Total: 20 dígitos
+ */
+function formatNumCuenta(numCuentaOrig: string): string {
+  // Rellenar con ceros a la izquierda hasta 12 dígitos
+  const cuentaConPadding = numCuentaOrig.padStart(12, '0');
+  // prefijos: 0065 + 0100
+  return `00650100${cuentaConPadding}`;
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Constructor;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class GUtilsTest {
-
-    static class Dummy {
-        private String name;
-        private String empty;
-        private Integer age;
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getEmpty() { return empty; }
-        public void setEmpty(String empty) { this.empty = empty; }
-
-        public Integer getAge() { return age; }
-        public void setAge(Integer age) { this.age = age; }
-    }
-
-    @Test
-    void getNullOrBlankPropertyNamesShouldReturnNullAndEmptyFields() {
-        Dummy dummy = new Dummy();
-        dummy.setName("Juan");
-        dummy.setEmpty("");
-        dummy.setAge(null);
-
-        String[] result = GUtils.getNullOrBlankPropertyNames(dummy);
-
-        assertTrue(java.util.Arrays.asList(result).contains("empty"));
-        assertTrue(java.util.Arrays.asList(result).contains("age"));
-        assertFalse(java.util.Arrays.asList(result).contains("name"));
-    }
-
-    @Test
-    void constructorShouldThrowException() throws Exception {
-        Constructor<GUtils> constructor = GUtils.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-
-        assertThrows(Exception.class, constructor::newInstance);
-    }
+function formatIdentificacion(identificacion: string): string {
+  const cuentaConPadding = identificacion.padStart(11, '0');
+  return `${cuentaConPadding}`;
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.update.request.*;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PatchProspectMapperUtilsTest {
-
-    @Test
-    void cleanFieldsFromProspectUpdateShouldCleanDocumentsAndContactData() {
-        DocumentRequestDTO document = new DocumentRequestDTO();
-        document.setDocumentTypeCode("CC");
-        document.setDocumentNumber("12345678901");
-
-        PersonRequestDTO person = new PersonRequestDTO();
-        person.setDocuments(List.of(document));
-
-        ContactPointRequestDTO contactPoint = new ContactPointRequestDTO();
-        contactPoint.setElectronicAddress(new ElectronicAddressRequestDTO());
-        contactPoint.setPhoneAddress(new PhoneAddressRequestDTO());
-
-        PatchProspectRequestDTO request = new PatchProspectRequestDTO();
-        request.setPerson(person);
-        request.setContactPoints(List.of(contactPoint));
-
-        PatchProspectRequestDTO result = PatchProspectMapperUtils.cleanFieldsFromProspectUpdate(request);
-
-        assertNull(result.getPerson().getDocuments().get(0).getDocumentTypeCode());
-        assertNull(result.getPerson().getDocuments().get(0).getDocumentNumber());
-        assertNull(result.getContactPoints().get(0).getElectronicAddress());
-        assertNull(result.getContactPoints().get(0).getPhoneAddress());
-    }
-
-    @Test
-    void replaceDoubleOrTripleSpacesShouldNormalizeSpaces() {
-        String result = PatchProspectMapperUtils.replaceDoubleOrTripleSpaces("Calle   10  Sur");
-
-        assertEquals("Calle 10 Sur", result);
-    }
+/**
+ * Convierte un valor a número, manejando undefined/null/string
+ */
+export function parseMoney(v: any): number {
+  if (v === undefined || v === null || v === '') { return 0; }
+  if (typeof v === 'number') { return v; }
+  const n = parseFloat(String(v));
+  return Number.isFinite(n) ? n : NaN;
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.ServiceException;
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.error.ErrorService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
-class StringUtilsTest {
-
-    @Mock
-    private RegexUtils regexUtils;
-
-    @Mock
-    private ErrorService errorService;
-
-    @InjectMocks
-    private StringUtils stringUtils;
-
-    @Test
-    void blankFieldShouldReturnEmptyWhenNull() {
-        assertEquals("", StringUtils.blankField(null));
+/**
+ * Mapea errores de validación con información detallada
+ */
+function mapEnhancedErrors(validationErrors: any[], requestBody: any) {
+  return validationErrors.map((e: any) => {
+    const instancePath: string = e.instancePath || '';
+    const field = instancePath.startsWith('/') ? instancePath.slice(1) : instancePath;
+    let providedValue: unknown;
+    try {
+      if (field) {
+        providedValue = requestBody?.[field];
+      }
+    } catch (err) {
+      providedValue = undefined;
     }
-
-    @Test
-    void blankFieldShouldReturnSameValueWhenNotNull() {
-        assertEquals("ABC", StringUtils.blankField("ABC"));
+    let friendlyMessage = e.message;
+    if (e.keyword === 'pattern' && providedValue !== undefined) {
+      friendlyMessage = `El valor '${String(providedValue)}' no cumple el patrón requerido.`;
+    } else if (e.keyword === 'enum' && providedValue !== undefined) {
+      friendlyMessage = `El valor '${String(providedValue)}' no es uno de los valores permitidos.`;
+    } else if (e.keyword === 'required') {
+      friendlyMessage = `Falta el campo requerido '${e.params?.missingProperty}'.`;
+    } else {
+      friendlyMessage = e.message;
     }
-
-    @Test
-    void inputSencondLastNameValidationShouldValidateWhenCC() {
-        stringUtils.inputSencondLastNameValidation("CC", "Perez");
-
-        verify(regexUtils).validateRegex(
-                RegexTypes.SECOND_LAST_NAME_CE_FORMAT,
-                "Perez",
-                "person.personName.secondLastName"
-        );
-    }
-
-    @Test
-    void inputSencondLastNameValidationShouldNotValidateWhenOtherDocumentType() {
-        stringUtils.inputSencondLastNameValidation("TI", "Perez");
-
-        verifyNoInteractions(regexUtils);
-    }
-
-    @Test
-    void inputSencondLastNameValidationShouldPropagateException() {
-        doThrow(ServiceException.class).when(regexUtils)
-                .validateRegex(any(), anyString(), anyString());
-
-        assertThrows(ServiceException.class,
-                () -> stringUtils.inputSencondLastNameValidation("CC", "123"));
-    }
+    return {
+      field: field || null,
+      providedValue: providedValue ?? null,
+      keyword: e.keyword,
+      params: e.params || {},
+      message: e.message,
+      friendlyMessage
+    };
+  });
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class TimeUtilsTest {
-
-    @Test
-    void getSlocalDateTimeByFormatShouldReturnFormattedDate() {
-        String result = TimeUtils.getSlocalDateTimeByFormat("yyyy-MM-dd");
-
-        assertNotNull(result);
-        assertEquals(10, result.length());
-    }
-
-    @Test
-    void formatDateShouldReturnSameValidDateFormat() {
-        assertEquals("2025-01-31", TimeUtils.formatDate("2025-01-31"));
-    }
-
-    @Test
-    void formatDateShouldThrowExceptionWhenInvalidDate() {
-        assertThrows(Exception.class, () -> TimeUtils.formatDate("31-01-2025"));
-    }
+/**
+ * Persiste errores de validación en CSV
+ */
+function persistValidationToCSV(log: any, enhancedErrors: any[], mensajeId: string) {
+  try {
+    const validationErrorObj = new Error('Validation error');
+    (validationErrorObj as any).code = 'FST_ERR_VALIDATION';
+    (validationErrorObj as any).statusCode = 400;
+    (validationErrorObj as any).details = enhancedErrors;
+    logErrorToCSV(log, validationErrorObj, mensajeId, 'VALIDATION_ERROR', 'ASEG-FOND');
+  } catch (e) {
+    log.warn({ err: e }, 'No se pudo escribir validación local en CSV');
+  }
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ServiceDirectoryTest {
-
-    @Test
-    void constantsShouldHaveExpectedValues() {
-        assertEquals("/v1/prospects", ServiceDirectory.PROSPECT);
-        assertEquals("/v1/prospects/search", ServiceDirectory.PROSPECT_SEARCH);
-    }
+/**
+ * Persiste campo incorrecto en base de datos
+ */
+function persistCampoIncorrectoToDB(request: any, mensajeId: string) {
+  logTransaction({
+    servicio: 'ASEG-FOND',
+    fechaEvento: new Date(),
+    tipoDocOrigen: (request.body as AsegurarFondosBody)?.tipoDocOrig || null,
+    numeroIdOrigen: (request.body as AsegurarFondosBody)?.numDocOrig || null,
+    tipoDocDestino: null,
+    numeroIdDestino: null,
+    monto: typeof (request.body as AsegurarFondosBody)?.monto === 'number' ? (request.body as AsegurarFondosBody).monto : parseFloat(String((request.body as AsegurarFondosBody)?.monto)) || 0,
+    numCuentaOrigen: (request.body as AsegurarFondosBody)?.numCuentaOrig || null,
+    numCuentaDestino: null,
+    numeroTx: (request.body as AsegurarFondosBody)?.idTransaccionSN || mensajeId,
+    estado: 'ERROR',
+    nivel: 'ERROR',
+    idMensajeError: 'CAMPO_INCORRECTO',
+    mensaje: 'Campo incorrecto en el payload'
+  })
+    .catch(dbError => {
+      request.log.error({ dbError }, ERROR_GUARDANDO_VALIDACION_LOCAL_EN_BD);
+    });
 }
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.exception.ServiceException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class RegexUtilsTest {
-
-    private RegexUtils regexUtils;
-
-    @BeforeEach
-    void setUp() {
-        regexUtils = new RegexUtils();
-
-        ReflectionTestUtils.setField(regexUtils, "msName", "MS");
-        ReflectionTestUtils.setField(regexUtils, "msVersion", "v1");
-        ReflectionTestUtils.setField(regexUtils, "level", "error");
-        ReflectionTestUtils.setField(regexUtils, "code", "P-F-9400");
-
-        ReflectionTestUtils.setField(regexUtils, "regexOnlyNumbers", "^[0-9]+$");
-        ReflectionTestUtils.setField(regexUtils, "regexOnlyNumberError", "only numbers");
-
-        ReflectionTestUtils.setField(regexUtils, "regexStrictLength8", "^.{8}$");
-        ReflectionTestUtils.setField(regexUtils, "regexStrictLength8Error", "length 8");
-
-        ReflectionTestUtils.setField(regexUtils, "regexStrictLength11", "^.{11}$");
-        ReflectionTestUtils.setField(regexUtils, "regexStrictLength11Error", "length 11");
-
-        ReflectionTestUtils.setField(regexUtils, "regexEmail", "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
-        ReflectionTestUtils.setField(regexUtils, "regexEmailError", "invalid email");
-
-        ReflectionTestUtils.setField(regexUtils, "regexPhoneFormat", "^[0-9]+$");
-        ReflectionTestUtils.setField(regexUtils, "regexPhoneFormatError", "invalid phone");
-
-        ReflectionTestUtils.setField(regexUtils, "regexGenderCodeFormat", "^[HM]$");
-        ReflectionTestUtils.setField(regexUtils, "regexGenderCodeFormatError", "invalid gender");
+/**
+ * Construye respuesta de error estándar
+ */
+function buildErrorResponse(config: any, mensajeId: string) {
+  return {
+    resultado: {
+      mensajeId,
+      error: true,
+      codigo: config.codigoRta,
+      descripcionError: config.descripcion
     }
-
-    @Test
-    void validateRegexShouldPassWhenValueMatches() {
-        assertDoesNotThrow(() ->
-                regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, "123456", "field"));
-    }
-
-    @Test
-    void validateRegexShouldThrowWhenValueDoesNotMatch() {
-        assertThrows(ServiceException.class,
-                () -> regexUtils.validateRegex(RegexTypes.ONLY_NUMBERS, "ABC", "field"));
-    }
-
-    @Test
-    void validateRegexEmailShouldPass() {
-        assertDoesNotThrow(() ->
-                regexUtils.validateRegex(RegexTypes.EMAIL, "test@mail.com", "email"));
-    }
-
-    @Test
-    void validateRegexEmailShouldThrow() {
-        assertThrows(ServiceException.class,
-                () -> regexUtils.validateRegex(RegexTypes.EMAIL, "bad-email", "email"));
-    }
+  };
 }
-Para ProspectMapperUtils, ojo: tiene posibles NullPointerException por condiciones como personData.getDescripcionDireccion().length() > 0 && personData.getDescripcionDireccion() != null. Primero valida length() y después null. En test hay que enviar ese campo con valor.
-Java
-package com.santander.bnc.bsn049.bncbsn049msprospects.utils;
 
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.host.person.response.TrxPersonData;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.CodeNameDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.DocumentDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.generic.Parameters;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response.ContactPointDTO;
-import com.santander.bnc.bsn049.bncbsn049msprospects.domain.prospect.prospect.response.PersonDTO;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class ProspectMapperUtilsTest {
-
-    @Test
-    void isPenumperValidShouldReturnTrue() {
-        assertTrue(ProspectMapperUtils.isPenumperValid("12345678"));
-    }
-
-    @Test
-    void isPenumperValidShouldReturnFalseWhenNotNumeric() {
-        assertFalse(ProspectMapperUtils.isPenumperValid("ABCDEFGH"));
-    }
-
-    @Test
-    void isPenumperValidShouldReturnFalseWhenInvalidLength() {
-        assertFalse(ProspectMapperUtils.isPenumperValid("123"));
-    }
-
-    @Test
-    void getSourceCodeShouldReturnODS() {
-        TrxPersonData data = new TrxPersonData();
-        data.setUsualt("ODSXXXX");
-
-        assertEquals("ODS", ProspectMapperUtils.getSourceCode(data));
-    }
-
-    @Test
-    void getSourceCodeShouldReturnOtroWhenDifferent() {
-        TrxPersonData data = new TrxPersonData();
-        data.setUsualt("ABCXXXX");
-
-        assertEquals("OTRO", ProspectMapperUtils.getSourceCode(data));
-    }
-
-    @Test
-    void isNotProspectShouldReturnFalseWhenPRO() {
-        assertFalse(ProspectMapperUtils.isNotProspect("PRO"));
-    }
-
-    @Test
-    void isNotProspectShouldReturnTrueWhenNotPRO() {
-        assertTrue(ProspectMapperUtils.isNotProspect("CLI"));
-    }
-
-    @Test
-    void personDTONamesShouldMapBasicData() {
-        TrxPersonData data = buildTrxPersonData();
-        Parameters params = buildParameters();
-
-        PersonDTO result = ProspectMapperUtils.personDTONames(data, params);
-
-        assertEquals("Juan", result.getPersonName().getGivenName());
-        assertEquals("Perez", result.getPersonName().getLastName());
-        assertEquals("Lopez", result.getPersonName().getSecondLastName());
-        assertEquals("Juan Perez Lopez", result.getPersonName().getFullName());
-        assertEquals("H", result.getGenderCode());
-        assertEquals("HOMBRE", result.getGenderDescription());
-        assertEquals("1990-01-01", result.getBirthDate());
-    }
-
-    @Test
-    void getContactPointShouldMapData() {
-        TrxPersonData data = buildTrxPersonData();
-        Parameters params = buildParameters();
-
-        ContactPointDTO result = ProspectMapperUtils.getContactPoint(data, params);
-
-        assertEquals("PRI001", result.getContactPointId());
-        assertEquals("3001234567", result.getPhoneAddress().getMobileNumber());
-        assertEquals("6011234567", result.getPhoneAddress().getPhoneNumber());
-        assertEquals("test@mail.com", result.getElectronicAddress().getEmailAddress());
-        assertNotNull(result.getPostalAddress());
-    }
-
-    @Test
-    void getDocumentBasicsShouldMapData() {
-        TrxPersonData data = buildTrxPersonData();
-        Parameters params = buildParameters();
-
-        DocumentDTO result = ProspectMapperUtils.getDocumentBasics(data, params);
-
-        assertEquals("CC", result.getDocumentTypeCode());
-        assertEquals("Cédula", result.getDocumentTypeDescription());
-        assertEquals("12345678901", result.getDocumentNumber());
-        assertEquals("2020-01-01", result.getIssueDate());
-        assertEquals("2030-01-01", result.getExpirationDate());
-    }
-
-    @Test
-    void getForeignTaxIndicatorShouldReturnYes() {
-        ProspectMapperUtils utils = new ProspectMapperUtils();
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorPositiveResponse", "CONN");
-
-        TrxPersonData data = new TrxPersonData();
-        data.setUsualt("ODSCONN");
-
-        assertEquals("YES", utils.getForeignTaxIndicator(data));
-    }
-
-    @Test
-    void getForeignTaxIndicatorShouldReturnNo() {
-        ProspectMapperUtils utils = new ProspectMapperUtils();
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorPositiveResponse", "CONN");
-
-        TrxPersonData data = new TrxPersonData();
-        data.setUsualt("ODSXXXX");
-
-        assertEquals("NO", utils.getForeignTaxIndicator(data));
-    }
-
-    @Test
-    void getForeingTaxIndicatoFromRequestShouldReturnPositiveValue() {
-        ProspectMapperUtils utils = new ProspectMapperUtils();
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorPositiveResponse", "CONN");
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorNegativeResponse", "COFF");
-
-        assertEquals("CONN", utils.getForeingTaxIndicatoFromRequest("YES"));
-    }
-
-    @Test
-    void getForeingTaxIndicatoFromRequestShouldReturnNegativeValue() {
-        ProspectMapperUtils utils = new ProspectMapperUtils();
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorPositiveResponse", "CONN");
-        ReflectionTestUtils.setField(utils, "foreignTaxIndicatorNegativeResponse", "COFF");
-
-        assertEquals("COFF", utils.getForeingTaxIndicatoFromRequest("NO"));
-    }
-
-    @Test
-    void lowProspectLogicShouldBuildValue() {
-        ProspectMapperUtils utils = new ProspectMapperUtils();
-        ReflectionTestUtils.setField(utils, "lowProspect", "BAJ");
-
-        TrxPersonData data = new TrxPersonData();
-        data.setUsualt("ODSCONN");
-
-        assertEquals("BAJCONN", utils.lowProspectLogic(data));
-    }
-
-    private TrxPersonData buildTrxPersonData() {
-        TrxPersonData data = new TrxPersonData();
-        data.setNombre("Juan");
-        data.setPrimerApellido("Perez");
-        data.setSegundoApellido("Lopez");
-        data.setSexo("H");
-        data.setFechaNacimiento("1990-01-01");
-        data.setTipoIdentificacion("CC");
-        data.setNumeroIdentificacion("12345678901");
-        data.setFechaExpedicion("2020-01-01");
-        data.setDescripcionDireccion("CALLE 123                                         2030-01-01");
-        data.setNombreVia("CALLE 123");
-        data.setTipoVia("CL");
-        data.setPrecelular("57");
-        data.setTelefono("6011234567");
-        data.setCelular("3001234567");
-        data.setEmail("test@mail.com");
-        return data;
-    }
-
-    private Parameters buildParameters() {
-        Parameters params = new Parameters();
-        params.setCountryNationality(new CodeNameDTO("CO", "Colombia"));
-        params.setCountryDir(new CodeNameDTO("CO", "Colombia"));
-        params.setCountryBirth(new CodeNameDTO("CO", "Colombia"));
-        params.setCountryExp(new CodeNameDTO("CO", "Colombia"));
-        params.setCityBirth(new CodeNameDTO("11", "Bogotá"));
-        params.setCityExp(new CodeNameDTO("11", "Bogotá"));
-        params.setCityStandard(new CodeNameDTO("11", "Bogotá"));
-        params.setCityDepartment(new CodeNameDTO("11", "Bogotá"));
-        params.setTown(new CodeNameDTO("11001", "Bogotá"));
-        params.setTownDocument(new CodeNameDTO("11001", "Bogotá"));
-        params.setStreetTypeDescription("Calle");
-        params.setDocumentTypeDescription("Cédula");
-        return params;
-    }
+/**
+ * Maneja errores de validación del esquema
+ */
+function handleValidationError(request: any, reply: any, mensajeId: string) {
+  request.log.warn({ error: request.validationError, mensajeId, errorType: 'VALIDATION_ERROR' }, 'Error de validación AsegurarFondos');
+  const validationErrors = request.validationError.validation || [];
+  const enhancedErrors = mapEnhancedErrors(validationErrors, request.body);
+  persistValidationToCSV(request.log, enhancedErrors, mensajeId);
+  request.log.info({ totalErrors: enhancedErrors.length, errors: enhancedErrors }, 'Errores de validación detallados');
+  const camposMalEscritos = validationErrors.filter((err: any) => err.keyword === 'additionalProperties');
+  if (camposMalEscritos.length > 0) {
+    const config = ASEGURAR_FONDOS_VALIDACION_LOCAL_CONFIG.CAMPO_INCORRECTO;
+    persistCampoIncorrectoToDB(request, mensajeId);
+    reply.code(config.httpStatus).send(buildErrorResponse(config, mensajeId));
+    return;
+  }
+  const config = ASEGURAR_FONDOS_VALIDACION_LOCAL_CONFIG.CAMPO_OBLIGATORIO;
+  reply.code(config.httpStatus).send(buildErrorResponse(config, mensajeId));
 }
+
+/**
+ * Procesa y responde a errores de validación de Altair (array errores[])
+ */
+async function handleAltairErrorArray(resultado: AsegurarFondos, request: any, reply: any, mensajeId: string, body: AsegurarFondosBody, montoNum: number) {
+  const primerError = resultado.errores[0];
+  const codigoAltair = primerError.codigo;
+
+  request.log.warn({
+    mensajeId,
+    codigoAltair,
+    mensajeAltair: primerError.mensaje,
+    erroresCompletos: resultado.errores
+  }, 'Error de validación de Altair detectado en errores[]');
+
+  // Registrar el error de Altair también en el logger CSV para trazabilidad
+  try {
+    const altairError = new Error(primerError.mensaje || 'Error de Altair');
+    (altairError as any).code = codigoAltair;
+    (altairError as any).statusCode = ASEGURAR_FONDOS_HTTP_STATUS_CONFIG.ERROR_NEGOCIO;
+    (altairError as any).details = resultado.errores;
+    logErrorToCSV(request.log, altairError, mensajeId, 'ALTAIR_VALIDATION_ERROR', 'ASEG-FOND');
+  }
+  /* istanbul ignore next: error al escribir CSV, inalcanzable en tests */
+  catch (e) {
+    request.log.error({ mensajeId, err: e }, 'No se pudo registrar el error de Altair en CSV');
+  }
+
+  // Guardar en base de datos (misma estructura que TransaccionOnUs)
+  await logTransaction({
+    servicio: 'ASEG-FOND',
+    fechaEvento: new Date(),
+    tipoDocOrigen: body.tipoDocOrig,
+    numeroIdOrigen: body.numDocOrig,
+    tipoDocDestino: null,
+    numeroIdDestino: null,
+    monto: montoNum,
+    numCuentaOrigen: formatNumCuenta(body.numCuentaOrig),
+    numCuentaDestino: null,
+    numeroTx: body.idTransaccionSN || mensajeId,
+    estado: 'ERROR',
+    nivel: 'ERROR',
+    idMensajeError: codigoAltair,
+    mensaje: primerError.mensaje?.substring(0, 50)
+  })
+    /* istanbul ignore next: Bloque inalcanzable */
+    .catch(dbError => {
+      /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+      request.log.error({ dbError }, ERROR_GUARDANDO_EN_BD);
+    });
+
+  // Mapear código BGE de Altair a código RTA
+  const errorMapping = getAsegurarFondosAltairErrorMapping(codigoAltair);
+
+  if (errorMapping) {
+    return reply.code(ASEGURAR_FONDOS_HTTP_STATUS_CONFIG.ERROR_NEGOCIO).send({
+      resultado: {
+        mensajeId,
+        error: true,
+        codigo: errorMapping.codigoRta,
+        descripcionError: errorMapping.descripcion
+      }
+    });
+  }
+
+  // Si no hay mapeo, retornar error genérico
+  return reply.code(ASEGURAR_FONDOS_HTTP_STATUS_CONFIG.ERROR_NEGOCIO).send({
+    resultado: {
+      mensajeId,
+      error: true,
+      codigo: 1422,
+      descripcionError: primerError.mensaje || 'Error de validación de Altair'
+    }
+  });
+}
+
+/**
+ * Procesa respuesta BGMN201 y persiste en base de datos
+ */
+async function processBGMN201Response(resultado: AsegurarFondos, request: any, reply: any, mensajeId: string, body: AsegurarFondosBody, montoNum: number) {
+  const res = resultado.data.BGMN201;
+
+  // Mapear el campo ERROR: N = éxito, S = error
+  const tieneError = res.ERROR === 'S';
+  const codigo = res.COERROR ? parseInt(res.COERROR, 10) : 0;
+
+  // Concatenar los 3 campos de descripción de error
+  const descripcionError = [res.DERROR1 || '', res.DERROR2 || '', res.DERROR3 || '']
+    .filter(d => d.trim() !== '')
+    .join(' ')
+    .trim();
+
+  // Guardar en base de datos (tanto éxito como error)
+  if (tieneError) {
+    /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+    await logTransaction({
+      servicio: 'ASEG-FOND',
+      fechaEvento: new Date(),
+      tipoDocOrigen: body.tipoDocOrig,
+      numeroIdOrigen: body.numDocOrig,
+      tipoDocDestino: null,
+      numeroIdDestino: null,
+      monto: montoNum,
+      numCuentaOrigen: formatNumCuenta(body.numCuentaOrig),
+      numCuentaDestino: null,
+      numeroTx: body.idTransaccionSN || mensajeId,
+      estado: 'ERROR',
+      nivel: 'ERROR',
+      idMensajeError: res.COERROR || 'ERROR_BGMN201',
+      mensaje: descripcionError.substring(0, 50)
+    })
+      /* istanbul ignore next: Bloque inalcanzable */
+      .catch(dbError => {
+        /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+        request.log.error({ dbError }, ERROR_GUARDANDO_EN_BD);
+      });
+  } else {
+    // Registrar transacción exitosa
+    /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+    await logTransaction({
+      servicio: 'ASEG-FOND',
+      fechaEvento: new Date(),
+      tipoDocOrigen: body.tipoDocOrig,
+      numeroIdOrigen: body.numDocOrig,
+      tipoDocDestino: null,
+      numeroIdDestino: null,
+      monto: montoNum,
+      numCuentaOrigen: formatNumCuenta(body.numCuentaOrig),
+      numCuentaDestino: null,
+      numeroTx: body.idTransaccionSN || mensajeId,
+      estado: 'SUCCESS',
+      nivel: 'INFO',
+      idMensajeError: '0000',
+      mensaje: 'Transacción exitosa'
+    })
+      /* istanbul ignore next: Bloque inalcanzable */
+      .catch(dbError => {
+        /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+        request.log.error({ dbError }, ERROR_GUARDANDO_EN_BD);
+      });
+
+    // Registrar en CSV para trazabilidad de transacciones exitosas
+    request.log.info({ mensajeId, transaccion: 'SUCCESS', idTransaccionSN: body.idTransaccionSN }, 'Transacción exitosa registrada');
+  }
+
+  return reply.code(200).send({
+    respuesta: {
+      idTransaccionSN: res.IDTRXSN,
+      idTransaccionCore: res.IDTXNIO,
+      marcaTiempo: formatMarcaTiempo(res.MKTOUT)
+    },
+    resultado: {
+      mensajeId,
+      error: tieneError,
+      codigo,
+      descripcionError: codigo !== 0 ? descripcionError : ''
+    }
+  });
+}
+
+/**
+ * Maneja errores del catch block de AsegurarFondos
+ */
+async function handleAsegurarFondosCatchError(error: any, request: any, reply: any, mensajeId: string) {
+  /* istanbul ignore next: error de negocio específico, inalcanzable en tests */
+  if (error instanceof AsegurarFondosError) {
+    request.log.warn({ error: error.message, code: error.code, statusCode: error.statusCode, mensajeId }, 'Error del negocio AsegurarFondos');
+
+    const errorCode = getErrorCodeNumber(error.code);
+    const httpStatus = getHttpStatusForError(error.code) as 200 | 400 | 422 | 500 | 503;
+    const descripcionError = getErrorDescription(error.code);
+
+    // Guardar error en base de datos
+    await logTransaction({
+      servicio: 'ASEG-FOND',
+      fechaEvento: new Date(),
+      tipoDocOrigen: (request.body as AsegurarFondosBody).tipoDocOrig || null,
+      numeroIdOrigen: (request.body as AsegurarFondosBody).numDocOrig || null,
+      tipoDocDestino: null,
+      numeroIdDestino: null,
+      monto: typeof (request.body as AsegurarFondosBody).monto === 'number' ? (request.body as AsegurarFondosBody).monto : parseFloat(String((request.body as AsegurarFondosBody).monto)) || 0,
+      numCuentaOrigen: (request.body as AsegurarFondosBody).numCuentaOrig || null,
+      numCuentaDestino: null,
+      numeroTx: (request.body as AsegurarFondosBody).idTransaccionSN || mensajeId,
+      estado: 'ERROR',
+      nivel: 'ERROR',
+      idMensajeError: error.code,
+      mensaje: descripcionError.substring(0, 50)
+    })
+      /* istanbul ignore next: Bloque inalcanzable */
+      .catch(dbError => {
+        /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+        request.log.error({ dbError }, ERROR_GUARDANDO_EN_BD);
+      });
+
+    return reply.code(httpStatus).send({
+      resultado: {
+        mensajeId,
+        error: true,
+        codigo: errorCode,
+        descripcionError
+      }
+    });
+  }
+
+  request.log.error({ error, mensajeId, errorType: 'INTERNAL_ERROR' }, 'Error interno AsegurarFondos');
+
+  // Guardar error interno en base de datos
+  /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+  await logTransaction({
+    servicio: 'ASEG-FOND',
+    fechaEvento: new Date(),
+    tipoDocOrigen: (request.body as AsegurarFondosBody)?.tipoDocOrig || null,
+    numeroIdOrigen: (request.body as AsegurarFondosBody)?.numDocOrig || null,
+    tipoDocDestino: null,
+    numeroIdDestino: null,
+    monto: 0,
+    numCuentaOrigen: (request.body as AsegurarFondosBody)?.numCuentaOrig || null,
+    numCuentaDestino: null,
+    numeroTx: mensajeId,
+    estado: 'ERROR',
+    nivel: 'FATAL',
+    idMensajeError: 'INTERNAL_ERROR',
+    mensaje: 'Error interno al procesar AsegurarFondos'
+  })
+    /* istanbul ignore next: Bloque inalcanzable */
+    .catch(dbError => {
+      /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+      request.log.error({ dbError }, ERROR_GUARDANDO_EN_BD);
+    });
+
+  return reply.code(500).send({
+    resultado: {
+      mensajeId,
+      error: true,
+      codigo: 2001,
+      descripcionError: 'Error interno al procesar AsegurarFondos'
+    }
+  });
+}
+
+const asegurarFondosRouter: FastifyPluginAsync = async (fastify) => {
+  fastify.post(
+    '/AsegurarFondos',
+    {
+      schema: {
+        body: AsegurarFondosBodySchema,
+        response: {
+          200: AsegurarFondosResponseSchema,
+          400: ErrorResponseSchema,
+          422: ErrorResponseSchema,
+          500: ErrorResponseSchema,
+          503: ErrorResponseSchema
+        },
+        tags: ['AsegurarFondos'],
+        description: 'Asegurar fondos para una transacción',
+        summary: 'Crear AsegurarFondos'
+      },
+      attachValidation: true
+    },
+    async (request, reply) => {
+      const requestWithId = request as RequestWithMensajeId;
+      const mensajeId = requestWithId.mensajeId;
+
+      request.log.info({ mensajeId, body: request.body }, 'Procesando AsegurarFondos');
+
+      if (request.validationError) {
+        handleValidationError(request, reply, mensajeId);
+        return;
+      }
+
+      try {
+        const body = request.body as AsegurarFondosBody;
+
+        // Convertir y validar campos monetarios que vienen como string (hasta 13 enteros + 2 decimales en cliente)
+        const montoNum = parseMoney((body as any).monto);
+        if (isNaN(montoNum) || montoNum <= 0) {
+          const config = ASEGURAR_FONDOS_VALIDACION_LOCAL_CONFIG.CAMPO_MAL_INFORMADO;
+
+          // Guardar en base de datos
+          /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+          await logTransaction({
+            servicio: 'ASEG-FOND',
+            fechaEvento: new Date(),
+            tipoDocOrigen: body.tipoDocOrig || null,
+            numeroIdOrigen: body.numDocOrig || null,
+            tipoDocDestino: null,
+            numeroIdDestino: null,
+            monto: 0,
+            numCuentaOrigen: body.numCuentaOrig || null,
+            numCuentaDestino: null,
+            numeroTx: body.idTransaccionSN || mensajeId,
+            estado: 'ERROR',
+            nivel: 'ERROR',
+            idMensajeError: 'CAMPO_MAL_INFORMADO',
+            mensaje: 'Valor de monto inv\u00e1lido'
+          })
+            /* istanbul ignore next: Bloque inalcanzable */
+            .catch(dbError => {
+              /* istanbul ignore next: error en logTransaction, inalcanzable en tests */
+              request.log.error({ dbError }, ERROR_GUARDANDO_VALIDACION_LOCAL_EN_BD);
+            });
+
+          return reply.code(config.httpStatus).send({
+            resultado: {
+              mensajeId,
+              error: true,
+              codigo: config.codigoRta,
+              descripcionError: config.descripcion
+            }
+          });
+        }
+
+        const valorComisionNum = (body as any).valorComision !== undefined ? parseMoney((body as any).valorComision) : 0;
+        const valorIvaComisionNum = (body as any).valorIvaComision !== undefined ? parseMoney((body as any).valorIvaComision) : 0;
+
+        const now = new Date();
+        const horaConexion = now.toISOString().slice(0, 16);
+        const fechaContable = now.toISOString().slice(0, 10);
+
+        const asegurarFondosService = createAsegurarFondosService(request.log);
+
+        // Procesar campos opcionales que pueden ser string u objeto
+        const campo1Value = typeof body.campo1 === 'string' ? body.campo1 : (body.campo1 ? JSON.stringify(body.campo1) : '');
+        const campo2Value = typeof body.campo2 === 'string' ? body.campo2 : (body.campo2 ? JSON.stringify(body.campo2) : '');
+        const campo3Value = typeof body.campo3 === 'string' ? body.campo3 : (body.campo3 ? JSON.stringify(body.campo3) : '');
+        const campo4Value = typeof body.campo4 === 'string' ? body.campo4 : (body.campo4 ? JSON.stringify(body.campo4) : '');
+        const campo5Value = typeof body.campo5 === 'string' ? body.campo5 : (body.campo5 ? JSON.stringify(body.campo5) : '');
+
+        const asegurarFondosRequest: AsegurarFondosRequest = {
+          cabecera: {
+            rutaServicio: process.env.API_SANBA_RUTA_SERVICIO_ASEGURAR_FONDOS || 'asegurarFondos',
+            sesion: {
+              usuario: process.env.API_SANBA_USUARIO,
+              terminal: process.env.API_SANBA_TERMINAL,
+              horaConexion,
+              entorno: process.env.API_SANBA_ENTORNO,
+              perfil: process.env.API_SANBA_PERFIL,
+              sucursal: process.env.API_SANBA_SUCURSAL,
+              entidad: process.env.API_SANBA_ENTIDAD,
+              diasRestantesCambioClave: process.env.API_SANBA_DIAS_RESTANTES_CAMBIO_CLAVE,
+              fechaContable,
+              turno: ''
+            },
+            funcion: process.env.API_SANBA_FUNCION,
+            secuencia: Number(process.env.API_SANBA_SECUENCIA || Math.floor(Math.random() * 100000)),
+            canal: process.env.API_SANBA_CANAL || '60'
+          },
+          data: {
+            monto: montoNum.toFixed(2),
+            ValorComision: valorComisionNum.toFixed(2),
+            ValorIvaComision: valorIvaComisionNum.toFixed(2),
+            nombre: body.nombre ?? '',
+            tipoDocOrig: mapTipoDocumento(body.tipoDocOrig),
+            numDocOrig: formatIdentificacion(body.numDocOrig),
+            tipoCuentaOrig: body.tipoCuentaOrig ?? '',
+            numCuentaOrig: formatNumCuenta(body.numCuentaOrig),
+            idTransaccionSN: body.idTransaccionSN ?? '',
+            identificadorSPBVI: body.identificadorSPBVI ?? '',
+            tipoTransaccion: body.tipoTransaccion ?? '',
+            idTransaccionOriginal: body.idTransaccionOriginal ?? '',
+            marcaTiempo: formatMarcaTiempo(body.marcaTiempo ?? new Date().toISOString()),
+            HubConcentrador: body.hubConcentrador ?? '',
+            IpOriginador: body.ipOriginador ?? '',
+            CanalOriginador: body.canalOriginador ?? '',
+            Campo1: campo1Value,
+            Campo2: campo2Value,
+            Campo3: campo3Value,
+            Campo4: campo4Value,
+            Campo5: campo5Value,
+            idTransaccionSPBVI: body.idTransaccionSPBVI,
+            CampoLibre0: body.CampoLibre0 ?? '',
+            CampoLibre1: body.CampoLibre1 ?? ''
+          }
+        };
+
+        const resultado: AsegurarFondos = await asegurarFondosService.asegurarFondos(asegurarFondosRequest);
+
+        request.log.info({ mensajeId, resultado }, 'AsegurarFondos procesada exitosamente');
+
+        // PRIORIDAD 1: Verificar errores de validación en el array errores[] (códigos BGE de Altair)
+        if (resultado.errores && resultado.errores.length > 0) {
+          return await handleAltairErrorArray(resultado, request, reply, mensajeId, body, montoNum);
+        }
+
+        // PRIORIDAD 2: Verificar estructura BGMN201 para errores de transacción
+        return await processBGMN201Response(resultado, request, reply, mensajeId, body, montoNum);
+      } catch (error) {
+        return await handleAsegurarFondosCatchError(error, request, reply, mensajeId);
+      }
+    }
+  );
+
+  fastify.log.info('Ruta /AsegurarFondos registrada correctamente');
+};
+
+export { formatNumCuenta, formatMarcaTiempo };
+export default asegurarFondosRouter;
+

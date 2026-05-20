@@ -1,501 +1,475 @@
 package com.santander.bnc.bsn049.bncbsn049msprtvcntrl.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import java.lang.reflect.Method;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.camel.builder.ExchangeBuilder;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import com.santander.bnc.bsn049.bncbsn049msprtvcntrl.Models.Dtos.Pem758ADto;
 
-class OCServiceTest {
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 
-    private CamelContext camelContext;
-    private RestTemplate restTemplate;
-    private OCService service;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-    @BeforeEach
-    void setUp() {
+@Slf4j
+@Service
+public class OCService {
 
-        camelContext = new DefaultCamelContext();
-        restTemplate = mock(RestTemplate.class);
+    private final CamelContext camelContext;
+    private final RestTemplate restTemplate;
 
-        service = new OCService(camelContext, restTemplate);
+    @Value("${msoc.termdeposit.authorization}")
+    private String TD_AUTHORIZATION;
 
-        ReflectionTestUtils.setField(service, "TD_AUTHORIZATION", "Bearer td-token");
-        ReflectionTestUtils.setField(service, "PUBLIC_KEY", "public-key");
-        ReflectionTestUtils.setField(service, "OPERATIVE_CONTROL_URL", "http://localhost");
-        ReflectionTestUtils.setField(service, "ACR_DEFINED", "1");
+    @Value("${auth.jwt.public-key}")
+    private String PUBLIC_KEY;
 
-        ReflectionTestUtils.setField(service, "SANBA_URL", "http://localhost/sanba");
-        ReflectionTestUtils.setField(service, "SANBA_CHANNEL", "60");
-        ReflectionTestUtils.setField(service, "SANBA_USER", "ODSUSU01");
-        ReflectionTestUtils.setField(service, "SANBA_MQROUTE", "QCTFD");
+    @Value("${msoc.url}")
+    private String OPERATIVE_CONTROL_URL;
+
+    @Value("${msoc.acr}")
+    private String ACR_DEFINED;
+
+    @Value("${client.sanba.url}")
+    private String SANBA_URL;
+
+    @Value("${client.sanba.channel}")
+    private String SANBA_CHANNEL;
+
+    @Value("${client.sanba.user}")
+    private String SANBA_USER;
+
+    @Value("${client.sanba.mqRoute}")
+    private String SANBA_MQROUTE;
+
+    @Autowired
+    public OCService(CamelContext camelContext, RestTemplate restTemplate) {
+        this.camelContext = camelContext;
+        this.restTemplate = restTemplate;
     }
 
-    @Test
-    void getCamelContextDebeRetornarCamelContext() {
-
-        CamelContext result = service.getCamelContext();
-
-        assertNotNull(result);
-        assertEquals(camelContext, result);
+    public CamelContext getCamelContext() {
+        return camelContext;
     }
 
-    @Test
-    void validateDebeRetornarTrueCuandoExisteHeaderOctest() {
+    public boolean validatePenumperAndContracts(Exchange exchange) {
+        try {
+            log.info("START OC");
+            String octestHeader = exchange.getIn().getHeader("octest", String.class);
 
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader("octest", "true");
-
-        boolean result =
-                service.validatePenumperAndContracts(exchange);
-
-        assertTrue(result);
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoAuthorizationEsNull() {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        boolean result =
-                service.validatePenumperAndContracts(exchange);
-
-        assertFalse(result);
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoAuthorizationNoTieneBearer() {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "token-sin-bearer"
-        );
-
-        boolean result =
-                service.validatePenumperAndContracts(exchange);
-
-        assertFalse(result);
-    }
-
-    @Test
-    void validateDebeRetornarTrueCuandoAcrNoCoincide() throws Exception {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "Bearer token"
-        );
-
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("5", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertTrue(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoPenumperEsInvalido() throws Exception {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "Bearer token"
-        );
-
-        exchange.getIn().setHeader(
-                "X-Operative-Control-Rules",
-                "$.numper"
-        );
-
-        exchange.getIn().setBody("""
-            {
-               "numper":"123"
+            if (octestHeader != null) {
+                return true;
             }
-        """);
 
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
+            String acrExtracted = extractAcr(exchange);
 
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoPenumperNoCoincideConJwt() throws Exception {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "Bearer token"
-        );
-
-        exchange.getIn().setHeader(
-                "X-Operative-Control-Rules",
-                "$.numper"
-        );
-
-        exchange.getIn().setBody("""
-            {
-               "numper":"87654321"
+            if (!acrExtracted.equals(ACR_DEFINED.toString())) {
+                log.info("El claim acr del token no coincide con el esperado. Se ignora control operativo.");
+                return true;
             }
-        """);
 
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
+            String extractedPENUMPER = extractPENUMPERBasedOnRule(exchange);
+            String contractIdFromRequest = extractContractIdBasedOnRule(exchange);
+            String expectedPENUMPER = extractPENUMPERFromJwt(exchange);
 
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
+            log.info("VALOR DEL PENUMPER EXTRAIDO EN LA REGLA: " + extractedPENUMPER);
+            log.info("VALOR DEL ID DE CONTRATO EXTRAIDO EN LA REGLA: " + contractIdFromRequest);
 
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoContratoEsInvalido() throws Exception {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "Bearer token"
-        );
-
-        exchange.getIn().setHeader(
-                "X-Operative-Control-Rules",
-                "$.contractId"
-        );
-
-        exchange.getIn().setBody("""
-            {
-               "contractId":"123"
+            // validar PENUMPER si esta presente
+            if (!extractedPENUMPER.isEmpty() && !isValidPenumper(extractedPENUMPER)) {
+                log.info("VALIDACION DEL PENUMPER ERRONEA: NO ES VALIDO");
+                return false;
             }
-        """);
 
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoSanbaRetornaNull() throws Exception {
-
-        Exchange exchange = exchangeValido();
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(Pem758ADto.class)
-        )).thenReturn(ResponseEntity.ok(null));
-
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarTrueCuandoContratoCoincide() throws Exception {
-
-        Exchange exchange = exchangeValido();
-
-        Pem758ADto dto = new Pem758ADto();
-        dto.setPenumco("12345678901234567890");
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(Pem758ADto.class)
-        )).thenReturn(ResponseEntity.ok(dto));
-
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertTrue(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoContratoNoCoincide() throws Exception {
-
-        Exchange exchange = exchangeValido();
-
-        Pem758ADto dto = new Pem758ADto();
-        dto.setPenumco("99999999999999999999");
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(Pem758ADto.class)
-        )).thenReturn(ResponseEntity.ok(dto));
-
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void validateDebeRetornarFalseCuandoRestTemplateLanzaExcepcion() throws Exception {
-
-        Exchange exchange = exchangeValido();
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(Pem758ADto.class)
-        )).thenThrow(new RuntimeException("error"));
-
-        try (MockedStatic<SignedJWT> mocked =
-                     mockJwt("1", "12345678")) {
-
-            boolean result =
-                    service.validatePenumperAndContracts(exchange);
-
-            assertFalse(result);
-        }
-    }
-
-    @Test
-    void isValidPenumperDebeRetornarTrue() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "isValidPenumper",
-                        String.class
-                );
-
-        method.setAccessible(true);
-
-        boolean result =
-                (boolean) method.invoke(service, "12345678");
-
-        assertTrue(result);
-    }
-
-    @Test
-    void isValidPenumperDebeRetornarFalse() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "isValidPenumper",
-                        String.class
-                );
-
-        method.setAccessible(true);
-
-        boolean result =
-                (boolean) method.invoke(service, "ABC");
-
-        assertFalse(result);
-    }
-
-    @Test
-    void isValidContractIdDebeRetornarTrue() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "isValidContractId",
-                        String.class
-                );
-
-        method.setAccessible(true);
-
-        boolean result =
-                (boolean) method.invoke(
-                        service,
-                        "12345678901234567890"
-                );
-
-        assertTrue(result);
-    }
-
-    @Test
-    void isValidContractIdDebeRetornarFalse() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "isValidContractId",
-                        String.class
-                );
-
-        method.setAccessible(true);
-
-        boolean result =
-                (boolean) method.invoke(service, "123");
-
-        assertFalse(result);
-    }
-
-    @Test
-    void validarContratoDebeRetornarTrue() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "validarContrato",
-                        String.class,
-                        Pem758ADto.class
-                );
-
-        method.setAccessible(true);
-
-        Pem758ADto dto = new Pem758ADto();
-        dto.setPenumco("12345678901234567890");
-
-        boolean result =
-                (boolean) method.invoke(
-                        service,
-                        "12345678901234567890",
-                        dto
-                );
-
-        assertTrue(result);
-    }
-
-    @Test
-    void validarContratoDebeRetornarFalse() throws Exception {
-
-        Method method =
-                OCService.class.getDeclaredMethod(
-                        "validarContrato",
-                        String.class,
-                        Pem758ADto.class
-                );
-
-        method.setAccessible(true);
-
-        Pem758ADto dto = new Pem758ADto();
-        dto.setPenumco("99999999999999999999");
-
-        boolean result =
-                (boolean) method.invoke(
-                        service,
-                        "12345678901234567890",
-                        dto
-                );
-
-        assertFalse(result);
-    }
-
-    private Exchange exchangeValido() {
-
-        Exchange exchange = ExchangeBuilder
-                .anExchange(camelContext)
-                .build();
-
-        exchange.getIn().setHeader(
-                "Authorization",
-                "Bearer token"
-        );
-
-        exchange.getIn().setHeader(
-                "X-Operative-Control-Rules",
-                "$.numper,$.contractId"
-        );
-
-        exchange.getIn().setBody("""
-            {
-               "numper":"12345678",
-               "contractId":"12345678901234567890"
+            // comparar PENUMPER extraido con el PENUMPER del JWT si ambos estan presentes
+            if (!extractedPENUMPER.isEmpty() && !expectedPENUMPER.equals(extractedPENUMPER)) {
+                log.info("VALIDACION DEL PENUMPER ERRONEA: NO COINCIDE CON EL JWT");
+                return false;
             }
-        """);
 
-        return exchange;
+            // validar ID de contrato si esta presente
+            if (!contractIdFromRequest.isEmpty() && !isValidContractId(contractIdFromRequest)) {
+                log.info("VALIDACION DEL ID DE CONTRATO ERRONEA: NO ES VALIDO");
+                return false;
+            }
+
+            // Realizar validación de contrato si es necesario
+            if (!contractIdFromRequest.isEmpty()) {
+                String penumperToUse = extractedPENUMPER.isEmpty() ? expectedPENUMPER : extractedPENUMPER;
+                log.info("PENUMPER A USAR PARA LLAMADA A SANBA, CON TRIM Y TOSTRING: " + "'" + penumperToUse.trim()
+                        + "'");
+                Pem758ADto producto = extractContractBySanba(penumperToUse.trim(), contractIdFromRequest);
+
+                if (producto == null) {
+                    return false;
+                }
+
+                log.info("REALIZA LA LLAMADA A SANBA Y VALIDA SI EL CONTRATO ESTA PRESENTE");
+                return validarContrato(contractIdFromRequest, producto);
+            }
+
+            log.info("Validación exitosa o no requerida");
+            return true;
+        } catch (Exception e) {
+            log.error("Error en la validación: {}", e.getMessage());
+            return false;
+        }
     }
 
-    private MockedStatic<SignedJWT> mockJwt(
-            String acr,
-            String numper
-    ) throws Exception {
-
-        SignedJWT signedJWT = mock(SignedJWT.class);
-
-        JWTClaimsSet claims = mock(JWTClaimsSet.class);
-
-        MockedStatic<SignedJWT> mocked =
-                mockStatic(SignedJWT.class);
-
-        mocked.when(() ->
-                SignedJWT.parse(anyString())
-        ).thenReturn(signedJWT);
-
-        when(signedJWT.getJWTClaimsSet())
-                .thenReturn(claims);
-
-        when(claims.getStringClaim("acr"))
-                .thenReturn(acr);
-
-        when(claims.getStringClaim("numper"))
-                .thenReturn(numper);
-
-        when(claims.getStringClaim("PENUMPER"))
-                .thenReturn(numper);
-
-        when(claims.getStringClaim("penumper"))
-                .thenReturn(numper);
-
-        return mocked;
+    private boolean isValidPenumper(String penumper) {
+        return penumper.length() == 8 && penumper.matches("\\d+");
     }
+
+    private boolean isValidContractId(String contractId) {
+        return contractId.length() == 20 && contractId.matches("\\d+");
+    }
+
+    private String extractPENUMPERFromJwt(Exchange exchange) {
+
+        String bearerToken = "";
+        bearerToken = exchange.getIn().getHeader("Authorization").toString();
+
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            log.info("Authorization header is missing or does not contain Bearer token");
+            return null;
+        }
+
+        // String token = bearerToken.replaceFirst("^Bearer\\s+", ""); // quita el
+        // "Bearer " si esta presente
+        String token = bearerToken.substring(7);
+        log.info("JWT Token: {}", token);
+        try {
+
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            String claimPenumper = claimsSet.getStringClaim("attPersonNumberCode");
+            log.info("PENUMPER extraído del JWT: {}", claimPenumper);
+
+            return claimPenumper;
+        } catch (Exception e) {
+            log.error("Error al decodificar el JWT o extraer el PENUMPER: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractContractIdBasedOnRule(Exchange exchange) throws Exception {
+        String serviceEndpoint = exchange.getIn().getHeader("serviceEndpoint", String.class);
+        String consumerUrl = exchange.getIn().getHeader("CamelHttpUri", String.class);
+        String path = extractPath(serviceEndpoint, consumerUrl);
+        String requestMethod = exchange.getIn().getHeader("serviceMethod", String.class);
+        log.info("El REQUEST METHOD ES: " + requestMethod);
+        log.info("Path de servicio CONTRACT: {}", path);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rules = mapper.readTree(exchange.getIn().getHeader("X-Operative-Control-Rules", String.class))
+                .path("operativeControl").path("rules");
+        String contractId = "";
+
+        for (JsonNode rule : rules) {
+            String rulePath = rule.path("path").asText();
+            String ruleMethod = rule.path("method").asText();
+            log.info("Path extraido  de regla (CONTRACT): {}", rulePath);
+            String transformedPath = transformServicePath(path, rulePath);
+            log.info("Path transformado para comparar (CONTRACT): {}", transformedPath);
+
+            if (rule.path("active").asBoolean() && transformedPath.equals(rulePath)
+                    && requestMethod.equals(ruleMethod)) {
+                String location = rule.path("cccUbication").asText();
+                String position = rule.path("cccPosition").asText();
+
+                log.info("Regla encontrada para deposit_id - Ubicación: {}, Posición: {}", location, position);
+                if ((location.isEmpty() || location == null) && (position.isEmpty() || position == null)) {
+                    return "";
+                }
+
+                if ("url".equals(location)) {
+                    String[] pathParts = path.split("/");
+                    int positionIndex = Integer.parseInt(position) - 1;
+                    if (pathParts.length > positionIndex) {
+                        contractId = pathParts[positionIndex];
+                    }
+                    log.info("deposit_id extraído de la URL: {}", contractId);
+                }
+                break;
+            }
+        }
+
+        return contractId;
+    }
+
+    private String extractAcr(Exchange exchange) {
+
+        String bearerToken = "";
+        bearerToken = exchange.getIn().getHeader("Authorization").toString();
+
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            log.info("No viene header Authorization o no contiene el token Bearer.");
+            return null;
+        }
+
+        // String token = bearerToken.replaceFirst("^Bearer\\s+", ""); // quita el
+        // "Bearer " si esta presente
+        String token = bearerToken.substring(7);
+        try {
+
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            String acr = claimsSet.getStringClaim("acr");
+            log.info("EL ACR EXTRAIDO ES: {}", acr);
+
+            return acr;
+        } catch (Exception e) {
+            log.error("Error al decodificar el JWT o extraer el PENUMPER: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractPENUMPERBasedOnRule(Exchange exchange) throws Exception {
+        String serviceEndpoint = exchange.getIn().getHeader("serviceEndpoint", String.class);
+        String consumerUrl = exchange.getIn().getHeader("CamelHttpUri", String.class);
+        String path = extractPath(serviceEndpoint, consumerUrl);
+        String requestMethod = exchange.getIn().getHeader("serviceMethod", String.class);
+        log.info("**PENUMPER** Path de servicio: {}", path);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rules = mapper.readTree(exchange.getIn().getHeader("X-Operative-Control-Rules", String.class))
+                .path("operativeControl").path("rules");
+        String penumper = "";
+
+        for (JsonNode rule : rules) {
+            String rulePath = rule.path("path").asText();
+            String ruleMethod = rule.path("method").asText();
+            log.info("**PENUMPER** Path extraido  de regla (PENUMPER): {}", rulePath);
+            String transformedPath = transformServicePath(path, rulePath);
+            log.info("**PENUMPER** Path transformado para comparar (PENUMPER): {}", transformedPath);
+
+            if (rule.path("active").asBoolean() && transformedPath.equals(rulePath)
+                    && requestMethod.equals(ruleMethod)) {
+                String location = rule.path("clientUbication").asText();
+                String position = rule.path("clientPosition").asText();
+
+                if ((location.isEmpty() || location == null) && (position.isEmpty() || position == null)) {
+                    return "";
+                }
+
+                log.info("**PENUMPER** Regla encontrada para PENUMPER - Ubicación: {}, Posición: {}", location,
+                        position);
+
+                switch (location) {
+                    case "url":
+                        if ("queryparam".equals(position)) {
+                            if (path.contains("?")) {
+                                String[] queryParams = path.split("\\?", 2)[1].split("&");
+                                for (String param : queryParams) {
+                                    String[] keyValue = param.split("=", 2);
+                                    if ("participant_id".equals(keyValue[0])) {
+                                        penumper = keyValue.length > 1 ? keyValue[1] : "";
+                                        break;
+                                    }
+                                }
+                                log.info("PENUMPER extraído del query param: {}", penumper);
+                            } else {
+                                log.info("No hay parámetros de query en la URL");
+                            }
+                        } else {
+                            String[] pathParts = path.split("/");
+                            int positionIndex = Integer.parseInt(position) - 1;
+                            if (pathParts.length > positionIndex) {
+                                penumper = pathParts[positionIndex];
+                            }
+                            log.info("PENUMPER extraído de la URL: {}", penumper);
+                        }
+
+                        break;
+                    case "body":
+                        String jsonBody = exchange.getIn().getBody(String.class);
+                        penumper = JsonPath.parse(jsonBody).read(position, String.class);
+                        log.info("PENUMPER extraído del body: {}", penumper);
+                        break;
+                    case "header":
+                        penumper = exchange.getIn().getHeader(position, String.class);
+                        log.info("PENUMPER extraído del header: {}", penumper);
+                        break;
+                    default:
+                        log.error("Ubicación desconocida para la extracción de PENUMPER: {}", location);
+                        throw new IllegalArgumentException("Ubicación desconocida: " + location);
+                }
+                break;
+            }
+        }
+
+        return penumper;
+    }
+
+    private String transformServicePath(String servicePath, String rulePath) {
+        if ("/".equals(servicePath)) {
+            return servicePath;
+        }
+
+        String[] pathAndQuery = servicePath.split("\\?", 2);
+        String pathPart = pathAndQuery[0];
+        String queryPart = pathAndQuery.length > 1 ? pathAndQuery[1] : "";
+
+        String[] serviceParts = pathPart.split("/");
+        String[] ruleParts = rulePath.split("/");
+        StringBuilder transformedPath = new StringBuilder();
+
+        for (int i = 0; i < ruleParts.length && i < serviceParts.length; i++) {
+            if (ruleParts[i].equals("{customer_id}") && isValidPenumper(serviceParts[i])) {
+                transformedPath.append("{customer_id}");
+            } else if (ruleParts[i].equals("{deposit_id}") && isValidContractId(serviceParts[i])) {
+                transformedPath.append("{deposit_id}");
+            } else if (ruleParts[i].startsWith("{") && ruleParts[i].endsWith("}")) {
+                transformedPath.append("{randomNum}");
+            } else {
+                transformedPath.append(serviceParts[i]);
+            }
+            if (i < ruleParts.length - 1 || i < serviceParts.length - 1) {
+                transformedPath.append("/");
+            }
+        }
+
+        if (!queryPart.isEmpty()) {
+            String transformedQuery = transformQueryString(queryPart);
+            if (!transformedQuery.isEmpty()) {
+                transformedPath.append("?").append(transformedQuery);
+            }
+        }
+
+        return transformedPath.toString();
+    }
+
+    private String transformQueryString(String queryString) {
+        String[] queryParams = queryString.split("&");
+        StringBuilder transformedQuery = new StringBuilder();
+
+        for (String param : queryParams) {
+            String[] keyValue = param.split("=", 2);
+            String key = keyValue[0];
+            String value = keyValue.length > 1 ? keyValue[1] : "";
+
+            if ("participant_id".equals(key) && isValidPenumper(value)) {
+                transformedQuery.append(key).append("={customer_id}");
+            } else {
+                transformedQuery.append(key).append("={randomNum}");
+            }
+
+            transformedQuery.append("&");
+        }
+
+        if (transformedQuery.length() > 0) {
+            transformedQuery.setLength(transformedQuery.length() - 1);
+        }
+
+        log.info("Transformación de la url query: " + transformedQuery.toString());
+        return transformedQuery.toString();
+    }
+
+    private String extractPath(String serviceEndpoint, String consumerUrl) {
+        String basePath = "/operativecontrol/validation";
+
+        if (consumerUrl != null && consumerUrl.startsWith(basePath) && consumerUrl.length() > basePath.length()) {
+            return consumerUrl.substring(basePath.length());
+        } else {
+            try {
+                URL url = new URL(serviceEndpoint);
+                String path = url.getPath();
+                String query = url.getQuery();
+                if (query != null && !query.isEmpty()) {
+                    path += "?" + query;
+                }
+                return path;
+            } catch (MalformedURLException e) {
+                log.error("Error al extraer el path de serviceEndpoint: {}", serviceEndpoint, e);
+                return "";
+            }
+        }
+    }
+
+    public Pem758ADto extractContractBySanba(String penumper, String contractId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("mqRoute", SANBA_MQROUTE);
+
+        String last12DigitsOfContractId = contractId.substring(contractId.length() - 12);
+
+        String requestJson = "{"
+                + "\"cabecera\": {"
+                + "    \"rutaServicio\": \"concatosClientesBuscarPETF\","
+                + "    \"sesion\": {"
+                + "        \"usuario\": \"" + SANBA_USER + "\","
+                + "        \"terminal\": \"\","
+                + "        \"horaConexion\": \"2022-02-10T11:56\","
+                + "        \"entorno\": \"N\","
+                + "        \"perfil\": \"GCAJASTL\","
+                + "        \"sucursal\": \"0100\","
+                + "        \"entidad\": \"0065\","
+                + "        \"diasRestantesCambioClave\": \"29\","
+                + "        \"fechaContable\": \"2022-02-10\","
+                + "        \"turno\": \"\""
+                + "    },"
+                + "    \"funcion\": \"Intro\","
+                + "    \"secuencia\": 44204,"
+                + "    \"canal\": \"" + SANBA_CHANNEL + "\""
+                + "},"
+                + "\"data\": {"
+                + "    \"numeroCliente\": \"" + penumper + "\","
+                + "    \"codigoEntidad\": \"0065\","
+                + "    \"indicadorRellamada\": \"S\","
+                + "    \"numeroContrato\": \"" + last12DigitsOfContractId + "\","
+                + "    \"codigoOficina\": \"0100\","
+                + "    \"codigoProducto\": \"04\","
+                + "    \"codigoSubproducto\": \"\""
+                + "}"
+                + "}";
+
+        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+        ResponseEntity<String> response = restTemplate.exchange(SANBA_URL, HttpMethod.POST, entity, String.class);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(response.getBody());
+            JsonNode pem758aNode = rootNode.path("data").path("PEM758A");
+
+            if (pem758aNode.isMissingNode() || pem758aNode.isNull()) {
+                log.info("PEM758A no encontrado en la respuesta de Sanba");
+                return null;
+            }
+
+            return mapper.treeToValue(pem758aNode, Pem758ADto.class);
+
+        } catch (JsonProcessingException e) {
+            log.error("Error procesando el JSON: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean validarContrato(String contractId, Pem758ADto producto) {
+        String penumco = producto.getPenumco();
+        String last12DigitsOfContractId = contractId.substring(contractId.length() - 12);
+
+        if (last12DigitsOfContractId.equals(penumco)) {
+            log.info("Contrato validado exitosamente: {}", contractId);
+            return true;
+        } else {
+            log.info("No se encontró el contrato en la lista de contratos de Sanba: {}", contractId);
+            return false;
+        }
+    }
+
 }

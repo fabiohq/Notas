@@ -1,3 +1,6 @@
+Test unitarios en un solo canvas 
+Los test desacopla dos por clase y cubriendo el 100% de cobertura
+
 package com.santander.bnc.bsn049.bncbsn049msprdctdrctry.products.utils;
 
 public enum RegexTypes {

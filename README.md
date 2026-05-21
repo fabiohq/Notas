@@ -1,249 +1,1415 @@
- 
+PS C:\Users\x830582\Downloads\Transaccional 200526\bnc-bsn0057-spitransaccionalautorizador> npm test -- test/unitary/server/index.test.ts    
 
-   enum: TIPOS_DOCUMENTO_ARRAY, 
+  
 
-   description: 'Tipo de documento del destinatario. Valores válidos: CC, CE, NIT, TDI, PAS, PPT, PEP', 
+> microservice-template@1.0.0 test 
 
-   examples: ['CC'] 
+> cross-env NODE_ENV=test jest --detectOpenHandles --forceExit test/unitary/server/index.test.ts 
 
- }), 
+  
 
- numDocDest: Type.String({ description: 'Número de documento del destinatario (11 dígitos)', minLength: 4, maxLength: 11, pattern: '^[0-9]{4,11}$', examples: ['12345678901'] }),,  
+PASS  test/unitary/server/index.test.ts (53.673 s) 
 
- tipoCuentaDest: Type.String({,  
+  Server - Inicialización y Configuración 
 
-   enum: TIPOS_CUENTA_ARRAY,,  
+    Inicialización del Servidor 
 
-   description: 'Tipo de cuenta del destinatario. Valores válidos: CAHO, CCTE, DBMO, DORD, DBMI', 
+      √ debería crear una instancia válida de Fastify (13051 ms) 
 
-   minLength: 1, 
+      √ debería tener la configuración de Ajv correcta (785 ms) 
 
-   maxLength: 4, 
+      √ debería tener configurado el logger (146 ms) 
 
-   examples: ['CAHO'] 
+      √ debería tener el decorador mensajeId en el request (168 ms) 
 
- }),,  
+    Hook onRequest - Generación de mensajeId 
 
- numCuentaDest: Type.String({ description: 'Número de cuenta del destinatario (mínimo 9 dígitos)', minLength: 9, maxLength: 12, pattern: '^[0-9]{9,12}$', examples: ['987654321'] }),,  
+      √ debería generar un mensajeId único para cada request (217 ms) 
 
- monto: Type.Number({,  
+      √ debería adjuntar el mensajeId al objeto request (191 ms) 
 
-   description: 'Monto de la transaccion. Numero con hasta 13 enteros y 2 decimales. Debe ser mayor que 0.', 
+      √ debería manejar el error cuando generateMessageId falla (132 ms) 
 
-   minimum: 0.01, 
+      √ debería manejar el error cuando generateMessageId retorna null (123 ms) 
 
-   maximum: 9999999999999.99, 
+      √ debería generar un mensajeId diferente para cada request (159 ms) 
 
-   examples: [1234567890123.45] 
+    Health Check Endpoint 
 
- }), 
+      √ debería responder con status 200 en /health (151 ms) 
 
- valorComision: Type.Optional(Type.Number({ 
+      √ debería devolver status "ok" en /health (122 ms) 
 
-   description: 'Valor de la comision. Numero con hasta 13 enteros y 2 decimales.', 
+      √ debería incluir timestamp en /health (119 ms) 
 
-   minimum: 0, 
+      √ debería incluir uptime del proceso en /health (200 ms) 
 
-   maximum: 9999999999999.99, 
+      √ debería responder correctamente a múltiples health checks (348 ms) 
 
-   examples: [0],  
+    Error Handler Global 
 
- })),,  
+      √ debería manejar errores de validación correctamente (435 ms) 
 
- valorIvaComision: Type.Optional(Type.Number({ 
+      √ debería manejar errores internos del servidor (183 ms) 
 
-   description: 'Valor del IVA aplicado a la comision. Numero con hasta 13 enteros y 2 decimales.', 
+      √ debería manejar errores con statusCode personalizado (161 ms) 
 
-   minimum: 0, 
+      √ debería loggear el error con contexto completo (190 ms) 
 
-   maximum: 9999999999999.99, 
+    Not Found Handler 
 
-   examples: [0],  
+      √ debería devolver 404 para rutas no existentes (103 ms) 
 
- })),,  
+      √ debería devolver formato de error correcto para 404 (163 ms) 
 
- 
+      √ debería incluir el mensajeId en respuesta 404 (224 ms) 
 
- tipoDocOrig: Type.String({ 
+      √ debería loggear warning para rutas no encontradas (119 ms) 
 
-   enum: TIPOS_DOCUMENTO_ARRAY, 
+      √ debería manejar diferentes métodos HTTP en rutas inexistentes (165 ms) 
 
-   description: 'Tipo de documento del originador. Valores válidos: CC, CE, NIT, TDI, PAS, PPT, PEP', 
+    Registro de Routers 
 
-   examples: ['CC'] 
+      √ debería registrar correctamente los routers de la aplicación (84 ms) 
 
- }), 
+      √ debería tener múltiples rutas disponibles (101 ms) 
 
- numDocOrig: Type.String({ description: 'Número de documento del originador (11 dígitos)', minLength: 4, maxLength: 11, pattern: '^[0-9]{4,11}$', examples: ['12345678901'] }),,  
+    Configuración de Seguridad 
 
- tipoCuentaOrig: Type.String({,  
+      √ debería tener configurado requestIdHeader (89 ms) 
 
-   enum: TIPOS_CUENTA_ARRAY,,  
+      √ debería tener configurado requestIdLogLabel (71 ms) 
 
-   description: 'Tipo de cuenta del originador. Valores válidos: CAHO, CCTE, DBMO, DORD, DBMI', 
+      √ debería tener disableRequestLogging en false (60 ms) 
 
-   minLength: 1, 
+    Manejo de Ciclo de Vida 
 
-   maxLength: 4, 
+      √ debería poder cerrar el servidor correctamente (75 ms) 
 
-   examples: ['CAHO'] 
+      √ debería ejecutar el hook onRequest para cada request (125 ms) 
 
- }),,  
+    Edge Cases y Validaciones 
 
- numCuentaOrig: Type.String({ description: 'Número de cuenta del originador (mínimo 9 dígitos)', minLength: 9, maxLength: 12, pattern: '^[0-9]{9,12}$', examples: ['987654321'] }),,  
+      √ debería manejar payload vacío correctamente (153 ms) 
 
- 
+      √ debería manejar headers personalizados (129 ms) 
 
- idTransaccionSN: Type.String({ description: 'Identificador único de la transacción en el sistema', minLength: 1, maxLength: 36, pattern: 'process.env.IDTRANSACCIONSN', examples: ['TX123456'] }),,  
+      √ debería manejar query parameters (147 ms) 
 
- identificadorSistema: Type.String({ description: 'Código que identifica el sistema que realiza la transacción ONUS', minLength: 1, maxLength: 4, pattern: '^[A-Z0-9]{1,4}$', examples: ['NEU'] }),,  
+      √ debería manejar múltiples requests concurrentes (204 ms) 
 
- tipoTransaccion: Type.String({ description: 'Código o descripción que indique si es transferencia, pago, recaudo, solicitud, etc.', minLength: 1, maxLength: 20, pattern: '^[A-Z_]{1,20}$', examples: ['TRANSFER'] }), 
+    Integración con Error Codes 
 
- 
+      √ debería usar getErrorCodeNumber correctamente (111 ms) 
 
- marcaTiempo: Type.String({,  
+      √ debería usar getHttpStatusForError correctamente (114 ms) 
 
-   description: 'Fecha y hora del envío del consumo en formato ISO8601. Acepta con o sin Z final. Formatos: YYYY-MM-DDThh:mm:ss.sss o YYYY-MM-DDThh:mm:ss.sssZ', 
+      √ debería usar getErrorDescription correctamente (120 ms) 
 
-   pattern: 'process.env.MARCATIEMPO',,  
+    Función start() - Inicio del Servidor 
 
-   minLength: 23,,  
+      √ debería llamar a server.listen con configuración correcta (147 ms) 
 
-   maxLength: 24, 
+      √ debería tener el método listen disponible para iniciar el servidor (99 ms) 
 
-   examples: ['2025-02-10T14:30:00.000', '2025-02-10T14:30:00.000Z'] 
+      √ debería tener el logger configurado para producción (98 ms) 
 
- }), 
+    Process Signal Handlers - Manejo de Señales 
 
- idTransaccionOriginal: Type.Optional(Type.Union([ 
+      √ debería registrar handlers para SIGINT y SIGTERM (321 ms) 
 
-   Type.String({ description: 'Identificador de la transacción original', maxLength: 36, examples: ['TRX123456'] }), 
+      √ debería registrar handler para uncaughtException (318 ms) 
 
-   Type.Literal(''), 
+      √ debería registrar handler para unhandledRejection (263 ms) 
 
-   Type.Null() 
+      √ debería manejar señal SIGINT correctamente (239 ms) 
 
- ])), 
+      √ debería manejar señal SIGTERM correctamente (299 ms) 
 
- 
+      √ debería manejar uncaughtException correctamente (329 ms) 
 
- ipOriginador: Type.Optional(Type.Union([,  
+      √ debería manejar unhandledRejection correctamente (292 ms) 
 
-   Type.String({,  
+    Configuración de Entorno 
 
-     description: 'Dirección IP desde donde se realiza la transacción. Soporta IPv4 e IPv6. Ejemplo IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334', 
+      √ debería configurar trustProxy cuando NODE_ENV es production (67 ms) 
 
-     minLength: 7, 
+      √ no debería iniciar el servidor cuando NODE_ENV es test (113 ms) 
 
-     maxLength: 50,,  
+    Error Validation con attachValidation 
 
-     pattern:'process.env.IPTRANSACCION',,  
+      √ debería manejar error.validation cuando existe (147 ms) 
 
-   }),,  
+      √ debería incluir detalles de validación en la respuesta de error (173 ms) 
 
-   Type.Literal(''),,  
+      √ debería manejar correctamente validaciones de tipo (186 ms) 
 
-   Type.Null() 
+  
 
- ])), 
+Test Suites: 1 passed, 1 total 
 
- canalOriginador: Type.Optional(Type.Union([ 
+Tests:       52 passed, 52 total 
 
-   Type.String({ description: 'Nombre del canal por donde se está realizando la transacción', maxLength: 20, pattern: '^[A-Z]{1,20}$', examples: ['WEB'] }), 
+Snapshots:   0 total 
 
-   Type.Literal(''), 
+Time:        58.019 s 
 
-   Type.Null() 
+Ran all test suites matching /test\\unitary\\server\\index.test.ts/i. 
 
- ])), 
+PS C:\Users\x830582\Downloads\Transaccional 200526\bnc-bsn0057-spitransaccionalautorizador> npm test -- test/unitary/routers/TransaccionOnUs.test.ts    
 
- 
+  
 
- campo1: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])), 
+> microservice-template@1.0.0 test 
 
- campo2: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])), 
+> cross-env NODE_ENV=test jest --detectOpenHandles --forceExit test/unitary/routers/TransaccionOnUs.test.ts 
 
- campo3: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])), 
+  
 
- campo4: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])), 
+  console.log 
 
- campo5: Type.Optional(Type.Union([Type.String({ maxLength: 100 }), Type.Object({}, { additionalProperties: true }), Type.Null()])),,  
+    Database pool created successfully: default 
 
- CampoLibre0: Type.Optional(Type.String({ 
+  
 
-   description: 'Campo libre disponible 0 (opcional)', 
+      at DatabaseErrorLogger.initialize (src/lib/shared/databaseErrorLogger.ts:58:15) 
 
-   maxLength: 100, 
+  
 
-   examples: ['', 'dato adicional 0'] 
+FAIL  test/unitary/routers/TransaccionOnUs.test.ts (59.745 s) 
 
- })), 
+  TransaccionOnUs Router - POST /TransaccionOnUs 
 
- CampoLibre1: Type.Optional(Type.String({ 
+    Registro del router 
 
-   description: 'Campo libre disponible 1 (opcional)', 
+      √ Debe registrar el router sin errores (1679 ms) 
 
-   maxLength: 100, 
+      √ Debe registrar la ruta POST /TransaccionOnUs (359 ms) 
 
-   examples: ['', 'dato adicional 1'] 
+    Casos exitosos 
 
- })) 
+      × Debe procesar una transacción OnUs exitosamente (2534 ms) 
 
-}, { additionalProperties: false });,  
+      × Debe llamar al servicio con los datos correctos (285 ms) 
 
- 
+      × Debe incluir idTransaccionSN en la respuesta (620 ms) 
 
-/** 
+      × Debe manejar campos opcionales nulos correctamente (394 ms) 
 
-* Schema for TransaccionOnUs success response 
+      × Debe transformar NIT a NT en tipoDocDest (237 ms) 
 
-*/ 
+      × Debe transformar NIT a NT en tipoDocOrig (220 ms) 
 
-export const TransaccionOnUsResponseSchema = Type.Object({ 
+    Validación de esquemas 
 
- respuesta: Type.Optional(Type.Object({ 
+      √ Debe retornar 400 cuando falta el campo monto (225 ms) 
 
-   idTransaccionSN: Type.String({ description: 'Identificador único de la transacción en el sistema', maxLength: 36 }), 
+      √ Debe retornar 400 cuando el tipoDocDest es inválido (255 ms) 
 
-   idTransaccionCore: Type.String({ description: 'Identificador de la transacción en el core', maxLength: 36 }), 
+      √ Debe retornar 400 cuando el tipoDocOrig es inválido (205 ms) 
 
-   marcaTiempo: Type.String({ format: 'date-time', description: 'Fecha y hora de la respuesta al consumo' }),,  
+      √ Debe retornar 400 cuando el monto es negativo (208 ms) 
 
-   CampoLibreSalida: Type.Optional(Type.String({ description: 'Campo libre de salida (opcional)', maxLength: 100, examples: ['', 'dato de salida'] })) 
+      √ Debe retornar 400 cuando faltan múltiples campos requeridos (267 ms) 
 
- })),,  
+      √ Debe retornar 400 cuando falta numDocDest (217 ms) 
 
- resultado: Type.Object({ 
+      √ Debe retornar 400 cuando falta numCuentaDest (301 ms) 
 
-   mensajeId: Type.String({ format: 'uuid', description: 'Identificador del mensaje enviado en la petición' }), 
+    Manejo de errores del servicio 
 
-   error: Type.Boolean({ description: 'Indicador de éxito o error en el proceso' }), 
+      × Debe manejar TransaccionOnUsError y mapear códigos de error (474 ms) 
 
-   codigo: Type.Integer({ description: 'Código del resultado' }), 
+      √ Debe mapear error CORE_CONNECTION_ERROR correctamente (289 ms) 
 
-   descripcionError: Type.String({ description: 'Descripción del error si existe', maxLength: 255 }) 
+      √ Debe mapear error INVALID_PAYLOAD correctamente (550 ms) 
 
- }) 
+      √ Debe mapear error TRANSACCION_VALIDATION_ERROR correctamente (199 ms) 
 
-}); 
+      × Debe manejar errores inesperados con código 500 (214 ms) 
 
- 
+      √ Debe incluir mensajeId en todos los errores del servicio (179 ms) 
 
-export const ErrorResponseSchema = Type.Object({ 
+    Trazabilidad y logging 
 
- resultado: Type.Object({ 
+      √ Debe incluir mensajeId en todas las respuestas (118 ms) 
 
-   mensajeId: Type.String({ format: 'uuid' }), 
+      √ Debe incluir mensajeId en respuestas de error de validación (127 ms) 
 
-   error: Type.Boolean(), 
+      √ Debe incluir mensajeId en respuestas de error del servicio (121 ms) 
 
-   codigo: Type.Integer(), 
+    Integración con tipos y constantes 
 
-   descripcionError: Type.String() 
+      √ Debe aceptar todos los tipos de documento válidos (252 ms) 
 
- }) 
+      √ Debe aceptar todos los tipos de cuenta válidos para destino (222 ms) 
 
-}); 
+      √ Debe aceptar todos los tipos de cuenta válidos para origen (255 ms) 
+
+    Estructura de la respuesta 
+
+      × La respuesta exitosa debe tener la estructura correcta (127 ms) 
+
+      √ La respuesta de error debe tener la estructura correcta (159 ms) 
+
+    Transformaciones de datos 
+
+      × Debe formatear numCuentaDest con padding de 20 dígitos (142 ms) 
+
+      × Debe formatear numCuentaOrig con padding de 20 dígitos (146 ms) 
+
+      × Debe mantener marcaTiempo cuando ya tiene milisegundos (147 ms) 
+
+      × Debe enviar monto como number (137 ms) 
+
+    Manejo de respuesta con error del core 
+
+      × Debe detectar error cuando ERROR=S (147 ms) 
+
+      × Debe concatenar DERROR1, DERROR2 y DERROR3 correctamente (132 ms) 
+
+      × Debe manejar DERROR con campos vacíos (116 ms) 
+
+    Validaciones adicionales de campos 
+
+      √ Debe rechazar tipoCuentaDest de más de 4 caracteres (129 ms) 
+
+      √ Debe rechazar tipoCuentaOrig de más de 4 caracteres (173 ms) 
+
+      √ Debe rechazar numDocDest vacío (170 ms) 
+
+      √ Debe rechazar numDocDest de más de 15 caracteres (133 ms) 
+
+      √ Debe rechazar marcaTiempo en formato inválido (104 ms) 
+
+      √ Debe aceptar ValorComision como opcional (156 ms) 
+
+      √ Debe aceptar ValorIvaComision como opcional (103 ms) 
+
+      √ Debe rechazar ValorComision negativa (137 ms) 
+
+      √ Debe rechazar ValorIvaComision negativa (123 ms) 
+
+      √ Debe rechazar tipo de cuenta no válido en destino (136 ms) 
+
+      √ Debe rechazar tipo de cuenta no válido en origen (115 ms) 
+
+    Transformaciones y formateo adicionales 
+
+      × Debe transformar cuenta corta a 20 dígitos (250 ms) 
+
+      × Debe mantener marcaTiempo con milisegundos existentes (172 ms) 
+
+      × Debe enviar ValorComision por defecto como 0 (133 ms) 
+
+      × Debe enviar ValorIvaComision por defecto como 0 (176 ms) 
+
+      × Debe convertir todos los tipos de documento a NT correctamente (153 ms) 
+
+      × No debe transformar tipos de documento diferentes a NIT (121 ms) 
+
+    Campos opcionales adicionales 
+
+      × Debe aceptar campo1 como objeto (133 ms) 
+
+      √ Debe aceptar ipOriginador como opcional (134 ms) 
+
+      √ Debe aceptar canalOriginador como opcional (230 ms) 
+
+      √ Debe aceptar idTransaccionOriginal como opcional (218 ms) 
+
+    Casos extremos y edge cases 
+
+      √ Debe manejar monto de valor cero (137 ms) 
+
+      × Debe manejar monto muy grande (129 ms) 
+
+      × Debe manejar COERROR como string vacío (124 ms) 
+
+    Mapeo de errores de Altair (BGE) 
+
+      √ Debe mapear BGE0007 a código RTA 1422 (152 ms) 
+
+      × Debe mapear BGE0038 a código RTA 2801 (cuenta no encontrada) (122 ms) 
+
+      × Debe mapear BGE3244 a código RTA 2804 (cuenta bloqueada) (157 ms) 
+
+      × Debe mapear BGE1320 a código RTA 2802 (cuenta inactiva) (152 ms) 
+
+      × Debe mapear BGE5281 a código RTA 2809 (cuenta cancelada) (170 ms) 
+
+      × Debe mapear BGE1191 a código RTA 1005 (datos incompletos) (129 ms) 
+
+      × Debe retornar error genérico 1422 para código BGE no mapeado (124 ms) 
+
+      × Debe priorizar errores[] sobre BGMN011.ERROR cuando ambos existen (119 ms) 
+
+      √ Debe retornar error si monto no es un número (101 ms) 
+
+      × Debe loggear error si falla logTransaction en error interno (94 ms) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe procesar una transacción OnUs exitosamente 
+
+  
+
+    expect(received).toHaveProperty(path) 
+
+  
+
+    Expected path: "respuesta" 
+
+    Received path: [] 
+
+  
+
+    Received value: {"resultado": {"codigo": 1422, "descripcionError": "Error de validación. La información enviada en el payload contiene valores no válidos.", "error": true, "mensajeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}} 
+
+  
+
+      145 | 
+
+      146 |       const body = JSON.parse(response.body); 
+
+    > 147 |       expect(body).toHaveProperty('respuesta'); 
+
+          |                    ^ 
+
+      148 |       expect(body).toHaveProperty('resultado'); 
+
+      149 |       expect(body.resultado.error).toBe(false); 
+
+      150 |       expect(body.resultado.codigo).toBe(0); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:147:20) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe llamar al servicio con los datos correctos 
+
+  
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected) 
+
+  
+
+    Expected number of calls: 1 
+
+    Received number of calls: 0 
+
+  
+
+      164 | 
+
+      165 |       // Assert 
+
+    > 166 |       expect(mockService.transaccionOnUs).toHaveBeenCalledTimes(1); 
+
+          |                                           ^ 
+
+      167 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+      168 | 
+
+      169 |       expect(callArgs).toHaveProperty('cabecera'); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:166:43) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe incluir idTransaccionSN en la respuesta 
+
+  
+
+    expect(received).toHaveProperty(path) 
+
+  
+
+    Matcher error: received value must not be null nor undefined 
+
+  
+
+    Received has value: undefined 
+
+  
+
+      187 |       // Assert 
+
+      188 |       const body = JSON.parse(response.body); 
+
+    > 189 |       expect(body.respuesta).toHaveProperty('idTransaccionSN'); 
+
+          |                              ^ 
+
+      190 |       expect(body.respuesta.idTransaccionSN).toBe('TX123456'); 
+
+      191 |     }); 
+
+      192 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:189:30) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe manejar campos opcionales nulos correctamente 
+
+  
+
+    expect(jest.fn()).toHaveBeenCalled() 
+
+  
+
+    Expected number of calls: >= 1 
+
+    Received number of calls:    0 
+
+  
+
+      205 |       // Assert 
+
+      206 |       expect(response.statusCode).toBe(200); 
+
+    > 207 |       expect(mockService.transaccionOnUs).toHaveBeenCalled(); 
+
+          |                                           ^ 
+
+      208 |     }); 
+
+      209 | 
+
+      210 |     test('Debe transformar NIT a NT en tipoDocDest', async () => { 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:207:43) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe transformar NIT a NT en tipoDocDest 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      221 | 
+
+      222 |       // Assert 
+
+    > 223 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      224 |       expect(callArgs.data.tipoDocDest).toBe('NT'); 
+
+      225 |     }); 
+
+      226 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:223:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos exitosos › Debe transformar NIT a NT en tipoDocOrig 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      238 | 
+
+      239 |       // Assert 
+
+    > 240 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      241 |       expect(callArgs.data.tipoDocOrig).toBe('NT'); 
+
+      242 |     }); 
+
+      243 |   }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:240:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Manejo de errores del servicio › Debe manejar TransaccionOnUsError y mapear códigos de error 
+
+  
+
+    expect(received).toContain(expected) // indexOf 
+
+  
+
+    Expected value: 200 
+
+    Received array: [400, 422, 500, 502, 503, 504] 
+
+  
+
+      403 |       // Assert 
+
+      404 |       // Verifica que es un error del servicio 
+
+    > 405 |       expect([400, 422, 500, 502, 503, 504]).toContain(response.statusCode); 
+
+          |                                              ^ 
+
+      406 |       const body = JSON.parse(response.body); 
+
+      407 |       expect(body.resultado.error).toBe(true); 
+
+      408 |       expect(body.resultado.codigo).toBeGreaterThan(0); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:405:46) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Manejo de errores del servicio › Debe manejar errores inesperados con código 500 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 500 
+
+    Received: 200 
+
+  
+
+      490 | 
+
+      491 |       // Assert 
+
+    > 492 |       expect(response.statusCode).toBe(500); 
+
+          |                                   ^ 
+
+      493 |       const body = JSON.parse(response.body); 
+
+      494 |       expect(body.resultado.error).toBe(true); 
+
+      495 |       expect(body.resultado.codigo).toBe(2001); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:492:35) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Estructura de la respuesta › La respuesta exitosa debe tener la estructura correcta 
+
+  
+
+    expect(received).toHaveProperty(path) 
+
+  
+
+    Expected path: "respuesta" 
+
+    Received path: [] 
+
+  
+
+    Received value: {"resultado": {"codigo": 1422, "descripcionError": "Error de validación. La información enviada en el payload contiene valores no válidos.", "error": true, "mensajeId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}} 
+
+  
+
+      659 | 
+
+      660 |       // Verificar estructura de respuesta 
+
+    > 661 |       expect(body).toHaveProperty('respuesta'); 
+
+          |                    ^ 
+
+      662 |       expect(body.respuesta).toHaveProperty('idTransaccionSN'); 
+
+      663 |       expect(body.respuesta).toHaveProperty('idTransaccionCore'); 
+
+      664 |       expect(body.respuesta).toHaveProperty('marcaTiempo'); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:661:20) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones de datos › Debe formatear numCuentaDest con padding de 20 dígitos 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      721 | 
+
+      722 |       // Assert 
+
+    > 723 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      724 |       expect(callArgs.data.numCuentaDest).toBe('00650100000987654321'); 
+
+      725 |       expect(callArgs.data.numCuentaDest.length).toBe(20); 
+
+      726 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:723:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones de datos › Debe formatear numCuentaOrig con padding de 20 dígitos 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      738 | 
+
+      739 |       // Assert 
+
+    > 740 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      741 |       expect(callArgs.data.numCuentaOrig).toBe('00650100000987654321'); 
+
+      742 |       expect(callArgs.data.numCuentaOrig.length).toBe(20); 
+
+      743 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:740:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones de datos › Debe mantener marcaTiempo cuando ya tiene milisegundos 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      756 | 
+
+      757 |       // Assert 
+
+    > 758 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      759 |       expect(callArgs.data.marcaTiempo).toBe('2025-02-10T14:30:00.000'); 
+
+      760 |     }); 
+
+      761 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:758:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones de datos › Debe enviar monto como number 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      772 | 
+
+      773 |       // Assert 
+
+    > 774 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+          |                                                                 ^ 
+
+      775 |       expect(typeof callArgs.data.monto).toBe('string'); 
+
+      776 |       expect(callArgs.data.monto).toBe((validPayload.monto).toFixed(2)); 
+
+      777 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:774:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Manejo de respuesta con error del core › Debe detectar error cuando ERROR=S 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 100 
+
+    Received: 1422 
+
+  
+
+      813 |       const body = JSON.parse(response.body); 
+
+      814 |       expect(body.resultado.error).toBe(true); 
+
+    > 815 |       expect(body.resultado.codigo).toBe(100); 
+
+          |                                     ^ 
+
+      816 |       // Verificar que descripcionError contenga el texto correcto (con padding) 
+
+      817 |       expect(body.resultado.descripcionError).toContain('Error en'); 
+
+      818 |       expect(body.resultado.descripcionError).toContain('la transacción'); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:815:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Manejo de respuesta con error del core › Debe concatenar DERROR1, DERROR2 y DERROR3 correctamente 
+
+  
+
+    expect(received).toContain(expected) // indexOf 
+
+  
+
+    Expected substring: "Parte 1" 
+
+    Received string:    "Error de validación. La información enviada en el payload contiene valores no válidos." 
+
+  
+
+      850 |       // Con el nuevo mapeo, los campos se concatenan con posiciones fijas 
+
+      851 |       // DERROR1 (100 chars) + DERROR2 (100 chars) + DERROR3 (55 chars) 
+
+    > 852 |       expect(body.resultado.descripcionError).toContain('Parte 1'); 
+
+          |                                               ^ 
+
+      853 |       expect(body.resultado.descripcionError).toContain('Parte 2'); 
+
+      854 |       expect(body.resultado.descripcionError).toContain('Parte 3'); 
+
+      855 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:852:47) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Manejo de respuesta con error del core › Debe manejar DERROR con campos vacíos 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: "Solo este mensaje" 
+
+    Received: "Error de validación. La información enviada en el payload contiene valores no válidos." 
+
+  
+
+      883 |       // Assert 
+
+      884 |       const body = JSON.parse(response.body); 
+
+    > 885 |       expect(body.resultado.descripcionError).toBe('Solo este mensaje'); 
+
+          |                                               ^ 
+
+      886 |     }); 
+
+      887 |   }); 
+
+      888 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:885:47) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › Debe transformar cuenta corta a 20 dígitos 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1088 | 
+
+      1089 |       // Assert 
+
+    > 1090 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1091 |       expect(callArgs.data.numCuentaDest).toBe('00650100000000000123'); 
+
+      1092 |       expect(callArgs.data.numCuentaDest.length).toBe(20); 
+
+      1093 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1090:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › Debe mantener marcaTiempo con milisegundos existentes 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1106 | 
+
+      1107 |       // Assert 
+
+    > 1108 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1109 |       expect(callArgs.data.marcaTiempo).toBe('2025-02-10T14:30:00.000'); 
+
+      1110 |     }); 
+
+      1111 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1108:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › Debe enviar ValorComision por defecto como 0 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1124 | 
+
+      1125 |       // Assert 
+
+    > 1126 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1127 |       expect(callArgs.data.ValorComision).toBe('0.00'); 
+
+      1128 |     }); 
+
+      1129 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1126:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › Debe enviar ValorIvaComision por defecto como 0 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1142 | 
+
+      1143 |       // Assert 
+
+    > 1144 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1145 |       expect(callArgs.data.ValorIvaComision).toBe('0.00'); 
+
+      1146 |     }); 
+
+      1147 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1144:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › Debe convertir todos los tipos de documento a NT correctamente 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1159 | 
+
+      1160 |       // Assert 
+
+    > 1161 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1162 |       expect(callArgs.data.tipoDocDest).toBe('NT'); 
+
+      1163 |       expect(callArgs.data.tipoDocOrig).toBe('NT'); 
+
+      1164 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1161:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Transformaciones y formateo adicionales › No debe transformar tipos de documento diferentes a NIT 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1177 | 
+
+      1178 |       // Assert 
+
+    > 1179 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1180 |       expect(callArgs.data.tipoDocDest).toBe('CC'); 
+
+      1181 |       expect(callArgs.data.tipoDocOrig).toBe('CE'); 
+
+      1182 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1179:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Campos opcionales adicionales › Debe aceptar campo1 como objeto 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1203 |       // Assert 
+
+      1204 |       expect(response.statusCode).toBe(200); 
+
+    > 1205 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1206 |       expect(callArgs.data.Campo1).toBe(JSON.stringify({ key: 'value' })); 
+
+      1207 |     }); 
+
+      1208 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1205:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos extremos y edge cases › Debe manejar monto muy grande 
+
+  
+
+    TypeError: Cannot read properties of undefined (reading '0') 
+
+  
+
+      1298 |       // Assert 
+
+      1299 |       expect(response.statusCode).toBe(200); 
+
+    > 1300 |       const callArgs = mockService.transaccionOnUs.mock.calls[0][0]; 
+
+           |                                                                 ^ 
+
+      1301 |       expect(callArgs.data.monto).toBe((999999999).toFixed(2)); 
+
+      1302 |     }); 
+
+      1303 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1300:65) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Casos extremos y edge cases › Debe manejar COERROR como string vacío 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 0 
+
+    Received: 1422 
+
+  
+
+      1324 |       // Assert 
+
+      1325 |       const body = JSON.parse(response.body); 
+
+    > 1326 |       expect(body.resultado.codigo).toBe(0); 
+
+           |                                     ^ 
+
+      1327 |     }); 
+
+      1328 |   }); 
+
+      1329 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1326:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe mapear BGE0038 a código RTA 2801 (cuenta no encontrada) 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2801 
+
+    Received: 1422 
+
+  
+
+      1425 |       const body = JSON.parse(response.body); 
+
+      1426 |       expect(body.resultado.error).toBe(true); 
+
+    > 1427 |       expect(body.resultado.codigo).toBe(2801); 
+
+           |                                     ^ 
+
+      1428 |       expect(body.resultado.descripcionError).toContain('cuenta destino no fue encontrada'); 
+
+      1429 |     }); 
+
+      1430 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1427:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe mapear BGE3244 a código RTA 2804 (cuenta bloqueada) 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2804 
+
+    Received: 1422 
+
+  
+
+      1471 |       const body = JSON.parse(response.body); 
+
+      1472 |       expect(body.resultado.error).toBe(true); 
+
+    > 1473 |       expect(body.resultado.codigo).toBe(2804); 
+
+           |                                     ^ 
+
+      1474 |       expect(body.resultado.descripcionError).toContain('cuenta destino está bloqueada'); 
+
+      1475 |     }); 
+
+      1476 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1473:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe mapear BGE1320 a código RTA 2802 (cuenta inactiva) 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2802 
+
+    Received: 1422 
+
+  
+
+      1517 |       const body = JSON.parse(response.body); 
+
+      1518 |       expect(body.resultado.error).toBe(true); 
+
+    > 1519 |       expect(body.resultado.codigo).toBe(2802); 
+
+           |                                     ^ 
+
+      1520 |       expect(body.resultado.descripcionError).toContain('cuenta destino está inactiva'); 
+
+      1521 |     }); 
+
+      1522 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1519:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe mapear BGE5281 a código RTA 2809 (cuenta cancelada) 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2809 
+
+    Received: 1422 
+
+  
+
+      1563 |       const body = JSON.parse(response.body); 
+
+      1564 |       expect(body.resultado.error).toBe(true); 
+
+    > 1565 |       expect(body.resultado.codigo).toBe(2809); 
+
+           |                                     ^ 
+
+      1566 |       expect(body.resultado.descripcionError).toContain('Cuenta cancelada o saldada'); 
+
+      1567 |     }); 
+
+      1568 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1565:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe mapear BGE1191 a código RTA 1005 (datos incompletos) 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 1005 
+
+    Received: 1422 
+
+  
+
+      1609 |       const body = JSON.parse(response.body); 
+
+      1610 |       expect(body.resultado.error).toBe(true); 
+
+    > 1611 |       expect(body.resultado.codigo).toBe(1005); 
+
+           |                                     ^ 
+
+      1612 |       expect(body.resultado.descripcionError).toContain('cliente no tiene datos completos'); 
+
+      1613 |     }); 
+
+      1614 | 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1611:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe retornar error genérico 1422 para código BGE no mapeado 
+
+  
+
+    expect(received).toContain(expected) // indexOf 
+
+  
+
+    Expected substring: "Error no mapeado" 
+
+    Received string:    "Error de validación. La información enviada en el payload contiene valores no válidos." 
+
+  
+
+      1656 |       expect(body.resultado.error).toBe(true); 
+
+      1657 |       expect(body.resultado.codigo).toBe(1422); 
+
+    > 1658 |       expect(body.resultado.descripcionError).toContain('Error no mapeado'); 
+
+           |                                               ^ 
+
+      1659 |     }); 
+
+      1660 | 
+
+      1661 |     test('Debe priorizar errores[] sobre BGMN011.ERROR cuando ambos existen', async () => { 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1658:47) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe priorizar errores[] sobre BGMN011.ERROR cuando ambos existen 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2801 
+
+    Received: 1422 
+
+  
+
+      1700 |       expect(response.statusCode).toBe(200); 
+
+      1701 |       const body = JSON.parse(response.body); 
+
+    > 1702 |       expect(body.resultado.codigo).toBe(2801); // BGE0038 mapeado 
+
+           |                                     ^ 
+
+      1703 |       expect(body.resultado.descripcionError).toContain('cuenta destino no fue encontrada'); 
+
+      1704 |       expect(body.resultado.descripcionError).not.toContain('Este error no debe aparecer'); 
+
+      1705 |     }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1702:37) 
+
+  
+
+  ● TransaccionOnUs Router - POST /TransaccionOnUs › Mapeo de errores de Altair (BGE) › Debe loggear error si falla logTransaction en error interno 
+
+  
+
+    expect(received).toBe(expected) // Object.is equality 
+
+  
+
+    Expected: 2001 
+
+    Received: 1422 
+
+  
+
+      1734 |       const body = JSON.parse(response.body); 
+
+      1735 |       expect(body.resultado.error).toBe(true); 
+
+    > 1736 |       expect(body.resultado.codigo).toBe(2001); 
+
+           |                                     ^ 
+
+      1737 |     }); 
+
+      1738 |   }); 
+
+      1739 | }); 
+
+  
+
+      at Object.<anonymous> (test/unitary/routers/TransaccionOnUs.test.ts:1736:37) 
+
+  
+
+Test Suites: 1 failed, 1 total 
+
+Tests:       33 failed, 37 passed, 70 total 
+
+Snapshots:   0 total 
+
+Time:        63.191 s, estimated 74 s 
+
+Ran all test suites matching /test\\unitary\\routers\\TransaccionOnUs.test.ts/i. 
+
+PS C:\Users\x830582\Downloads\Transaccional 200526\bnc-bsn0057-spitransaccionalautorizador> ^C 
+
+PS C:\Users\x830582\Downloads\Transaccional 200526\bnc-bsn0057-spitransaccionalautorizador>  
 
  

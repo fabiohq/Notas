@@ -1,28 +1,3 @@
-
-package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.domain.host.person.request;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class AdditionalInfoTest {
-
-@Test
-void shouldCreateWithNoArgsConstructorAndSetters() {
-    AdditionalInfo dto = new AdditionalInfo();
-
-    dto.setPensiones(Boolean.TRUE);
-    dto.setPrestacionesServicio(Boolean.FALSE);
-    dto.setArrendamientos(Boolean.TRUE);
-    dto.setDonacionHerencia(Boolean.FALSE);
-    dto.setHonorarios(Boolean.TRUE);
-    dto.setMesada(Boolean.FALSE);
-    dto.setActividadIndependiente(Boolean.TRUE);
-    dto.setPaisResidenciaFiscal1("CO");
-    dto.setPaisDescripcion("Colombia");
-    dto.setPaisResidenciaFiscal2("US");
-    dto.setPaisDescripcion2("Estados Unidos");
-    dto.setClasificacionFATCA("FATCA");
     dto.setClasificacionCRS("CRS");
     dto.setValidacionFATCA(Boolean.TRUE);
     dto.setSalario(Boolean.TRUE);

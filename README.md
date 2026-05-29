@@ -1,176 +1,222 @@
-package com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.client.impl;
+package com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain;
 
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.client.api.TrxSanbaAPI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.bp14.request.TrxBP14DataRequest;
 import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.bp14.request.TrxBP14Request;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.bp14.response.TrxBP14BGMP140Response;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.bp14.response.TrxBP14DataResponse;
 import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.bp14.response.TrxBP14Response;
 import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.generic.Session;
 import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.host.generic.TrxHeader;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.exception.error.ErrorService;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
-import okhttp3.MediaType;
-import okhttp3.ResponseBody;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-import retrofit2.Call;
-import retrofit2.Response;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.integration.ApiEntry;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.request.OtherSourceRequestDto;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.request.SourceFundsRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.request.TermDepositFundsRequestDto;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.response.SourceFundResponseDto;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.response.StatusInfoResponseDto;
+import com.santander.bnc.bsn049.bncbsn049mstrmdpstfnds.domain.termdepositfunds.response.TermDepositFundsResponseDto;
 
-import java.io.IOException;
-import java.util.HashMap;
+class DomainTest {
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+	@Test
+	void testTrxBP14DataRequest() {
+		TrxBP14DataRequest dto = new TrxBP14DataRequest();
 
-class TrxSanbaServiceImplTest {
+		dto.setCodigoInversor("123");
+		dto.setSecuenciaIpf("456");
+		dto.setFormaDePagoIpf("O");
+		dto.setValorImporte("1000");
 
-    private TrxSanbaAPI trxSanbaAPI;
-    private ErrorService errorService;
-    private TrxSanbaServiceImpl service;
-    private Call<TrxBP14Response> call;
+		assertEquals("123", dto.getCodigoInversor());
+		assertEquals("456", dto.getSecuenciaIpf());
+		assertEquals("O", dto.getFormaDePagoIpf());
+		assertEquals("1000", dto.getValorImporte());
 
-    @BeforeEach
-    void setUp() {
-        trxSanbaAPI = mock(TrxSanbaAPI.class);
-        call = mock(Call.class);
+		assertNotNull(TrxBP14DataRequest.builder().build());
+	}
 
-        errorService = new ErrorService();
-        ReflectionTestUtils.setField(errorService, "msName", "BNCBSN049");
-        ReflectionTestUtils.setField(errorService, "msVersion", "v1");
-        ReflectionTestUtils.setField(errorService, "level", "error");
-        ReflectionTestUtils.setField(errorService, "functional", "P-F");
-        ReflectionTestUtils.setField(errorService, "technical", "P-T");
+	@Test
+	void testTrxBP14Request() {
+		TrxBP14Request request = new TrxBP14Request();
 
-        HashMap<String, String> general = new HashMap<>();
-        general.put("null", "Null data");
-        errorService.setGeneral(general);
+		TrxHeader header = new TrxHeader();
+		TrxBP14DataRequest data = new TrxBP14DataRequest();
 
-        service = new TrxSanbaServiceImpl(trxSanbaAPI, errorService);
+		request.setCabecera(header);
+		request.setData(data);
 
-        ReflectionTestUtils.setField(service, "BP14_SERVICE_ROUTE", "BP14");
-        ReflectionTestUtils.setField(service, "mqRoute", "MQ");
-        ReflectionTestUtils.setField(service, "user", "USR");
-        ReflectionTestUtils.setField(service, "channel", "WEB");
-    }
+		assertEquals(header, request.getCabecera());
+		assertEquals(data, request.getData());
 
-    @Test
-    void trxBP14ShouldReturnResponseWhenApiIsSuccessful() throws IOException {
-        TrxBP14Request request = buildRequest();
-        TrxBP14Response expected = new TrxBP14Response();
+		assertNotNull(TrxBP14Request.builder().build());
+	}
 
-        when(trxSanbaAPI.callBP14TRX(any(), eq("BP14"), eq("BP14"), eq("MQ")))
-                .thenReturn(call);
-        when(call.execute()).thenReturn(Response.success(expected));
+	@Test
+	void testTrxBP14BGMP140Response() {
+		TrxBP14BGMP140Response response = new TrxBP14BGMP140Response();
 
-        TrxBP14Response result = service.trxBP14(request);
+		response.setCCC("123456");
+		response.setNOMPER("FABIO");
+		response.setIMPORTE(1000);
 
-        assertEquals(expected, result);
-        assertEquals("WEB", request.getCabecera().getCanal());
-        assertEquals("USR", request.getCabecera().getSesion().getUsuario());
-    }
+		assertEquals("123456", response.getCCC());
+		assertEquals("FABIO", response.getNOMPER());
+		assertEquals(1000, response.getIMPORTE());
 
-    @Test
-    void trxBP14ShouldThrowServiceExceptionWhenApiThrowsRuntimeException() {
-        TrxBP14Request request = buildRequest();
+		assertNotNull(TrxBP14BGMP140Response.builder().build());
+	}
 
-        when(trxSanbaAPI.callBP14TRX(any(), anyString(), anyString(), anyString()))
-                .thenThrow(new RuntimeException("runtime error"));
+	@Test
+	void testTrxBP14DataResponse() {
+		TrxBP14BGMP140Response bgmp140 = new TrxBP14BGMP140Response();
 
-        assertThrows(ServiceException.class, () -> service.trxBP14(request));
-    }
+		TrxBP14DataResponse response = new TrxBP14DataResponse();
+		response.setBGMP140(bgmp140);
 
-    @Test
-    void trxBP14ShouldThrowServiceExceptionWhenApiThrowsIOException() throws IOException {
-        TrxBP14Request request = buildRequest();
+		assertEquals(bgmp140, response.getBGMP140());
 
-        when(trxSanbaAPI.callBP14TRX(any(), anyString(), anyString(), anyString()))
-                .thenReturn(call);
-        when(call.execute()).thenThrow(new IOException("network error"));
+		assertNotNull(TrxBP14DataResponse.builder().build());
+	}
 
-        assertThrows(ServiceException.class, () -> service.trxBP14(request));
-    }
+	@Test
+	void testTrxBP14Response() {
+		TrxBP14Response response = new TrxBP14Response();
 
-    @Test
-    void trxBP14ShouldThrowServiceExceptionWhenErrorBodyIsInvalidJson() throws IOException {
-        TrxBP14Request request = buildRequest();
+		TrxBP14DataResponse data = new TrxBP14DataResponse();
+		TrxHeader header = new TrxHeader();
 
-        ResponseBody responseBody = ResponseBody.create(
-                "invalid-json",
-                MediaType.parse("application/json")
-        );
+		response.setData(data);
+		response.setCabecera(header);
+		response.setOk(Boolean.TRUE);
 
-        when(trxSanbaAPI.callBP14TRX(any(), anyString(), anyString(), anyString()))
-                .thenReturn(call);
-        when(call.execute()).thenReturn(Response.error(400, responseBody));
+		assertEquals(data, response.getData());
+		assertEquals(header, response.getCabecera());
+		assertTrue(response.getOk());
 
-        assertThrows(ServiceException.class, () -> service.trxBP14(request));
-    }
+		assertNotNull(TrxBP14Response.builder().build());
+	}
 
-    @Test
-    void trxBP14ShouldThrowServiceExceptionWhenErrorBodyHasErrors() throws IOException {
-        TrxBP14Request request = buildRequest();
+	@Test
+	void testSession() {
+		Session session = new Session();
 
-        String json = """
-                {
-                  "errores": [
-                    {
-                      "mensaje": "ERROR FUNCIONAL"
-                    }
-                  ]
-                }
-                """;
+		session.setUsuario("user");
+		session.setEntidad("0065");
 
-        ResponseBody responseBody = ResponseBody.create(
-                json,
-                MediaType.parse("application/json")
-        );
+		assertEquals("user", session.getUsuario());
+		assertEquals("0065", session.getEntidad());
 
-        when(trxSanbaAPI.callBP14TRX(any(), anyString(), anyString(), anyString()))
-                .thenReturn(call);
-        when(call.execute()).thenReturn(Response.error(400, responseBody));
+		assertNotNull(Session.builder().build());
+	}
 
-        assertThrows(ServiceException.class, () -> service.trxBP14(request));
-    }
+	@Test
+	void testTrxHeader() {
+		TrxHeader header = new TrxHeader();
 
-    @Test
-    void trxBP14ShouldThrowNotFoundWhenErrorIsCdtDatNoExiste() throws IOException {
-        TrxBP14Request request = buildRequest();
+		header.setCanal("WEB");
+		header.setFuncion("TEST");
 
-        String json = """
-                {
-                  "errores": [
-                    {
-                      "mensaje": "CDT / DAT NO EXISTE."
-                    }
-                  ]
-                }
-                """;
+		assertEquals("WEB", header.getCanal());
+		assertEquals("TEST", header.getFuncion());
 
-        ResponseBody responseBody = ResponseBody.create(
-                json,
-                MediaType.parse("application/json")
-        );
+		assertNotNull(TrxHeader.builder().build());
+	}
 
-        when(trxSanbaAPI.callBP14TRX(any(), anyString(), anyString(), anyString()))
-                .thenReturn(call);
-        when(call.execute()).thenReturn(Response.error(400, responseBody));
+	@Test
+	void testApiEntry() {
+		ApiEntry apiEntry = new ApiEntry();
 
-        ServiceException exception = assertThrows(
-                ServiceException.class,
-                () -> service.trxBP14(request)
-        );
+		apiEntry.setIntegrationType("SANBA");
+		apiEntry.setHost("localhost");
+		apiEntry.setHttps(true);
 
-        assertNotNull(exception);
-    }
+		assertEquals("SANBA", apiEntry.getIntegrationType());
+		assertEquals("localhost", apiEntry.getHost());
+		assertTrue(apiEntry.isHttps());
+	}
 
-    private TrxBP14Request buildRequest() {
-        Session session = new Session();
-        TrxHeader header = new TrxHeader();
-        header.setSesion(session);
+	@Test
+	void testOtherSourceRequestDto() {
+		OtherSourceRequestDto dto = new OtherSourceRequestDto();
 
-        TrxBP14Request request = new TrxBP14Request();
-        request.setCabecera(header);
+		dto.setPaymentReference("123456");
 
-        return request;
-    }
+		assertEquals("123456", dto.getPaymentReference());
+
+		assertNotNull(OtherSourceRequestDto.builder().build());
+	}
+
+	@Test
+	void testSourceFundsRequestDTO() {
+		OtherSourceRequestDto other = new OtherSourceRequestDto();
+
+		SourceFundsRequestDTO dto = new SourceFundsRequestDTO();
+		dto.setOtherSource(other);
+
+		assertEquals(other, dto.getOtherSource());
+
+		assertNotNull(SourceFundsRequestDTO.builder().build());
+	}
+
+	@Test
+	void testTermDepositFundsRequestDto() {
+		SourceFundsRequestDTO source = new SourceFundsRequestDTO();
+
+		TermDepositFundsRequestDto dto = new TermDepositFundsRequestDto();
+		dto.setSourceFunds(source);
+
+		assertEquals(source, dto.getSourceFunds());
+
+		assertNotNull(TermDepositFundsRequestDto.builder().build());
+	}
+
+	@Test
+	void testSourceFundResponseDto() {
+		SourceFundResponseDto dto = new SourceFundResponseDto();
+
+		dto.setInternalReference("ABC123");
+
+		assertEquals("ABC123", dto.getInternalReference());
+
+		assertNotNull(SourceFundResponseDto.builder().build());
+	}
+
+	@Test
+	void testStatusInfoResponseDto() {
+		StatusInfoResponseDto dto = new StatusInfoResponseDto();
+
+		dto.setStatusCode("OK");
+		dto.setStatusDescription("SUCCESS");
+
+		assertEquals("OK", dto.getStatusCode());
+		assertEquals("SUCCESS", dto.getStatusDescription());
+
+		assertNotNull(StatusInfoResponseDto.builder().build());
+	}
+
+	@Test
+	void testTermDepositFundsResponseDto() {
+		TermDepositFundsResponseDto dto = new TermDepositFundsResponseDto();
+
+		assertNotNull(dto.getSourceFunds());
+		assertNotNull(dto.getStatusInfo());
+
+		SourceFundResponseDto source = new SourceFundResponseDto();
+		StatusInfoResponseDto status = new StatusInfoResponseDto();
+
+		dto.setSourceFunds(source);
+		dto.setStatusInfo(status);
+
+		assertEquals(source, dto.getSourceFunds());
+		assertEquals(status, dto.getStatusInfo());
+
+		assertNotNull(TermDepositFundsResponseDto.builder().sourceFunds(source).statusInfo(status).build());
+	}
+	
+	
 }

@@ -1,291 +1,232 @@
-package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.observability;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
-class ExternalApisHealthPropertiesTest {
-
-    @Test
-    void shouldCoverGettersAndSetters() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-
-        apiCheck.setName("api-test");
-        apiCheck.setUrl("http://localhost/test");
-        apiCheck.setCritical(false);
-        apiCheck.setAcceptedStatuses(List.of(200, 201));
-
-        properties.setTimeoutMs(1000);
-        properties.setChecks(List.of(apiCheck));
-
-        assertEquals(1000, properties.getTimeoutMs());
-        assertEquals(1, properties.getChecks().size());
-
-        assertEquals("api-test", properties.getChecks().get(0).getName());
-        assertEquals("http://localhost/test", properties.getChecks().get(0).getUrl());
-        assertFalse(properties.getChecks().get(0).isCritical());
-        assertEquals(List.of(200, 201), properties.getChecks().get(0).getAcceptedStatuses());
-    }
-
-    @Test
-    void shouldHaveDefaultValues() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-
-        assertEquals(2000, properties.getTimeoutMs());
-        assertNotNull(properties.getChecks());
-        assertTrue(properties.getChecks().isEmpty());
-    }
-}
-
-
-package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.observability;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
-class ExternalApisPropertiesApiCheckTest {
-
-    @Test
-    void shouldCoverApiCheckGettersAndSetters() {
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-
-        apiCheck.setName("parameter-api");
-        apiCheck.setUrl("http://localhost:8080/health");
-        apiCheck.setCritical(true);
-        apiCheck.setAcceptedStatuses(List.of(200, 204));
-
-        assertEquals("parameter-api", apiCheck.getName());
-        assertEquals("http://localhost:8080/health", apiCheck.getUrl());
-        assertTrue(apiCheck.isCritical());
-        assertEquals(List.of(200, 204), apiCheck.getAcceptedStatuses());
-    }
-
-    @Test
-    void shouldHaveDefaultCriticalTrue() {
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-
-        assertTrue(apiCheck.isCritical());
-        assertNull(apiCheck.getAcceptedStatuses());
-    }
-}
-
-package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.observability;
+package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.domain.customer.search.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-
 import org.junit.jupiter.api.Test;
 
-class ExternalApisHealthIndicatorApiResultTest {
+class CustomerRequestDTOTest {
 
     @Test
-    void shouldCreateApiResultUsingReflection() throws Exception {
-        Class<?> apiResultClass = Class.forName(
-                "com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.observability.ExternalApisHealthIndicator$ApiResult"
-        );
+    void shouldCoverCustomerRequestDTO() {
+        CustomerRequestDTO dto = new CustomerRequestDTO();
 
-        Constructor<?> constructor =
-                apiResultClass.getDeclaredConstructor(boolean.class, Integer.class, String.class);
+        PersonRequestDto person = new PersonRequestDto();
+        OrganizationRequestDto organization = new OrganizationRequestDto();
+        PhoneAddressRequestDTO phoneAddress = new PhoneAddressRequestDTO();
+        ElectronicAddressRequestDtO electronicAddress = new ElectronicAddressRequestDtO();
+        PostalAddressRequestDTO postalAddress = new PostalAddressRequestDTO();
+        BankRequestDTO bank = new BankRequestDTO();
 
-        constructor.setAccessible(true);
+        dto.setPerson(person);
+        dto.setOrganization(organization);
+        dto.setPhoneAddress(phoneAddress);
+        dto.setElectronicAddress(electronicAddress);
+        dto.setPostalAddress(postalAddress);
+        dto.setBank(bank);
 
-        Object apiResult = constructor.newInstance(true, 200, null);
-
-        assertNotNull(apiResult);
-        assertEquals(true, getField(apiResult, "up"));
-        assertEquals(200, getField(apiResult, "httpStatus"));
-        assertEquals(null, getField(apiResult, "error"));
-    }
-
-    private Object getField(Object target, String fieldName) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
-    }
-}
-package com.santander.bnc.bsn049.bncbsn049msprspctcntctpnt.observability;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
-
-import com.sun.net.httpserver.HttpServer;
-
-class ExternalApisHealthIndicatorTest {
-
-    @Test
-    void shouldReturnUpWhenApiRespondsSuccessfulStatus() throws Exception {
-        HttpServer server = createServer(200);
-        server.start();
-
-        try {
-            ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-            properties.setTimeoutMs(1000);
-            properties.setChecks(List.of(apiCheck(
-                    "api-ok",
-                    "http://localhost:" + server.getAddress().getPort() + "/health",
-                    true,
-                    null
-            )));
-
-            ExternalApisHealthIndicator indicator =
-                    new ExternalApisHealthIndicator(properties);
-
-            Health health = indicator.health();
-
-            assertEquals(Status.UP, health.getStatus());
-            assertTrue(health.getDetails().containsKey("api-ok"));
-        } finally {
-            server.stop(0);
-        }
-    }
-
-    @Test
-    void shouldReturnUpWhenAcceptedStatusMatches() throws Exception {
-        HttpServer server = createServer(404);
-        server.start();
-
-        try {
-            ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-            properties.setTimeoutMs(1000);
-            properties.setChecks(List.of(apiCheck(
-                    "api-accepted",
-                    "http://localhost:" + server.getAddress().getPort() + "/health",
-                    true,
-                    List.of(404)
-            )));
-
-            ExternalApisHealthIndicator indicator =
-                    new ExternalApisHealthIndicator(properties);
-
-            Health health = indicator.health();
-
-            assertEquals(Status.UP, health.getStatus());
-        } finally {
-            server.stop(0);
-        }
-    }
-
-    @Test
-    void shouldReturnDownWhenCriticalApiFails() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(100);
-        properties.setChecks(List.of(apiCheck(
-                "api-down",
-                "http://localhost:1/error",
-                true,
-                null
-        )));
-
-        ExternalApisHealthIndicator indicator =
-                new ExternalApisHealthIndicator(properties);
-
-        Health health = indicator.health();
-
-        assertEquals(Status.DOWN, health.getStatus());
-        assertTrue(health.getDetails().containsKey("api-down"));
-    }
-
-    @Test
-    void shouldReturnUpWhenNonCriticalApiFails() {
-        ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-        properties.setTimeoutMs(100);
-        properties.setChecks(List.of(apiCheck(
-                "api-non-critical",
-                "http://localhost:1/error",
-                false,
-                null
-        )));
-
-        ExternalApisHealthIndicator indicator =
-                new ExternalApisHealthIndicator(properties);
-
-        Health health = indicator.health();
-
-        assertEquals(Status.UP, health.getStatus());
-    }
-
-    @Test
-    void shouldReturnDownWhenStatusIsNotAccepted() throws Exception {
-        HttpServer server = createServer(500);
-        server.start();
-
-        try {
-            ExternalApisHealthProperties properties = new ExternalApisHealthProperties();
-            properties.setTimeoutMs(1000);
-            properties.setChecks(List.of(apiCheck(
-                    "api-error",
-                    "http://localhost:" + server.getAddress().getPort() + "/health",
-                    true,
-                    List.of(200)
-            )));
-
-            ExternalApisHealthIndicator indicator =
-                    new ExternalApisHealthIndicator(properties);
-
-            Health health = indicator.health();
-
-            assertEquals(Status.DOWN, health.getStatus());
-
-            Map<?, ?> detail = (Map<?, ?>) health.getDetails().get("api-error");
-            assertEquals("DOWN", detail.get("status"));
-            assertEquals(500, detail.get("httpStatus"));
-        } finally {
-            server.stop(0);
-        }
-    }
-
-    private ExternalApisHealthProperties.ApiCheck apiCheck(
-            String name,
-            String url,
-            boolean critical,
-            List<Integer> acceptedStatuses
-    ) {
-        ExternalApisHealthProperties.ApiCheck apiCheck =
-                new ExternalApisHealthProperties.ApiCheck();
-
-        apiCheck.setName(name);
-        apiCheck.setUrl(url);
-        apiCheck.setCritical(critical);
-        apiCheck.setAcceptedStatuses(acceptedStatuses);
-
-        return apiCheck;
-    }
-
-    private HttpServer createServer(int status) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-
-        server.createContext("/health", exchange -> {
-            exchange.sendResponseHeaders(status, 0);
-
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write("OK".getBytes());
-            }
-        });
-
-        return server;
+        assertEquals(person, dto.getPerson());
+        assertEquals(organization, dto.getOrganization());
+        assertEquals(phoneAddress, dto.getPhoneAddress());
+        assertEquals(electronicAddress, dto.getElectronicAddress());
+        assertEquals(postalAddress, dto.getPostalAddress());
+        assertEquals(bank, dto.getBank());
     }
 }
 
+class PhoneAddressRequestDTOTest {
 
+    @Test
+    void shouldCoverPhoneAddressRequestDTO() {
+        PhoneAddressRequestDTO dto = new PhoneAddressRequestDTO();
+
+        dto.setMobileNumber("3001234567");
+        dto.setPhoneNumber("6011234567");
+        dto.setInternationalCode("57");
+        dto.setExtension("123");
+
+        assertEquals("3001234567", dto.getMobileNumber());
+        assertEquals("6011234567", dto.getPhoneNumber());
+        assertEquals("57", dto.getInternationalCode());
+        assertEquals("123", dto.getExtension());
+    }
+}
+
+class PostalAddressRequestDTOTest {
+
+    @Test
+    void shouldCoverPostalAddressRequestDTO() {
+        PostalAddressRequestDTO dto = new PostalAddressRequestDTO();
+
+        ProvinceRequestDTO province = new ProvinceRequestDTO();
+        CountryRequestDTO country = new CountryRequestDTO();
+
+        dto.setProvince(province);
+        dto.setTownName("Bogota");
+        dto.setCountry(country);
+
+        assertEquals(province, dto.getProvince());
+        assertEquals("Bogota", dto.getTownName());
+        assertEquals(country, dto.getCountry());
+    }
+}
+
+class PersonNameRequestDTOTest {
+
+    @Test
+    void shouldCoverPersonNameRequestDTO() {
+        PersonNameRequestDTO dto = new PersonNameRequestDTO();
+
+        dto.setGivenName("Fabio");
+        dto.setLastName("Hernandez");
+        dto.setSecondLastName("Test");
+
+        assertEquals("Fabio", dto.getGivenName());
+        assertEquals("Hernandez", dto.getLastName());
+        assertEquals("Test", dto.getSecondLastName());
+    }
+}
+
+class OrganizationRequestDtoTest {
+
+    @Test
+    void shouldCoverOrganizationRequestDto() {
+        OrganizationRequestDto dto = new OrganizationRequestDto();
+
+        OrganizationNameRequestDTO organizationName = new OrganizationNameRequestDTO();
+        DocumentRequestDTO document = new DocumentRequestDTO();
+
+        dto.setRegistrationDate("2026-05-29");
+        dto.setOrganizationName(organizationName);
+        dto.setDocument(document);
+
+        assertEquals("2026-05-29", dto.getRegistrationDate());
+        assertEquals(organizationName, dto.getOrganizationName());
+        assertEquals(document, dto.getDocument());
+    }
+}
+
+class PersonRequestDtoTest {
+
+    @Test
+    void shouldCoverPersonRequestDto() {
+        PersonRequestDto dto = new PersonRequestDto();
+
+        PersonNameRequestDTO personName = new PersonNameRequestDTO();
+        DocumentRequestDTO document = new DocumentRequestDTO();
+
+        dto.setPersonName(personName);
+        dto.setBirthDate("2000-01-01");
+        dto.setDocument(document);
+
+        assertEquals(personName, dto.getPersonName());
+        assertEquals("2000-01-01", dto.getBirthDate());
+        assertEquals(document, dto.getDocument());
+    }
+}
+
+class BankRequestDTOTest {
+
+    @Test
+    void shouldCoverBankRequestDTO() {
+        BankRequestDTO dto = new BankRequestDTO();
+
+        CenterRequestDTO center = new CenterRequestDTO();
+
+        dto.setBankId("001");
+        dto.setCenter(center);
+
+        assertEquals("001", dto.getBankId());
+        assertEquals(center, dto.getCenter());
+    }
+}
+
+class DocumentRequestDTOTest {
+
+    @Test
+    void shouldCoverDocumentRequestDTO() {
+        DocumentRequestDTO dto = new DocumentRequestDTO();
+
+        StateRequestDTO state = new StateRequestDTO();
+
+        dto.setDocumentTypeCode("CC");
+        dto.setDocumentNumber("123456789");
+        dto.setState(state);
+
+        assertEquals("CC", dto.getDocumentTypeCode());
+        assertEquals("123456789", dto.getDocumentNumber());
+        assertEquals(state, dto.getState());
+    }
+}
+
+class CountryRequestDTOTest {
+
+    @Test
+    void shouldCoverCountryRequestDTO() {
+        CountryRequestDTO dto = new CountryRequestDTO();
+
+        dto.setCode("CO");
+
+        assertEquals("CO", dto.getCode());
+    }
+}
+
+class CenterRequestDTOTest {
+
+    @Test
+    void shouldCoverCenterRequestDTO() {
+        CenterRequestDTO dto = new CenterRequestDTO();
+
+        dto.setCenterId("1234");
+
+        assertEquals("1234", dto.getCenterId());
+    }
+}
+
+class OrganizationNameRequestDTOTest {
+
+    @Test
+    void shouldCoverOrganizationNameRequestDTO() {
+        OrganizationNameRequestDTO dto = new OrganizationNameRequestDTO();
+
+        dto.setLegalName("Santander Test");
+
+        assertEquals("Santander Test", dto.getLegalName());
+    }
+}
+
+class StateRequestDTOTest {
+
+    @Test
+    void shouldCoverStateRequestDTO() {
+        StateRequestDTO dto = new StateRequestDTO();
+
+        dto.setCode("11");
+
+        assertEquals("11", dto.getCode());
+    }
+}
+
+class ElectronicAddressRequestDtOTest {
+
+    @Test
+    void shouldCoverElectronicAddressRequestDtO() {
+        ElectronicAddressRequestDtO dto = new ElectronicAddressRequestDtO();
+
+        dto.setEmailAddress("test@santander.com");
+
+        assertEquals("test@santander.com", dto.getEmailAddress());
+    }
+}
+
+class ProvinceRequestDTOTest {
+
+    @Test
+    void shouldCoverProvinceRequestDTO() {
+        ProvinceRequestDTO dto = new ProvinceRequestDTO();
+
+        dto.setCode("CUN");
+
+        assertEquals("CUN", dto.getCode());
+    }
+}

@@ -1,301 +1,669 @@
-package com.santander.bnc.bsn049.bncbsn049mstermdeposits.mappers;
+private TrxBP13Response bp13() {
+		TrxBP13Response trx = mock(TrxBP13Response.class, RETURNS_DEEP_STUBS);
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+		when(trx.getData().getCodigoProducto()).thenReturn("940250");
+		when(trx.getData().getSubProducto()).thenReturn("001");
+		when(trx.getData().getDescProducto()).thenReturn("CDT");
+		when(trx.getData().getDescSubProducto()).thenReturn("DIGITAL");
+		when(trx.getData().getNumContrato()).thenReturn("1234567890");
+		when(trx.getData().getSecuencia()).thenReturn("00001");
+		when(trx.getData().getSecRenov()).thenReturn("00000");
+		when(trx.getData().getEstadoIPF()).thenReturn("A");
+		when(trx.getData().getDescEstadoIPF()).thenReturn("ACTIVO");
+		when(trx.getData().getMoneda()).thenReturn("COP");
+		when(trx.getData().getPlazo()).thenReturn("30");
+		when(trx.getData().getTipoPeriodo()).thenReturn("D");
+		when(trx.getData().getDescPeriodo()).thenReturn("DIAS");
+		when(trx.getData().getFecVencimiento()).thenReturn("2026-12-01");
+		when(trx.getData().getFecAlta()).thenReturn("2026-06-01");
+		when(trx.getData().getCanalApertura()).thenReturn("60");
+		when(trx.getData().getPeriodoLiquidacion()).thenReturn("V VENCIMIENTO");
+		when(trx.getData().getTipoInteres()).thenReturn("+000000001234");
+		when(trx.getData().getTipoEfectivo()).thenReturn("+000000005678");
+		when(trx.getData().getLina1()).thenReturn("00010" + pad("123456789", 30) + "ING");
+		when(trx.getData().getLina2()).thenReturn(pad("", 32) + "000000000123456" + pad("", 60));
+		when(trx.getData().getObservaciones()).thenReturn("01OBSERVACION");
+		when(trx.getData().getIndicRenov()).thenReturn("S");
+		when(trx.getData().getIndCapitalizacion()).thenReturn("S");
+		when(trx.getData().getIndicBloq()).thenReturn("N");
 
-import java.lang.reflect.Method;
-import java.util.List;
+		return trx;
+	}
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.bp31.response.CdtsDatsDTO;
-import com.santander.bnc.bsn049.bncbsn049igcdtcommon.domain.termDeposits.getListDeposits.request.GetListDepositsRequestDTO;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.client.service.TermDepositParametersService;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.depositplacement.response.Placement;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.host.bp13.response.TrxBP13Response;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.host.bp31.response.TrxBP31Response;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersDTO;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersRequest;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersResponse;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.exception.error.ErrorService;
 
-class ProductsMappersPrivateCoverageTest {
 
-    private ProductsMappers mapper;
-    private TermDepositParametersService termDepositParametersService;
 
-    @BeforeEach
-    void setUp() {
-        termDepositParametersService = mock(TermDepositParametersService.class);
-        mapper = new ProductsMappers(mock(ErrorService.class), termDepositParametersService);
 
-        ReflectionTestUtils.setField(mapper, "appName", "term_deposits");
-        ReflectionTestUtils.setField(mapper, "appVersion", "v1");
-        ReflectionTestUtils.setField(mapper, "isDecimal", true);
-        ReflectionTestUtils.setField(mapper, "inputSettlementCompare", "C");
-        ReflectionTestUtils.setField(mapper, "inputSettlementDescription", "Reinversión de intereses");
+    package com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.host.bp13.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrxBP13DataResponse {
+    private String numCertificado;
+    private String certificadoReemplazado;
+    private String codigoInversor;
+    private String secuenciaIPF;
+    private String secuenciaRenovacion;
+    private String producto;
+    private String subproducto;
+    private String fecAlta;
+    private String fecOperacion;
+    private String indicadorGrantia;
+    private String tarifaVigente;
+    private String estadoIPF;
+    private String spread;
+    private String indicadorONP;
+    private String moneda;
+    private String desMoneda;
+    private String saldoInicial;
+    private int plazo;
+    private String periodoLiquidacion;
+    private String tipoTitular;
+    private String numTitular;
+    private String priApellido;
+    private String segApellido;
+    private String nombreTitular;
+    private String tipoEfectivo;
+    private int cambioUR;
+    private String tipoInteres;
+    private String capInteres;
+    private String capReajuste;
+    private String renovacionAutomatica;
+    private String ejecutivoComercial;
+    private String planComercial;
+    private String custodia;
+    private String desCustodia;
+    private String canalApertura;
+    private String transferible;
+    private String origen;
+    private String observaciones;
+    private String sucIngCustodia;
+    private String fecIngCustodia;
+    private String sucEgrCustodia;
+    private String fecEgrCustodia;
+    private int importeRestProgra;
+    private String centroGestor;
+    private String acuerdo;
+    private String cuentaAsociada;
+    private String fecAnulacion;
+    private String fecVencimiento;
+    private String fecCancelacion;
+    private String fecLiquidacion;
+    private String fecLiqReajuste;
+    private String tarifaRenovacion;
+    private int spreadRenovacion;
+    private String interesesAvonado;
+    private String interesesPendiente;
+    private String importePeriodico;
+    private String indicadorBloqueo;
+    private int interesesReajuste;
+    private String pago;
+    private String desPago;
+    private String saldoDisponible;
+    private String cuentaCliente;
+    private String importeTipoTasa;
+    private String numDocumento;
+    private String tipoDocumento;
+    private String tipoOperacion;
+    private String motivoCancelacion;
+    private String lina1;
+    private String lina2;
+
+    public String getNumCertificado() {
+        return numCertificado;
     }
 
-    @Test
-    void shouldCoverPrivateFormatMethods() throws Exception {
-        assertEquals("\"\"", invoke("ajustarValor", new Class<?>[]{String.class}, new Object[]{null}));
-        assertEquals("\"\"", invoke("ajustarValor", new Class<?>[]{String.class}, new Object[]{""}));
-        assertEquals("ABC", invoke("ajustarValor", new Class<?>[]{String.class}, new Object[]{"ABC"}));
-
-        assertEquals("123,45", invoke("formatearCantidad", new Class<?>[]{String.class}, new Object[]{"000000000012345"}));
-        assertEquals("123", invoke("formatearCantidad", new Class<?>[]{String.class}, new Object[]{"123"}));
-
-        assertEquals("12345", invoke("limpiarCantidad", new Class<?>[]{String.class}, new Object[]{" +12.345 "}));
-        assertEquals("", invoke("limpiarCantidad", new Class<?>[]{String.class}, new Object[]{""}));
-        assertNull(invoke("limpiarCantidad", new Class<?>[]{String.class}, new Object[]{null}));
+    public void setNumCertificado(String numCertificado) {
+        this.numCertificado = numCertificado;
     }
 
-    @Test
-    void shouldCoverSetDestinationFundsAllDescriptions() throws Exception {
-        String[] codes = {"ING", "VAE", "VAP", "ACT", "VAR", "BAJ", "VDA", "RCL", "XXX"};
-
-        for (String code : codes) {
-            Placement placement = new Placement();
-            TrxBP13Response trx = bp13();
-            when(trx.getData().getLina1()).thenReturn("00010" + pad("123456789", 30) + code);
-
-            invoke("setDestinationFunds",
-                    new Class<?>[]{TrxBP13Response.class, Placement.class},
-                    new Object[]{trx, placement});
-
-            assertNotNull(placement.getDestinationFunds());
-            assertNotNull(placement.getDestinationFunds().getAccount());
-        }
-
-        Placement placementCa = new Placement();
-        TrxBP13Response trxCa = bp13();
-        when(trxCa.getData().getLina1()).thenReturn("00011" + pad("123456789", 30) + "ING");
-
-        invoke("setDestinationFunds",
-                new Class<?>[]{TrxBP13Response.class, Placement.class},
-                new Object[]{trxCa, placementCa});
-
-        assertEquals("CA", placementCa.getDestinationFunds().getAccountIdType());
-
-        Placement shortLine = new Placement();
-        TrxBP13Response trxShort = bp13();
-        when(trxShort.getData().getLina1()).thenReturn("123");
-
-        invoke("setDestinationFunds",
-                new Class<?>[]{TrxBP13Response.class, Placement.class},
-                new Object[]{trxShort, shortLine});
-
-        assertNull(shortLine.getDestinationFunds());
+    public String getCertificadoReemplazado() {
+        return certificadoReemplazado;
     }
 
-    @Test
-    void shouldCoverPurposeBranches() throws Exception {
-        TermDepositParametersDTO parameter = new TermDepositParametersDTO();
-        parameter.setCode("01");
-        parameter.setDescription("Compra vivienda");
-
-        TermDepositParametersResponse parametersResponse = new TermDepositParametersResponse();
-        parametersResponse.setParameters(List.of(parameter));
-
-        when(termDepositParametersService.termDepositParameters(any())).thenReturn(parametersResponse);
-
-        Placement placement = new Placement();
-        invoke("setPurpose",
-                new Class<?>[]{TrxBP13Response.class, TermDepositParametersRequest.class, Placement.class, String.class},
-                new Object[]{bp13(), new TermDepositParametersRequest("940250", "auth", "client"), placement, "01OBS"});
-
-        assertEquals("01", placement.getPurposeCode());
-        assertEquals("COMPRA VIVIENDA", placement.getPurposeDescription());
-
-        Placement notFound = new Placement();
-        invoke("setPurpose",
-                new Class<?>[]{TrxBP13Response.class, TermDepositParametersRequest.class, Placement.class, String.class},
-                new Object[]{bp13(), new TermDepositParametersRequest("940250", "auth", "client"), notFound, "99OBS"});
-
-        assertEquals("", notFound.getPurposeDescription());
-
-        Placement blank = new Placement();
-        invoke("setPurpose",
-                new Class<?>[]{TrxBP13Response.class, TermDepositParametersRequest.class, Placement.class, String.class},
-                new Object[]{bp13(), new TermDepositParametersRequest("940250", "auth", "client"), blank, ""});
-
-        assertEquals("", blank.getPurposeDescription());
-
-        when(termDepositParametersService.termDepositParameters(any())).thenReturn(null);
-
-        Placement nullResponse = new Placement();
-        invoke("setPurpose",
-                new Class<?>[]{TrxBP13Response.class, TermDepositParametersRequest.class, Placement.class, String.class},
-                new Object[]{bp13(), new TermDepositParametersRequest("940250", "auth", "client"), nullResponse, "01OBS"});
-
-        assertNull(nullResponse.getPurposeDescription());
+    public void setCertificadoReemplazado(String certificadoReemplazado) {
+        this.certificadoReemplazado = certificadoReemplazado;
     }
 
-    @Test
-    void shouldCoverPrivatePlacementSetters() throws Exception {
-        TrxBP13Response trx = bp13();
-        Placement placement = new Placement();
-
-        when(trx.getData().getCanalApertura()).thenReturn("60");
-        invoke("setOriginIdentifier", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertEquals("ODS", placement.getOriginIdentifier().getDescription());
-
-        when(trx.getData().getCanalApertura()).thenReturn("99");
-        invoke("setOriginIdentifier", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertEquals("OTRO", placement.getOriginIdentifier().getDescription());
-
-        placement.setCapitalized(false);
-        when(trx.getData().getPeriodoLiquidacion()).thenReturn("V VENCIMIENTO");
-        invoke("setSettlementCondition", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertEquals("V", placement.getSettlementCondition().getCode());
-
-        placement.setCapitalized(true);
-        invoke("setSettlementCondition", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertEquals("C", placement.getSettlementCondition().getCode());
-
-        when(trx.getData().getPeriodoLiquidacion()).thenReturn("");
-        invoke("setSettlementCondition", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, new Placement()});
-
-        when(trx.getData().getTipoInteres()).thenReturn("+000000001234");
-        invoke("setAnnualPercentageYield", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertNotNull(placement.getAnnualPercentageYield());
-
-        when(trx.getData().getTipoInteres()).thenReturn("");
-        invoke("setAnnualPercentageYield", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-
-        when(trx.getData().getTipoEfectivo()).thenReturn("+000000005678");
-        invoke("setRate", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertNotNull(placement.getRate());
-
-        when(trx.getData().getTipoEfectivo()).thenReturn("");
-        invoke("setRate", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
+    public String getCodigoInversor() {
+        return codigoInversor;
     }
 
-    @Test
-    void shouldCoverRenewableCapitalizedBlockedBranches() throws Exception {
-        TrxBP13Response trx = bp13();
-
-        Placement placement = new Placement();
-
-        when(trx.getData().getIndicRenov()).thenReturn("S");
-        invoke("setRenewable", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertTrue(placement.isRenewable());
-
-        when(trx.getData().getIndicRenov()).thenReturn("N");
-        invoke("setRenewable", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertFalse(placement.isRenewable());
-
-        when(trx.getData().getIndCapitalizacion()).thenReturn("S");
-        invoke("setCapitalized", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertTrue(placement.isCapitalized());
-
-        when(trx.getData().getIndCapitalizacion()).thenReturn("N");
-        invoke("setCapitalized", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertFalse(placement.isCapitalized());
-
-        when(trx.getData().getIndicBloq()).thenReturn("S");
-        invoke("setBlocked", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertTrue(placement.isBlocked());
-
-        when(trx.getData().getIndicBloq()).thenReturn("N");
-        invoke("setBlocked", new Class<?>[]{TrxBP13Response.class, Placement.class}, new Object[]{trx, placement});
-        assertFalse(placement.isBlocked());
+    public void setCodigoInversor(String codigoInversor) {
+        this.codigoInversor = codigoInversor;
     }
 
-    @Test
-    void shouldCoverBp31StatusesAndLinks() {
-        List<CdtsDatsDTO> list = List.of(
-                cdt("A"),
-                cdt("P"),
-                cdt("V"),
-                cdt("C"),
-                cdt("X"),
-                cdt("N"),
-                cdt("Z")
-        );
-
-        assertEquals(7, mapper.bp31mapResponse(list).size());
-
-        GetListDepositsRequestDTO request = GetListDepositsRequestDTO.builder()
-                .participantId("03003502")
-                .placementStatus("A")
-                .limit("1")
-                .offset("00001-00000")
-                .build();
-
-        assertNotNull(mapper.bp31mapResponseLinks(list, request));
-
-        TrxBP31Response response = mock(TrxBP31Response.class, RETURNS_DEEP_STUBS);
-        when(response.getData().getCdtsDats()).thenReturn(list);
-        assertNotNull(mapper.bp31mapResponseLinks(response, request));
+    public String getSecuenciaIPF() {
+        return secuenciaIPF;
     }
 
-    private Object invoke(String methodName, Class<?>[] parameterTypes, Object[] args) throws Exception {
-        Method method = ProductsMappers.class.getDeclaredMethod(methodName, parameterTypes);
-        method.setAccessible(true);
-        return method.invoke(mapper, args);
+    public void setSecuenciaIPF(String secuenciaIPF) {
+        this.secuenciaIPF = secuenciaIPF;
     }
 
-    private TrxBP13Response bp13() {
-        TrxBP13Response trx = mock(TrxBP13Response.class, RETURNS_DEEP_STUBS);
-
-        when(trx.getData().getCodigoProducto()).thenReturn("940250");
-        when(trx.getData().getSubProducto()).thenReturn("001");
-        when(trx.getData().getDescProducto()).thenReturn("CDT");
-        when(trx.getData().getDescSubProducto()).thenReturn("DIGITAL");
-        when(trx.getData().getNumContrato()).thenReturn("1234567890");
-        when(trx.getData().getSecuencia()).thenReturn("00001");
-        when(trx.getData().getSecRenov()).thenReturn("00000");
-        when(trx.getData().getEstadoIPF()).thenReturn("A");
-        when(trx.getData().getDescEstadoIPF()).thenReturn("ACTIVO");
-        when(trx.getData().getMoneda()).thenReturn("COP");
-        when(trx.getData().getPlazo()).thenReturn("30");
-        when(trx.getData().getTipoPeriodo()).thenReturn("D");
-        when(trx.getData().getDescPeriodo()).thenReturn("DIAS");
-        when(trx.getData().getFecVencimiento()).thenReturn("2026-12-01");
-        when(trx.getData().getFecAlta()).thenReturn("2026-06-01");
-        when(trx.getData().getCanalApertura()).thenReturn("60");
-        when(trx.getData().getPeriodoLiquidacion()).thenReturn("V VENCIMIENTO");
-        when(trx.getData().getTipoInteres()).thenReturn("+000000001234");
-        when(trx.getData().getTipoEfectivo()).thenReturn("+000000005678");
-        when(trx.getData().getLina1()).thenReturn("00010" + pad("123456789", 30) + "ING");
-        when(trx.getData().getLina2()).thenReturn(pad("", 32) + "000000000123456" + pad("", 60));
-        when(trx.getData().getObservaciones()).thenReturn("01OBSERVACION");
-        when(trx.getData().getIndicRenov()).thenReturn("S");
-        when(trx.getData().getIndCapitalizacion()).thenReturn("S");
-        when(trx.getData().getIndicBloq()).thenReturn("N");
-
-        return trx;
+    public String getSecuenciaRenovacion() {
+        return secuenciaRenovacion;
     }
 
-    private CdtsDatsDTO cdt(String estado) {
-        CdtsDatsDTO dto = mock(CdtsDatsDTO.class);
-
-        when(dto.getCodigoInversor()).thenReturn("00000000000000000001");
-        when(dto.getProducto()).thenReturn("940250");
-        when(dto.getDescripcionProducto()).thenReturn("CDT");
-        when(dto.getSecuencia()).thenReturn("00001");
-        when(dto.getSecRenov()).thenReturn("00000");
-        when(dto.getEstado()).thenReturn(estado);
-        when(dto.getFechaApertura()).thenReturn("2026-06-01");
-        when(dto.getSaldo()).thenReturn("000000000123456");
-        when(dto.getDivisa()).thenReturn("COP");
-        when(dto.getCertificado()).thenReturn("12345678");
-        when(dto.getFechaVencimiento()).thenReturn("2026-12-01");
-        when(dto.getSubproducto()).thenReturn("001");
-        when(dto.getSecuenciaReposicionamiento()).thenReturn("00001");
-        dto.cccReposicionamiento = "00000000000000000001";
-
-        return dto;
+    public void setSecuenciaRenovacion(String secuenciaRenovacion) {
+        this.secuenciaRenovacion = secuenciaRenovacion;
     }
 
-    private String pad(String value, int length) {
-        String text = value == null ? "" : value;
-        if (text.length() >= length) {
-            return text.substring(0, length);
-        }
-        return text + " ".repeat(length - text.length());
+    public String getProducto() {
+        return producto;
+    }
+
+    public void setProducto(String producto) {
+        this.producto = producto;
+    }
+
+    public String getSubproducto() {
+        return subproducto;
+    }
+
+    public void setSubproducto(String subproducto) {
+        this.subproducto = subproducto;
+    }
+
+    public String getFecAlta() {
+        return fecAlta;
+    }
+
+    public void setFecAlta(String fecAlta) {
+        this.fecAlta = fecAlta;
+    }
+
+    public String getFecOperacion() {
+        return fecOperacion;
+    }
+
+    public void setFecOperacion(String fecOperacion) {
+        this.fecOperacion = fecOperacion;
+    }
+
+    public String getIndicadorGrantia() {
+        return indicadorGrantia;
+    }
+
+    public void setIndicadorGrantia(String indicadorGrantia) {
+        this.indicadorGrantia = indicadorGrantia;
+    }
+
+    public String getTarifaVigente() {
+        return tarifaVigente;
+    }
+
+    public void setTarifaVigente(String tarifaVigente) {
+        this.tarifaVigente = tarifaVigente;
+    }
+
+    public String getEstadoIPF() {
+        return estadoIPF;
+    }
+
+    public void setEstadoIPF(String estadoIPF) {
+        this.estadoIPF = estadoIPF;
+    }
+
+    public String getSpread() {
+        return spread;
+    }
+
+    public void setSpread(String spread) {
+        this.spread = spread;
+    }
+
+    public String getIndicadorONP() {
+        return indicadorONP;
+    }
+
+    public void setIndicadorONP(String indicadorONP) {
+        this.indicadorONP = indicadorONP;
+    }
+
+    public String getMoneda() {
+        return moneda;
+    }
+
+    public void setMoneda(String moneda) {
+        this.moneda = moneda;
+    }
+
+    public String getDesMoneda() {
+        return desMoneda;
+    }
+
+    public void setDesMoneda(String desMoneda) {
+        this.desMoneda = desMoneda;
+    }
+
+    public String getSaldoInicial() {
+        return saldoInicial;
+    }
+
+    public void setSaldoInicial(String saldoInicial) {
+        this.saldoInicial = saldoInicial;
+    }
+
+    public int getPlazo() {
+        return plazo;
+    }
+
+    public void setPlazo(int plazo) {
+        this.plazo = plazo;
+    }
+
+    public String getPeriodoLiquidacion() {
+        return periodoLiquidacion;
+    }
+
+    public void setPeriodoLiquidacion(String periodoLiquidacion) {
+        this.periodoLiquidacion = periodoLiquidacion;
+    }
+
+    public String getTipoTitular() {
+        return tipoTitular;
+    }
+
+    public void setTipoTitular(String tipoTitular) {
+        this.tipoTitular = tipoTitular;
+    }
+
+    public String getNumTitular() {
+        return numTitular;
+    }
+
+    public void setNumTitular(String numTitular) {
+        this.numTitular = numTitular;
+    }
+
+    public String getPriApellido() {
+        return priApellido;
+    }
+
+    public void setPriApellido(String priApellido) {
+        this.priApellido = priApellido;
+    }
+
+    public String getSegApellido() {
+        return segApellido;
+    }
+
+    public void setSegApellido(String segApellido) {
+        this.segApellido = segApellido;
+    }
+
+    public String getNombreTitular() {
+        return nombreTitular;
+    }
+
+    public void setNombreTitular(String nombreTitular) {
+        this.nombreTitular = nombreTitular;
+    }
+
+    public String getTipoEfectivo() {
+        return tipoEfectivo;
+    }
+
+    public void setTipoEfectivo(String tipoEfectivo) {
+        this.tipoEfectivo = tipoEfectivo;
+    }
+
+    public int getCambioUR() {
+        return cambioUR;
+    }
+
+    public void setCambioUR(int cambioUR) {
+        this.cambioUR = cambioUR;
+    }
+
+    public String getTipoInteres() {
+        return tipoInteres;
+    }
+
+    public void setTipoInteres(String tipoInteres) {
+        this.tipoInteres = tipoInteres;
+    }
+
+    public String getCapInteres() {
+        return capInteres;
+    }
+
+    public void setCapInteres(String capInteres) {
+        this.capInteres = capInteres;
+    }
+
+    public String getCapReajuste() {
+        return capReajuste;
+    }
+
+    public void setCapReajuste(String capReajuste) {
+        this.capReajuste = capReajuste;
+    }
+
+    public String getRenovacionAutomatica() {
+        return renovacionAutomatica;
+    }
+
+    public void setRenovacionAutomatica(String renovacionAutomatica) {
+        this.renovacionAutomatica = renovacionAutomatica;
+    }
+
+    public String getEjecutivoComercial() {
+        return ejecutivoComercial;
+    }
+
+    public void setEjecutivoComercial(String ejecutivoComercial) {
+        this.ejecutivoComercial = ejecutivoComercial;
+    }
+
+    public String getPlanComercial() {
+        return planComercial;
+    }
+
+    public void setPlanComercial(String planComercial) {
+        this.planComercial = planComercial;
+    }
+
+    public String getCustodia() {
+        return custodia;
+    }
+
+    public void setCustodia(String custodia) {
+        this.custodia = custodia;
+    }
+
+    public String getDesCustodia() {
+        return desCustodia;
+    }
+
+    public void setDesCustodia(String desCustodia) {
+        this.desCustodia = desCustodia;
+    }
+
+    public String getCanalApertura() {
+        return canalApertura;
+    }
+
+    public void setCanalApertura(String canalApertura) {
+        this.canalApertura = canalApertura;
+    }
+
+    public String getTransferible() {
+        return transferible;
+    }
+
+    public void setTransferible(String transferible) {
+        this.transferible = transferible;
+    }
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
+    public String getSucIngCustodia() {
+        return sucIngCustodia;
+    }
+
+    public void setSucIngCustodia(String sucIngCustodia) {
+        this.sucIngCustodia = sucIngCustodia;
+    }
+
+    public String getFecIngCustodia() {
+        return fecIngCustodia;
+    }
+
+    public void setFecIngCustodia(String fecIngCustodia) {
+        this.fecIngCustodia = fecIngCustodia;
+    }
+
+    public String getSucEgrCustodia() {
+        return sucEgrCustodia;
+    }
+
+    public void setSucEgrCustodia(String sucEgrCustodia) {
+        this.sucEgrCustodia = sucEgrCustodia;
+    }
+
+    public String getFecEgrCustodia() {
+        return fecEgrCustodia;
+    }
+
+    public void setFecEgrCustodia(String fecEgrCustodia) {
+        this.fecEgrCustodia = fecEgrCustodia;
+    }
+
+    public int getImporteRestProgra() {
+        return importeRestProgra;
+    }
+
+    public void setImporteRestProgra(int importeRestProgra) {
+        this.importeRestProgra = importeRestProgra;
+    }
+
+    public String getCentroGestor() {
+        return centroGestor;
+    }
+
+    public void setCentroGestor(String centroGestor) {
+        this.centroGestor = centroGestor;
+    }
+
+    public String getAcuerdo() {
+        return acuerdo;
+    }
+
+    public void setAcuerdo(String acuerdo) {
+        this.acuerdo = acuerdo;
+    }
+
+    public String getCuentaAsociada() {
+        return cuentaAsociada;
+    }
+
+    public void setCuentaAsociada(String cuentaAsociada) {
+        this.cuentaAsociada = cuentaAsociada;
+    }
+
+    public String getFecAnulacion() {
+        return fecAnulacion;
+    }
+
+    public void setFecAnulacion(String fecAnulacion) {
+        this.fecAnulacion = fecAnulacion;
+    }
+
+    public String getFecVencimiento() {
+        return fecVencimiento;
+    }
+
+    public void setFecVencimiento(String fecVencimiento) {
+        this.fecVencimiento = fecVencimiento;
+    }
+
+    public String getFecCancelacion() {
+        return fecCancelacion;
+    }
+
+    public void setFecCancelacion(String fecCancelacion) {
+        this.fecCancelacion = fecCancelacion;
+    }
+
+    public String getFecLiquidacion() {
+        return fecLiquidacion;
+    }
+
+    public void setFecLiquidacion(String fecLiquidacion) {
+        this.fecLiquidacion = fecLiquidacion;
+    }
+
+    public String getFecLiqReajuste() {
+        return fecLiqReajuste;
+    }
+
+    public void setFecLiqReajuste(String fecLiqReajuste) {
+        this.fecLiqReajuste = fecLiqReajuste;
+    }
+
+    public String getTarifaRenovacion() {
+        return tarifaRenovacion;
+    }
+
+    public void setTarifaRenovacion(String tarifaRenovacion) {
+        this.tarifaRenovacion = tarifaRenovacion;
+    }
+
+    public int getSpreadRenovacion() {
+        return spreadRenovacion;
+    }
+
+    public void setSpreadRenovacion(int spreadRenovacion) {
+        this.spreadRenovacion = spreadRenovacion;
+    }
+
+    public String getInteresesAvonado() {
+        return interesesAvonado;
+    }
+
+    public void setInteresesAvonado(String interesesAvonado) {
+        this.interesesAvonado = interesesAvonado;
+    }
+
+    public String getInteresesPendiente() {
+        return interesesPendiente;
+    }
+
+    public void setInteresesPendiente(String interesesPendiente) {
+        this.interesesPendiente = interesesPendiente;
+    }
+
+    public String getImportePeriodico() {
+        return importePeriodico;
+    }
+
+    public void setImportePeriodico(String importePeriodico) {
+        this.importePeriodico = importePeriodico;
+    }
+
+    public String getIndicadorBloqueo() {
+        return indicadorBloqueo;
+    }
+
+    public void setIndicadorBloqueo(String indicadorBloqueo) {
+        this.indicadorBloqueo = indicadorBloqueo;
+    }
+
+    public int getInteresesReajuste() {
+        return interesesReajuste;
+    }
+
+    public void setInteresesReajuste(int interesesReajuste) {
+        this.interesesReajuste = interesesReajuste;
+    }
+
+    public String getPago() {
+        return pago;
+    }
+
+    public void setPago(String pago) {
+        this.pago = pago;
+    }
+
+    public String getDesPago() {
+        return desPago;
+    }
+
+    public void setDesPago(String desPago) {
+        this.desPago = desPago;
+    }
+
+    public String getSaldoDisponible() {
+        return saldoDisponible;
+    }
+
+    public void setSaldoDisponible(String saldoDisponible) {
+        this.saldoDisponible = saldoDisponible;
+    }
+
+    public String getCuentaCliente() {
+        return cuentaCliente;
+    }
+
+    public void setCuentaCliente(String cuentaCliente) {
+        this.cuentaCliente = cuentaCliente;
+    }
+
+    public String getImporteTipoTasa() {
+        return importeTipoTasa;
+    }
+
+    public void setImporteTipoTasa(String importeTipoTasa) {
+        this.importeTipoTasa = importeTipoTasa;
+    }
+
+    public String getNumDocumento() {
+        return numDocumento;
+    }
+
+    public void setNumDocumento(String numDocumento) {
+        this.numDocumento = numDocumento;
+    }
+
+    public String getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(String tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
+    }
+
+    public String getTipoOperacion() {
+        return tipoOperacion;
+    }
+
+    public void setTipoOperacion(String tipoOperacion) {
+        this.tipoOperacion = tipoOperacion;
+    }
+
+    public String getMotivoCancelacion() {
+        return motivoCancelacion;
+    }
+
+    public void setMotivoCancelacion(String motivoCancelacion) {
+        this.motivoCancelacion = motivoCancelacion;
+    }
+
+    public String getLina1() {
+        return lina1;
+    }
+
+    public void setLina1(String lina1) {
+        this.lina1 = lina1;
+    }
+
+    public String getLina2() {
+        return lina2;
+    }
+
+    public void setLina2(String lina2) {
+        this.lina2 = lina2;
     }
 }

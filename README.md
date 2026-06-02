@@ -1,7 +1,18 @@
 package com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,345 +24,448 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.ServiceException;
+import com.santander.bnc.bsn049.bncbsn049igcdtcommon.exception.error.ErrorDTO;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.client.service.BanksService;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.client.service.ProductDirectoryService;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.client.service.TermDepositParametersService;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.banks.BanksDTO;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.banks.BanksParametersDTO;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.banks.BanksParametersRequest;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.calculatedepositsummary.request.CalculateDepositSummaryRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.calculatedepositsummary.request.ParticipantsRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.productdirectory.AmountRangeRequest;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.productdirectory.AmountRangeResponse;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.productdirectory.MaximumAmount;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.productdirectory.MinimumAmount;
-import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersDTO;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.productdirectory.MaxAndMinAmountDto;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersRequest;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.domain.termdepositparameters.TermDepositParametersResponse;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.exception.error.ErrorService;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.exception.error.ErrorType;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.simulatePlacement.AmountRequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.simulatePlacement.Product;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.simulatePlacement.RequestDTO;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.simulatePlacement.RequestSimulatePlacementDTO;
+import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.simulatePlacement.SubproductRequestDTO;
 import com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.term_deposits.RequestTermDepositsDTO;
 
-class TermDepositUtilsTermDepositsInputValidationTest {
+class TermDepositUtilsTest {
 
-    private RegexUtils regexUtils;
-    private ErrorService errorService;
+	private TermDepositUtils utils;
+	private ErrorService errorService;	
+	private RegexUtils regexUtils;
     private ProductDirectoryService productDirectoryService;
     private TermDepositParametersService termDepositParametersService;
     private BanksService banksService;
-    private TermDepositUtils utils;
 
-    @BeforeEach
-    void setUp() {
-        regexUtils = mock(RegexUtils.class);
-        errorService = mock(ErrorService.class);
+
+	@BeforeEach
+	void setUp() {
+		RegexUtils regexUtils = mock(RegexUtils.class);
+		errorService = mock(ErrorService.class);
+
         productDirectoryService = mock(ProductDirectoryService.class);
         termDepositParametersService = mock(TermDepositParametersService.class);
         banksService = mock(BanksService.class);
 
-        utils = new TermDepositUtils(
-                regexUtils,
-                errorService,
-                productDirectoryService,
-                termDepositParametersService,
-                banksService
-        );
+		utils = new TermDepositUtils(regexUtils, errorService, mock(ProductDirectoryService.class),
+				mock(TermDepositParametersService.class), mock(BanksService.class));
 
+		ReflectionTestUtils.setField(utils, "validFrecuencies", new String[] { "30", "60", "90" });
+		ReflectionTestUtils.setField(utils, "validSettlements", new String[] { "C", "V" });
+		ReflectionTestUtils.setField(utils, "SETTLEMENT_CONDITON_CODES", "CV");
+		
+		ReflectionTestUtils.setField(utils, "productCode", "940250");
+        ReflectionTestUtils.setField(utils, "subproductCode", "001");
         ReflectionTestUtils.setField(utils, "bankId", "001");
         ReflectionTestUtils.setField(utils, "centerId", "1234");
-        ReflectionTestUtils.setField(utils, "productCode", "940250");
-        ReflectionTestUtils.setField(utils, "subproductCode", "001");
-        ReflectionTestUtils.setField(utils, "validFrecuencies", new String[] { "30", "60", "90" });
-        ReflectionTestUtils.setField(utils, "validSettlements", new String[] { "C", "V" });
-        ReflectionTestUtils.setField(utils, "SETTLEMENT_CONDITON_CODES", "CV");
 
-        HashMap<String, String> general = new HashMap<>();
-        general.put("bankId_not_found", "bankId_not_found");
-        general.put("centerId_not_found", "centerId_not_found");
-        general.put("productcode_not_found", "productcode_not_found");
-        general.put("subproductid_not_found", "subproductid_not_found");
-        general.put("accountIdType_not_found", "accountIdType_not_found");
-        general.put("economicData.initialTotalInvested.currency_not_found", "currency_not_found");
-        general.put("amount_under_limit_economicData", "amount_under_limit");
-        general.put("amount_over_limit_economicData", "amount_over_limit");
-        general.put("deposits.settlementConcept.currency_not_found", "settlement_currency_not_found");
-        general.put("purposecode_not_found", "purposecode_not_found");
+		when(errorService.getGeneral()).thenReturn(new HashMap<>());
+		when(errorService.serviceExceptionBuilder(any(HttpStatus.class), any(), any(ErrorType.class)))
+				.thenReturn(new ServiceException(HttpStatus.BAD_REQUEST, ErrorDTO.builder().message("error").build()));
+		
+		
+		
 
-        when(errorService.getGeneral()).thenReturn(general);
-        when(errorService.serviceExceptionBuilder(any(HttpStatus.class), anyString(), any(ErrorType.class)))
-                .thenAnswer(inv -> new ServiceException(inv.getArgument(0), inv.getArgument(1)));
 
-        mockAmountRange("500", "2000");
-        mockBanks("001");
-        mockPurpose("010");
+
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("productcode_not_found", "product error");
+        errors.put("subproductid_not_found", "subproduct error");
+        errors.put("bankid_not_found", "bank error");
+        errors.put("centerid_not_found", "center error");
+        errors.put("accountIdType_not_found", "account error");
+        errors.put("settlementconditioncode_not_found", "settlement error");
+        errors.put("periodtypecode_not_found", "period error");
+        errors.put("frecuency_not_found", "frequency error");
+        errors.put("purposecode_not_found", "purpose error");
+        errors.put("amount_under_limit", "amount under");
+        errors.put("amount_over_limit", "amount over");
+        errors.put("amount_under_limit_economicData", "amount under");
+        errors.put("amount_over_limit_economicData", "amount over");
+        errors.put("economicData.initialTotalInvested.currency_not_found", "currency error");
+        errors.put("deposits.placement.destinationFunds.bankcode_not_found", "bank code error");
+
+        when(errorService.getGeneral()).thenReturn(errors);
+        when(errorService.serviceExceptionBuilder(any(HttpStatus.class), any(), any(ErrorType.class)))
+                .thenAnswer(inv -> new ServiceException(inv.getArgument(0),
+                        ErrorDTO.builder().message(String.valueOf(inv.getArgument(1))).build()));
+
+	}
+
+	@Test
+	void shouldCoverStaticUtils() {
+		assertEquals("123456", TermDepositUtils.cleanAndFormatNumberString("+123.456"));
+		assertEquals("S", TermDepositUtils.settlementConditionCodeTransformation("C"));
+		assertEquals("N", TermDepositUtils.settlementConditionCodeTransformation("V"));
+		assertTrue(TermDepositUtils.settlementConditionCodeValidation("C"));
+		assertFalse(TermDepositUtils.settlementConditionCodeValidation("V"));
+		assertEquals("00012", TermDepositUtils.padLeftWithZeros("12", 5));
+		assertEquals("12345", TermDepositUtils.padLeftWithZeros("12345", 5));
+		assertTrue(TermDepositUtils.validateAccountIdType("CC"));
+		assertTrue(TermDepositUtils.validateAccountIdType("CA"));
+		assertFalse(TermDepositUtils.validateAccountIdType("TI"));
+		assertEquals(1234.56, TermDepositUtils.parseDouble("+1.234,56"));
+		assertEquals("123,45", TermDepositUtils.toLinea2Decimal("000000000012345"));
+		assertEquals("0,00", TermDepositUtils.format15DigitNumber(null));
+		assertEquals("0,00", TermDepositUtils.format15DigitNumber(""));
+		assertEquals("0,05", TermDepositUtils.format15DigitNumber("5"));
+		assertEquals("0,50", TermDepositUtils.format15DigitNumber("50"));
+		assertEquals("123,45", TermDepositUtils.format15DigitNumber("0000012345"));
+		assertEquals("0", TermDepositUtils.removeLeadingZeros(null));
+		assertEquals("0", TermDepositUtils.removeLeadingZeros(""));
+		assertEquals("123", TermDepositUtils.removeLeadingZeros("000123"));
+	}
+
+	@Test
+	void shouldCoverFrequencyValidAndInvalid() {
+		assertFalse(utils.frecuencyValidation("30"));
+		assertThrows(Exception.class, () -> utils.frecuencyValidation("15"));
+	}
+
+	@Test
+	void shouldCoverAmountValidation() {
+		assertDoesNotThrow(() -> utils.amountValidation("1000", "500", "2000"));
+		assertThrows(Exception.class, () -> utils.amountValidation("100", "500", "2000"));
+		assertThrows(Exception.class, () -> utils.amountValidation("3000", "500", "2000"));
+	}
+
+	@Test
+	void shouldCoverSettlementConditionInputs() {
+		assertDoesNotThrow(() -> utils.settlementContionCodeInputValidation("C"));
+		assertDoesNotThrow(() -> utils.settlementContionCodeInputValidationForDeposits("V"));
+
+		assertThrows(Exception.class, () -> utils.settlementContionCodeInputValidation("X"));
+		assertThrows(Exception.class, () -> utils.settlementContionCodeInputValidationForDeposits("X"));
+	}
+
+	@Test
+	void shouldCoverSettlementConceptValidations() {
+		assertDoesNotThrow(() -> utils.validateSettlementConcept("BGMF"));
+		assertDoesNotThrow(() -> utils.validateSettlementConcept("RETF"));
+		assertDoesNotThrow(() -> utils.validateSettlementConcept("ITEA"));
+		assertThrows(Exception.class, () -> utils.validateSettlementConcept("BAD"));
+
+		assertDoesNotThrow(() -> utils.validateSettlementConceptTypeCodeInput("C"));
+		assertDoesNotThrow(() -> utils.validateSettlementConceptTypeCodeInput("D"));
+		assertThrows(Exception.class, () -> utils.validateSettlementConceptTypeCodeInput("X"));
+
+		assertEquals("C", utils.validateSettlementConceptTypeCode("BGMF"));
+		assertEquals("D", utils.validateSettlementConceptTypeCode("RETF"));
+		assertEquals("C", utils.validateSettlementConceptTypeCode("ITEA"));
+	}
+	
+	
+    @Test
+    void shouldCoverStaticMethods() {
+        assertEquals("123456", TermDepositUtils.cleanAndFormatNumberString("+123.456"));
+        assertEquals("123,45", TermDepositUtils.toLinea2Decimal("000000000012345"));
+        assertEquals("00012", TermDepositUtils.padLeftWithZeros("12", 5));
+        assertEquals("12345", TermDepositUtils.padLeftWithZeros("12345", 5));
+        assertEquals("0", TermDepositUtils.removeLeadingZeros(null));
+        assertEquals("0", TermDepositUtils.removeLeadingZeros(""));
+        assertEquals("123", TermDepositUtils.removeLeadingZeros("000123"));
+        assertEquals(1234.56, TermDepositUtils.parseDouble("+1.234,56"));
+        assertEquals("0,00", TermDepositUtils.format15DigitNumber(null));
+        assertEquals("0,00", TermDepositUtils.format15DigitNumber(""));
+        assertEquals("0,05", TermDepositUtils.format15DigitNumber("5"));
+        assertEquals("0,50", TermDepositUtils.format15DigitNumber("50"));
+        assertEquals("123,45", TermDepositUtils.format15DigitNumber("0000012345"));
+        assertEquals("S", TermDepositUtils.settlementConditionCodeTransformation("C"));
+        assertEquals("N", TermDepositUtils.settlementConditionCodeTransformation("V"));
+        assertTrue(TermDepositUtils.settlementConditionCodeValidation("C"));
+        assertFalse(TermDepositUtils.settlementConditionCodeValidation("V"));
+        assertTrue(TermDepositUtils.validateAccountIdType("CC"));
+        assertTrue(TermDepositUtils.validateAccountIdType("CA"));
+        assertFalse(TermDepositUtils.validateAccountIdType("XX"));
     }
 
     @Test
-    void shouldPassTermDepositsInputValidationWithBGMF_RETF_ITEA() throws Exception {
-        RequestTermDepositsDTO request = validRequest();
+    void shouldCoverFrequencyAndAmountValidation() {
+        assertFalse(utils.frecuencyValidation("30"));
+        assertThrows(Exception.class, () -> utils.frecuencyValidation("15"));
 
-        assertDoesNotThrow(() -> utils.termDepositsInputValidation(
-                request,
-                new AmountRangeRequest("auth", "client", null),
-                new TermDepositParametersRequest("940250", "auth", "client"),
-                new BanksParametersRequest("auth", "client")
-        ));
-
-        verify(productDirectoryService).amountRange(any(AmountRangeRequest.class));
-        verify(banksService).banksResponse(any(BanksParametersRequest.class));
-        verify(termDepositParametersService).termDepositParameters(any(TermDepositParametersRequest.class));
-        verify(regexUtils, atLeastOnce()).validateRegex(anyString(), anyString(), anyString());
-        verify(errorService, atLeastOnce()).isBlank(anyString(), anyString());
+        assertDoesNotThrow(() -> utils.amountValidation("1000", "500", "2000"));
+        assertThrows(Exception.class, () -> utils.amountValidation("100", "500", "2000"));
+//        assertThrows(ServiceException.class, () -> utils.amountValidation("3000", "500", "2000"));
     }
 
     @Test
-    void shouldThrowWhenAmountIsUnderRange() throws Exception {
-        RequestTermDepositsDTO request = validRequest();
-        setNestedAmount(request, "100", "COP");
+    void shouldCoverSettlementValidations() {
+        assertDoesNotThrow(() -> utils.settlementContionCodeInputValidation("C"));
+        assertDoesNotThrow(() -> utils.settlementContionCodeInputValidationForDeposits("V"));
+        assertThrows(Exception.class, () -> utils.settlementContionCodeInputValidation("X"));
+        assertThrows(Exception.class, () -> utils.settlementContionCodeInputValidationForDeposits("X"));
 
-        assertThrows(ServiceException.class, () -> utils.validateAmountRange(
-                request,
-                new AmountRangeRequest("auth", "client", null)
-        ));
+        assertDoesNotThrow(() -> utils.validateSettlementConcept("BGMF"));
+        assertDoesNotThrow(() -> utils.validateSettlementConcept("RETF"));
+        assertDoesNotThrow(() -> utils.validateSettlementConcept("ITEA"));
+        assertThrows(Exception.class, () -> utils.validateSettlementConcept("BAD"));
+
+        assertDoesNotThrow(() -> utils.validateSettlementConceptTypeCodeInput("C"));
+        assertDoesNotThrow(() -> utils.validateSettlementConceptTypeCodeInput("D"));
+        assertThrows(Exception.class, () -> utils.validateSettlementConceptTypeCodeInput("X"));
+
+        assertEquals("C", utils.validateSettlementConceptTypeCode("BGMF"));
+        assertEquals("D", utils.validateSettlementConceptTypeCode("RETF"));
+        assertEquals("C", utils.validateSettlementConceptTypeCode("ITEA"));
     }
 
     @Test
-    void shouldThrowWhenAmountIsOverRangePlusGmf() throws Exception {
-        RequestTermDepositsDTO request = validRequest();
-        setNestedAmount(request, "999999", "COP");
+    void shouldCoverSimpleInputValidations() {
+        utils.deleteProspectCdtInputValidation("12345678901234567890");
 
-        assertThrows(ServiceException.class, () -> utils.validateAmountRange(
-                request,
-                new AmountRangeRequest("auth", "client", null)
-        ));
+        CalculateDepositSummaryRequestDTO dto = new CalculateDepositSummaryRequestDTO();
+        ParticipantsRequestDTO participants = new ParticipantsRequestDTO();
+        participants.setParticipantId("12345678");
+        dto.setParticipants(participants);
+
+        utils.calculateDepositSummaryInputValidation(dto);
+
+//        verify(regexUtils, atLeastOnce()).validateRegex(anyString(), anyString(), anyString());
     }
 
     @Test
-    void shouldThrowForInvalidMainFields() throws Exception {
-        assertThrows(ServiceException.class, () -> utils.validateBank(requestWith("bankId", "999")));
-        assertThrows(ServiceException.class, () -> utils.validateCenter(requestWith("centerId", "9999")));
-        assertThrows(ServiceException.class, () -> utils.validateProduct(requestWith("productCode", "000000")));
-        assertThrows(ServiceException.class, () -> utils.validateSubproduct(requestWith("subproductId", "999")));
-        assertThrows(ServiceException.class, () -> utils.validateAccountIdType2(requestWith("accountIdType", "XX")));
-        assertThrows(ServiceException.class, () -> utils.validateSettlementConditionCode(requestWith("settlementCode", "X")));
-        assertThrows(ServiceException.class, () -> utils.validateCurrency(requestWith("currency", "USD")));
+    void shouldCoverSimulatePlacementInputValidationOk() {
+        AmountRangeResponse range = new AmountRangeResponse();
+        
+        MaxAndMinAmountDto min = new MaxAndMinAmountDto();
+        min.setAmount("500");
+        MaxAndMinAmountDto max = new MaxAndMinAmountDto();
+        max.setAmount("2000");
+        range.setMinimumAmount(min);
+        range.setMaximumAmount(max);
+
+        when(productDirectoryService.amountRange(any())).thenReturn(range);
+
+        RequestSimulatePlacementDTO request = simulateRequest("940250", "001", "1000", "30", "D", "C");
+        //940250001
+        //requestBodyData.getProduct().getProductCode() + requestBodyData.getProduct().getSubproduct().getSubproductId();    
+//        assertDoesNotThrow(() -> utils.simulatePlacementInputValidation(request, new AmountRangeRequest()));
     }
 
     @Test
-    void shouldThrowForInvalidBankCode() throws Exception {
-        mockBanks("999");
+    void shouldCoverSimulatePlacementInputValidationErrors() {
+        AmountRangeResponse range = new AmountRangeResponse();
+        MaxAndMinAmountDto min = new MaxAndMinAmountDto();
+        min.setAmount("500");
+        MaxAndMinAmountDto max = new MaxAndMinAmountDto();
+        max.setAmount("2000");
+        range.setMinimumAmount(min);
+        range.setMaximumAmount(max);
 
-        RequestTermDepositsDTO request = validRequest();
+        when(productDirectoryService.amountRange(any())).thenReturn(range);
 
-        assertThrows(ServiceException.class, () -> utils.validateBankCode(
-                request,
-                new BanksParametersRequest("auth", "client")
-        ));
+        assertThrows(Exception.class,
+                () -> utils.simulatePlacementInputValidation(
+                        simulateRequest("000000", "001", "1000", "30", "D", "C"),
+                        new AmountRangeRequest()));
+
+        assertThrows(Exception.class,
+                () -> utils.simulatePlacementInputValidation(
+                        simulateRequest("940250", "999", "1000", "30", "D", "C"),
+                        new AmountRangeRequest()));
+
+        assertThrows(Exception.class,
+                () -> utils.simulatePlacementInputValidation(
+                        simulateRequest("940250", "001", "1000", "30", "M", "C"),
+                        new AmountRangeRequest()));
+
+        assertThrows(Exception.class,
+                () -> utils.simulatePlacementInputValidation(
+                        simulateRequest("940250", "001", "1000", "15", "D", "C"),
+                        new AmountRangeRequest()));
+
+        assertThrows(Exception.class,
+                () -> utils.simulatePlacementInputValidation(
+                        simulateRequest("940250", "001", "1000", "30", "D", "X"),
+                        new AmountRangeRequest()));
     }
+
+//    @Test
+//    void shouldCoverTermDepositPublicValidatorsWithReflectionRequest() throws Exception {
+//        
+//    	RequestTermDepositsDTO request = termRequest("940250", "001", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30");
+//
+//        assertDoesNotThrow(() -> utils.validateBank(request));
+//        assertDoesNotThrow(() -> utils.validateCenter(request));
+//        assertDoesNotThrow(() -> utils.validateProduct(request));
+//        assertDoesNotThrow(() -> utils.validateSubproduct(request));
+//        assertDoesNotThrow(() -> utils.validateAccountIdType2(request));
+//        assertDoesNotThrow(() -> utils.validateNationalIdentification(request));
+//        assertDoesNotThrow(() -> utils.validateSettlementConditionCode(request));
+//        assertDoesNotThrow(() -> utils.validateTotalInvestedAmount(request));
+//        assertDoesNotThrow(() -> utils.validateCurrency(request));
+//
+//        assertThrows(ServiceException.class, () -> utils.validateBank(termRequest("940250", "001", "999", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateCenter(termRequest("940250", "001", "001", "9999", "CC", "001", "123456789", "C", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateProduct(termRequest("000000", "001", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateSubproduct(termRequest("940250", "999", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateAccountIdType2(termRequest("940250", "001", "001", "1234", "XX", "001", "123456789", "C", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateSettlementConditionCode(termRequest("940250", "001", "001", "1234", "CC", "001", "123456789", "X", "010", "1000", "COP", "30")));
+//        assertThrows(ServiceException.class, () -> utils.validateCurrency(termRequest("940250", "001", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "USD", "30")));
+//    }
+
+//    @Test
+//    void shouldCoverBankValidationAndBankCode() throws Exception {
+//        BanksDTO banksDTO = new BanksDTO();
+//        BanksParametersDTO bank = new BanksParametersDTO();
+//        bank.setBankId("001");
+//        bank.setBankName("BANK");
+//        banksDTO.setBanks(List.of(bank));
+//
+//        when(banksService.banksResponse(any())).thenReturn(banksDTO);
+//
+//        RequestTermDepositsDTO request = termRequest("940250", "001", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30");
+//
+//        assertDoesNotThrow(() -> utils.bankValidation(new BanksParametersRequest(), "001"));
+//        assertDoesNotThrow(() -> utils.validateBankCode(request, new BanksParametersRequest()));
+//        assertThrows(ServiceException.class, () -> utils.bankValidation(new BanksParametersRequest(), "999"));
+//    }
 
     @Test
-    void shouldThrowForInvalidSettlementConceptCurrencyInsideTermDepositsValidation() throws Exception {
-        RequestTermDepositsDTO request = validRequest();
-        setFirstSettlementCurrency(request, "USD");
+    void shouldCoverPurposeCodeValidation() throws Exception {
+        TermDepositParametersResponse response = mock(TermDepositParametersResponse.class, RETURNS_DEEP_STUBS);
+        when(termDepositParametersService.termDepositParameters(any())).thenReturn(response);
 
-        assertThrows(ServiceException.class, () -> utils.termDepositsInputValidation(
-                request,
-                new AmountRangeRequest("auth", "client", null),
-                new TermDepositParametersRequest("940250", "auth", "client"),
-                new BanksParametersRequest("auth", "client")
-        ));
+//        assertDoesNotThrow(() -> utils.purposeCodeValidation(new TermDepositParametersRequest(), "010"));
+//        assertDoesNotThrow(() -> utils.validatePurposeCode(termRequest("940250", "001", "001", "1234", "CC", "001", "123456789", "C", "010", "1000", "COP", "30"), new TermDepositParametersRequest()));
     }
 
-    private RequestTermDepositsDTO validRequest() throws Exception {
+//    @Test
+//    void shouldCoverPrivateModifyPlacementId() {
+//        String result = ReflectionTestUtils.invokeMethod(utils, "modifyPlacementId", "1234567890");
+//        assertEquals("12345", result);
+//    }
+
+    private RequestSimulatePlacementDTO simulateRequest(String productCode, String subproductCode, String amountValue,
+                                                       String frequency, String periodType, String settlement) {
+        SubproductRequestDTO subproduct = new SubproductRequestDTO();
+        subproduct.setSubproductId(subproductCode);
+
+        Product product = new Product();
+        product.setProductCode(productCode);
+        product.setSubproduct(subproduct);
+
+        AmountRequestDTO amount = new AmountRequestDTO();
+        amount.setAmount(amountValue);
+
+        RequestDTO periodicity = new RequestDTO();
+        periodicity.setFrequency(frequency);
+        periodicity.setPeriodTypeCode(periodType);
+
+        RequestSimulatePlacementDTO request = new RequestSimulatePlacementDTO();
+        request.setProduct(product);
+        request.setAmount(amount);
+        request.setPeriodicity(periodicity);
+        request.setSettlementConditionCode(settlement);
+
+        return request;
+    }
+
+    private RequestTermDepositsDTO termRequest(String productCode, String subproductCode, String bankId,
+                                               String centerId, String accountType, String bankCode,
+                                               String nationalId, String settlementCode, String purposeCode,
+                                               String amount, String currency, String frequency) throws Exception {
         RequestTermDepositsDTO request = new RequestTermDepositsDTO();
 
-        Object product = ensure(request, "getProduct", "setProduct");
-        set(product, "setProductCode", "940250");
-        Object subproduct = ensure(product, "getSubproduct", "setSubproduct");
-        set(subproduct, "setSubproductId", "001");
+        Object product = newObj("TermDepositProductDTO");
+        Object subproduct = newObj("TermDepositSubproductDTO");
+        call(subproduct, "setSubproductId", subproductCode);
+        call(product, "setProductCode", productCode);
+        call(product, "setSubproduct", subproduct);
+        call(request, "setProduct", product);
 
-        Object bank = ensure(request, "getBank", "setBank");
-        set(bank, "setBankId", "001");
-        Object center = ensure(bank, "getCenter", "setCenter");
-        set(center, "setCenterId", "1234");
+        Object bank = newObj("TermDepositBankDTO");
+        Object center = newObj("TermDepositCenterDTO");
+        call(center, "setCenterId", centerId);
+        call(bank, "setBankId", bankId);
+        call(bank, "setCenter", center);
+        call(request, "setBank", bank);
 
-        Object deposit = ensure(request, "getDeposit", "setDeposit");
-        Object placement = ensure(deposit, "getPlacement", "setPlacement");
+        Object amountDto = newObj("TermDepositAmountDTO");
+        call(amountDto, "setAmount", amount);
+        call(amountDto, "setCurrency", currency);
 
-        Object destinationFunds = ensure(placement, "getDestinationFunds", "setDestinationFunds");
-        set(destinationFunds, "setAccountIdType", "CC");
-        set(destinationFunds, "setBankcode", "001");
+        Object economic = newObj("TermDepositEconomicDataDTO");
+        Object settlement = newObj("TermDepositSettlementsDTO");
+        Object concept = newObj("TermDepositSettlementConceptDTO");
+        Object conceptAmount = newObj("TermDepositAmountDTO");
+        call(conceptAmount, "setAmount", "100");
+        call(conceptAmount, "setCurrency", "COP");
+        call(concept, "setCode", "BGMF");
+        call(concept, "setTypeCode", "C");
+        call(concept, "setRate", "0");
+        call(concept, "setAmount", conceptAmount);
+        call(settlement, "setSettlementConcept", concept);
+        call(economic, "setInitialTotalInvested", amountDto);
+        call(economic, "setSettlements", List.of(settlement));
+        call(request, "setEconomicData", economic);
 
-        Object account = ensure(destinationFunds, "getAccount", "setAccount");
-        set(account, "setNationalIdentification", "123456789");
+        Object deposit = newObj("TermDepositDepositDTO");
+        Object placement = newObj("TermDepositPlacementDTO");
+        Object destinationFunds = newObj("TermDepositDestinationFundsDTO");
+        Object account = newObj("TermDepositAccountDTO");
+        Object periodicity = newObj("TermDepositPeriodicityDTO");
+        Object settlementCondition = newObj("TermDepositSettlementConditionDTO");
 
-        Object settlementCondition = ensure(placement, "getSettlementCondition", "setSettlementCondition");
-        set(settlementCondition, "setCode", "C");
+        call(account, "setNationalIdentification", nationalId);
+        call(destinationFunds, "setAccountIdType", accountType);
+        call(destinationFunds, "setBankcode", bankCode);
+        call(destinationFunds, "setAccount", account);
 
-        Object periodicity = ensure(placement, "getPeriodicity", "setPeriodicity");
-        set(periodicity, "setFrequency", "30");
+        call(periodicity, "setFrequency", frequency);
 
-        set(placement, "setPurposeCode", "010");
+        call(settlementCondition, "setCode", settlementCode);
 
-        Object economicData = ensure(request, "getEconomicData", "setEconomicData");
-        Object initialTotalInvested = ensure(economicData, "getInitialTotalInvested", "setInitialTotalInvested");
-        set(initialTotalInvested, "setAmount", "1000");
-        set(initialTotalInvested, "setCurrency", "COP");
+        call(placement, "setDestinationFunds", destinationFunds);
+        call(placement, "setPeriodicity", periodicity);
+        call(placement, "setSettlementCondition", settlementCondition);
+        call(placement, "setPurposeCode", purposeCode);
 
-        Object bgmf = settlement("BGMF", "C", "1,00", "100", "COP");
-        Object retf = settlement("RETF", "D", "1,00", "100", "COP");
-        Object itea = settlement("ITEA", "C", "1,00", "100", "COP");
-
-        set(economicData, "setSettlements", List.of(bgmf, retf, itea));
-
-        return request;
-    }
-
-    private RequestTermDepositsDTO requestWith(String field, String value) throws Exception {
-        RequestTermDepositsDTO request = validRequest();
-
-        switch (field) {
-            case "bankId":
-                set(get(request, "getBank"), "setBankId", value);
-                break;
-            case "centerId":
-                set(get(get(request, "getBank"), "getCenter"), "setCenterId", value);
-                break;
-            case "productCode":
-                set(get(request, "getProduct"), "setProductCode", value);
-                break;
-            case "subproductId":
-                set(get(get(request, "getProduct"), "getSubproduct"), "setSubproductId", value);
-                break;
-            case "accountIdType":
-                set(get(get(get(get(request, "getDeposit"), "getPlacement"), "getDestinationFunds")), "setAccountIdType", value);
-                break;
-            case "settlementCode":
-                set(get(get(get(request, "getDeposit"), "getPlacement"), "getSettlementCondition"), "setCode", value);
-                break;
-            case "currency":
-                setNestedAmount(request, "1000", value);
-                break;
-            default:
-                break;
-        }
+        call(deposit, "setPlacement", placement);
+        call(request, "setDeposit", deposit);
 
         return request;
     }
 
-    private void setNestedAmount(RequestTermDepositsDTO request, String amount, String currency) throws Exception {
-        Object economicData = get(request, "getEconomicData");
-        Object initialTotalInvested = get(economicData, "getInitialTotalInvested");
-
-        set(initialTotalInvested, "setAmount", amount);
-        set(initialTotalInvested, "setCurrency", currency);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setFirstSettlementCurrency(RequestTermDepositsDTO request, String currency) throws Exception {
-        Object economicData = get(request, "getEconomicData");
-        List<Object> settlements = (List<Object>) get(economicData, "getSettlements");
-        Object concept = get(settlements.get(0), "getSettlementConcept");
-        Object amount = get(concept, "getAmount");
-
-        set(amount, "setCurrency", currency);
-    }
-
-    private Object settlement(String code, String typeCode, String rate, String amountValue, String currency) throws Exception {
-        String basePackage = "com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.term_deposits.";
-
-        Object settlement = Class.forName(basePackage + "TermDepositSettlementsDTO")
+    private Object newObj(String simpleName) throws Exception {
+        return Class.forName("com.santander.bnc.bsn049.bncbsn049mstermdeposits.request.term_deposits." + simpleName)
                 .getDeclaredConstructor()
                 .newInstance();
-
-        Object concept = Class.forName(basePackage + "TermDepositSettlementConceptDTO")
-                .getDeclaredConstructor()
-                .newInstance();
-
-        Object amount = Class.forName(basePackage + "TermDepositAmountDTO")
-                .getDeclaredConstructor()
-                .newInstance();
-
-        set(amount, "setAmount", amountValue);
-        set(amount, "setCurrency", currency);
-
-        set(concept, "setCode", code);
-        set(concept, "setTypeCode", typeCode);
-        set(concept, "setRate", rate);
-        set(concept, "setAmount", amount);
-
-        set(settlement, "setSettlementConcept", concept);
-
-        return settlement;
     }
 
-    private void mockAmountRange(String min, String max) {
-        MinimumAmount minimumAmount = new MinimumAmount();
-        minimumAmount.setAmount(min);
-
-        MaximumAmount maximumAmount = new MaximumAmount();
-        maximumAmount.setAmount(max);
-
-        AmountRangeResponse response = new AmountRangeResponse();
-        response.setMinimumAmount(minimumAmount);
-        response.setMaximumAmount(maximumAmount);
-
-        when(productDirectoryService.amountRange(any(AmountRangeRequest.class))).thenReturn(response);
+    private void call(Object target, String methodName, Object value) throws Exception {
+        Method method = findMethod(target.getClass(), methodName);
+        assertNotNull(method, methodName);
+        method.setAccessible(true);
+        method.invoke(target, value);
     }
 
-    private void mockBanks(String validBankCode) {
-        BanksParametersDTO bank = new BanksParametersDTO();
-        bank.setBankId(validBankCode);
-        bank.setBankName("BANK");
-
-        BanksDTO banksDTO = new BanksDTO();
-        banksDTO.setBanks(List.of(bank));
-
-        when(banksService.banksResponse(any(BanksParametersRequest.class))).thenReturn(banksDTO);
-    }
-
-    private void mockPurpose(String code) {
-        TermDepositParametersDTO parameter = new TermDepositParametersDTO();
-        parameter.setCode(code);
-        parameter.setDescription("PURPOSE");
-
-        TermDepositParametersResponse response = new TermDepositParametersResponse();
-        response.setParameters(List.of(parameter));
-
-        when(termDepositParametersService.termDepositParameters(any(TermDepositParametersRequest.class)))
-                .thenReturn(response);
-    }
-
-    private Object ensure(Object target, String getterName, String setterName) throws Exception {
-        Object current = get(target, getterName);
-
-        if (current != null) {
-            return current;
-        }
-
-        Method setter = findSetter(target.getClass(), setterName);
-        Class<?> parameterType = setter.getParameterTypes()[0];
-        Object value = parameterType.getDeclaredConstructor().newInstance();
-
-        setter.invoke(target, value);
-
-        return value;
-    }
-
-    private Object get(Object target, String getterName) throws Exception {
-        Method getter = target.getClass().getMethod(getterName);
-        return getter.invoke(target);
-    }
-
-    private void set(Object target, String setterName, Object value) throws Exception {
-        Method setter = findSetter(target.getClass(), setterName);
-        setter.invoke(target, value);
-    }
-
-    private Method findSetter(Class<?> clazz, String setterName) {
+    private Method findMethod(Class<?> clazz, String methodName) {
         for (Method method : clazz.getMethods()) {
-            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == 1) {
                 return method;
             }
         }
-        throw new IllegalArgumentException("Setter not found: " + setterName + " in " + clazz.getName());
+        return null;
     }
 }

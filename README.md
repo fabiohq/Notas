@@ -1,14 +1,26 @@
+org.opentest4j.AssertionFailedError: Unexpected exception thrown: java.lang.ClassCastException: class java.lang.String cannot be cast to class [C (java.lang.String and [C are in module java.base of loader 'bootstrap')
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertDoesNotThrow.createAssertionFailedError(AssertDoesNotThrow.java:84)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:53)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:36)
+	at org.junit.jupiter.api.Assertions.assertDoesNotThrow(Assertions.java:3199)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtilsTest.shouldCoverTermDepositsInputValidationOk(TermDepositUtilsTest.java:543)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: java.lang.ClassCastException: class java.lang.String cannot be cast to class [C (java.lang.String and [C are in module java.base of loader 'bootstrap')
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtilsTest.lambda$0(TermDepositUtilsTest.java:131)
+	at org.mockito.internal.stubbing.StubbedInvocationMatcher.answer(StubbedInvocationMatcher.java:42)
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:103)
+	at org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29)
+	at org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:34)
+	at org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.doIntercept(MockMethodInterceptor.java:82)
+	at org.mockito.internal.creation.bytebuddy.MockMethodAdvice.handle(MockMethodAdvice.java:134)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.exception.error.ErrorService.serviceExceptionBuilder(ErrorService.java:36)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtils.purposeCodeValidation(TermDepositUtils.java:444)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtils.validatePurposeCode(TermDepositUtils.java:328)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtils.termDepositsInputValidation(TermDepositUtils.java:153)
+	at com.santander.bnc.bsn049.bncbsn049mstermdeposits.utils.TermDepositUtilsTest.lambda$35(TermDepositUtilsTest.java:543)
+	at org.junit.jupiter.api.AssertDoesNotThrow.assertDoesNotThrow(AssertDoesNotThrow.java:49)
+	... 6 more
 
-when(errorService.serviceExceptionBuilder(any(HttpStatus.class), any(), any(ErrorType.class)))
-        .thenAnswer(inv -> new ServiceException(
-                inv.getArgument(0),
-                ErrorDTO.builder()
-                        .message(inv.getArgument(1) == null ? "error" : String.valueOf(inv.getArgument(1)))
-                        .build()
-        ));
-*******
-errors.put("purposeCode_not_found", "purpose error");
-
-******
-errors.put("purposecode_not_found", "purpose error");
-errors.put("purposeCode_not_found", "purpose error");

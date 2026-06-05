@@ -1,695 +1,875 @@
-package com.santander.bnc.bsn049.bncbsn049savekycservice.domain.repository;
+package com.santander.bnc.bsn049.bncbsn049savekycservice.domain.service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.Period;
+
+import java.util.List;
+
+import com.santander.bnc.bsn049.bncbsn049savekycservice.application.serviceImp.KycServiceImp;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.models.PersonNaturalModel;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.models.ResponseModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.AltairRequest;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.AltairResponse;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.CabeceraBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.DataRequestBean;
 import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.DesiredException;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.KYCQuestionnairesBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.OneFccRequest;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.OneFccResponse;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.OneFccTokenResponse;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.PartyBean;
 import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.Questions;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.RiskBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.SaveKYCRequest;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.SaveKYCResponse;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.ScoreBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.SesionBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.ValidityPeriodBean;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.client.IAltairInformation;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.client.SoapClientList;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.client.SoapClientRisk;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.repository.QuestionRepository;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.util.SaveRequestValidator;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.wsdl_list.FVERIFICATERCEROV3;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.wsdl_list.FVERIFICATERCEROV3Response;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.wsdl_risk.FNIVELRIESGOV2;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.wsdl_risk.FNIVELRIESGOV2Response;
 
-@Repository
-public class QuestionRepository {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(QuestionRepository.class);
+import com.santander.bnc.bsn049.bncbsn049savekycservice.infrastructure.config.LocalDateTypeAdapter;
 
-    /**
-     * Obtiene los registros de informaci\u00F3n asociados a los diferentes
-     * t\u00E9rminos o nomenclaturas de las direcciones.
-     * 
-     * @return Listado de t\u00E9rminos o nomenclaturas de las direcdiones.
-     * @see AddressTermsBean
-     */
-    public Questions getQuestion(String id) {
-        Questions questionBeanList = null;
-
-        String sql = "SELECT * FROM CDTKYC.QUESTION WHERE KEY = ?";
-
-        try {
-            questionBeanList = jdbcTemplate.queryForObject(sql, new QuestionRowMapper(), id);
-        } catch (DataAccessException e) {
-            logger.error("Data was not recorded. Error executing query", e);
-            return questionBeanList;
-        } catch (Exception e) {
-            logger.error("Data was not recorded.", e);
-            return questionBeanList;
-        }
-        return questionBeanList;
-
-    }
-
-    public static class QuestionRowMapper implements RowMapper<Questions> {
-
-        public Questions mapRow(ResultSet resultSet, int row) throws SQLException {
-            Questions questionBean = new Questions();
-            questionBean.setQuestionId(resultSet.getString("key"));
-            questionBean.setDescription(resultSet.getString("name"));
-            questionBean.setVigia(resultSet.getString("vigia"));
-
-            return questionBean;
-        }
-    }
-
-    public String getCIUU(String name) throws DesiredException {
-        String questionBeanList = null;
-
-        String sql = "SELECT RISK FROM CDTKYC.ANSWER WHERE KEY = ?";
-
-        try {
-            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), name);
-        } catch (DataAccessException e) {
-            logger.error("Error table RISK. Error executing query", e);
-            throw new DesiredException("questionId: 2d747251-8d68-4a59-82bd-7838ec1485b3 - not valid", 404, e);
-        } catch (Exception e) {
-            logger.error("Error table RISK.", e);
-            throw new DesiredException("questionId: 2d747251-8d68-4a59-82bd-7838ec1485b3 - not valid", 404, e);
-        }
-        return questionBeanList;
-
-    }
-
-    public static class AnswerRowMapper implements RowMapper<String> {
-
-        public String mapRow(ResultSet resultSet, int row) throws SQLException {
-            String risk = resultSet.getString("risk");
-
-            return risk;
-        }
-    }
-
-    public String getAnswerCode(String key) throws DesiredException {
-        String questionBeanList = null;
-
-        String sql = "SELECT NAME FROM CDTKYC.ANSWER WHERE KEY = ?";
+import feign.RetryableException;
 
 
-        try {
-            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerCodeRowMapper(), key);
-        } catch (DataAccessException e) {
-           logger.error("Error getting answer code Error executing query", e);
-            throw new DesiredException("questionId: " + key, 404, e);
-        } catch (Exception e) {
-            logger.error("Error getting answer code.", e);
-            throw new DesiredException("questionId: " + key, 404, e);
-        }
-        return questionBeanList;
+@Service
+public class SaveService {
 
-    }
+	@Autowired
+	private IAltairInformation iAltairInformation;
 
-    public static class AnswerCodeRowMapper implements RowMapper<String> {
+	@Value("${engine.protocol}")
+	private String protocol;
+	@Value("${engine.host}")
+	private String host;
+	@Value("${engine.context}")
+	private String context;
+	@Value("${engine.mqRoute}")
+	private String mqRoute;
+	@Value("${valid-month}")
+	private String validMonth;
+	@Value("${porcentageVigia}")
+	private String porcentageVigia;
+	@Value("${urlOneFcc}")
+	private String urlOneFcc;
+	@Value("${userOneFcc}")
+	private String userOneFcc;
+	@Value("${passOneFcc}")
+	private String passOneFcc;
 
-        public String mapRow(ResultSet resultSet, int row) throws SQLException {
-            String name = resultSet.getString("name");
+	@Autowired
+	private SoapClientRisk soapClientRisk;
 
-            return name;
-        }
-    }
+	@Autowired
+	private SoapClientList soapClientList;
 
-    public void addForm(String key, String document, String documentType, String dateStart, String dateEnd,
-            String request, String response, String penumpe, boolean facta, boolean PEP, boolean CRS, String activity,
-            String profession, String cIIU, String incomes, String expenses, String passives, String assets,
-            String patrimony, boolean tinRequiredEU, String tinEU, String codeCRS, boolean tinRequiredCRS,
-            String tinCRS) throws DesiredException {
+	@Autowired
+	private QuestionRepository questionRepository;
 
-        try {
-            Date date_Start = new SimpleDateFormat("yyyy-MM-dd").parse(dateStart);
-            dateStart = new SimpleDateFormat("dd/MM/yyyy").format(date_Start);
-            logger.info("date_Start: " + date_Start + "dateStart: " + dateStart);
+	@Autowired
+	RestTemplate restTemplate;
 
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            logger.error("could not be posible parse dates '{}':'{}' .",
-                    dateStart, e);
-        }
+	@Autowired
+	KycServiceImp kycServiceImp;
 
-        try {
-            Date date_End = new SimpleDateFormat("yyyy-mm-dd").parse(dateEnd);
-            dateEnd = new SimpleDateFormat("dd/mm/yyyy").format(date_End);
 
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            logger.error("could not be posible parse dates '{}':'{}' .",
-                    dateEnd, e);
-        }
 
-        String sql = "INSERT INTO CDTKYC.KYC_FORM (KEY, DOCUMENT,DOCUMENT_TYPE,START_DATE,END_DATE,REQUEST,RESPONSE,PENUMPE,FATCA,PEP,CRS,ACTIVITY,"
-                + "PROFESSION,CIIU,INCOMES,EXPENSES,PASSIVES,ASSETS,PATRIMONY,TIN_EU,NUMBER_TIN_EU,CODE_CRF,TIN_CRF,NUMBER_TIN_CRF) "
-                + "VALUES(?, ?, ?, to_date(?,'dd/mm/yyyy'), to_date(?,'dd/mm/yyyy'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try {
-            jdbcTemplate.update(sql, key, document, documentType, dateStart, dateEnd, request, response, penumpe, facta,
-                    PEP, CRS, activity, profession, cIIU, incomes,
-                    expenses, passives, assets, patrimony, tinRequiredEU, tinEU, codeCRS, tinRequiredCRS, tinCRS);
-            logger.debug(
-                    "The registration KYC form '{}' was successful.",
-                    key);
-        } catch (DuplicateKeyException e) {
-            logger.error(" KYC form could duplicate registered in database with the identifier '{}': '{}'.",
-                    key, e.getMessage(), e);
-            throw new DesiredException("'knowYourCustomerQuestionnaires.questionnaireId': duplicado", 400, e);
-        } catch (Exception exception) {
-            logger.error(" KYC form could not be registered in database with the identifier '{}': '{}' .",
-                    key, exception.getMessage(), exception);
-            throw new DesiredException(
-                    "'knowYourCustomerQuestionnaires.questionnaireId': could not be registered in database with the identifier  "
-                            + key,
-                    400, exception);
-        }
-    }
+
+
+	private static final Logger logger = LoggerFactory.getLogger(SaveService.class);
+
+	public AltairResponse sendInformationAltair(String document, String typeDocument, String penumpe)
+			throws DesiredException {
+
+		AltairResponse altairResponse = new AltairResponse();
+		AltairRequest altairRequest = new AltairRequest();
+		CabeceraBean cabecera = new CabeceraBean();
+		SesionBean sesionBean = new SesionBean();
+		cabecera.setSesion(sesionBean);
+		altairRequest.setCabecera(cabecera);
+		DataRequestBean dataRequest = new DataRequestBean();
+		dataRequest.setNumDocumento(document);
+		dataRequest.setTipoDocumento(typeDocument);
+		dataRequest.setPENUMPE(penumpe);
+		altairRequest.setData(dataRequest);
+		try {
+
+
+			altairResponse = iAltairInformation.altairResponse(mqRoute, altairRequest);
+
+
+			printAndSaveAltair(altairResponse, altairRequest);
+		} catch (RetryableException e) {
+			logger.error("Error Altair: ", e);
+			if (document != null) {
+				throw new DesiredException("'party.person.documents[0].documentNumber' not found", 404, e);
+			} else {
+				throw new DesiredException("'party.partyId' not found", 404, e);
+			}
+		} catch (Exception e) {
+			logger.error("Error Altair: ", e);
+			if (document != null) {
+				throw new DesiredException("'party.person.documents[0].documentNumber' not found", 404,e);
+			} else {
+				throw new DesiredException("'party.partyId' not found", 404, e);
+			}
+		}
+
+		return altairResponse;
+
+	}
+
+	public FNIVELRIESGOV2Response sendInformationVigia(FNIVELRIESGOV2 riskLevelRequest) throws DesiredException {
+
+		FNIVELRIESGOV2Response vigiaResponse = new FNIVELRIESGOV2Response();
+		vigiaResponse = soapClientRisk.getRiskResponse(riskLevelRequest);
+
+		if (vigiaResponse.getFNIVELRIESGOV2Result().getNivelRiesgo().equals("")) {
+			throw new DesiredException("Internal Server Error", 500);
+		}
+		printAndSaveVigia(vigiaResponse, riskLevelRequest);
+		return vigiaResponse;
+
+	}
+
+	public FVERIFICATERCEROV3Response sendInformationVigiaList(FVERIFICATERCEROV3 listPEPRequest)
+			throws DesiredException {
+
+
+		FVERIFICATERCEROV3Response vigiaResponse = new FVERIFICATERCEROV3Response();
+		vigiaResponse = soapClientList.getListResponse(listPEPRequest);
+
+		if (vigiaResponse.getFVERIFICATERCEROV3Result().getEncontradoId().equals("")) {
+			throw new DesiredException("Internal Server Error", 500);
+		}
+		printAndSaveVigiaList(vigiaResponse, listPEPRequest);
+		return vigiaResponse;
+
+	}
+
+	public OneFccResponse sendInformationOneFccList(OneFccRequest request) throws DesiredException {
+
+		ResponseEntity<OneFccResponse> response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		String headerValue = getOneFccToken();
+
+				try {
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("x-santander-client-id", "432432432");
+			String validateHeaders = sanitizeHeaderValue(headerValue);
+			headers.setBearerAuth(validateHeaders);
+
+			headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+			response = restTemplate.exchange(urlOneFcc + "/onboarding", HttpMethod.POST,
+					new HttpEntity<>(request, headers),
+					new ParameterizedTypeReference<>() {
+					});
+
+
+
+		} catch (Exception e) {System.out.println("error oneFCC" + e.getMessage());
+			throw new DesiredException(
+					e.getMessage(), 500, e);
+		}
+
+		return response.getBody();
+
+	}
+
+	public String getOneFccToken() throws DesiredException {
+
+		ResponseEntity<OneFccTokenResponse> responseToken = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+		try {
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setBasicAuth(userOneFcc, passOneFcc);
+
+			HttpEntity<String> entity = new HttpEntity<>(headers);
+			responseToken = restTemplate.exchange(urlOneFcc + "/login", HttpMethod.GET, entity,
+					OneFccTokenResponse.class);
+
+		} catch (Exception e) {
+
+			throw new DesiredException(
+					e.getMessage(), 500, e);
+		}
+ 		var resposeBody = responseToken.getBody();
+		if(resposeBody == null){
+			throw new DesiredException("response is null", 500);
+		}
+
+		return resposeBody.getJwtToken();
+
+	}
+
+	public SaveKYCResponse saveInformation(SaveKYCRequest request) throws DesiredException {
+
+          VariablesRiesgos variablesRiesgos = new VariablesRiesgos();
+		SaveKYCResponse saveKYCResponse = new SaveKYCResponse();
+		PartyBean party = request.getParty();
+		new SaveRequestValidator(party);
+		String document = party.getPerson().getDocuments().get(0).getDocumentNumber();
+		String typeDocument = party.getPerson().getDocuments().get(0).getDocumentTypeCode();
+		String penumpe = party.getPartyId();
+		boolean PEP = false;
+		boolean facta = false;
+		boolean CRS = false;
+
+		List<KYCQuestionnairesBean> kYCQuestionnairesList = request.getKnowYourCustomerQuestionnaires();
+		for (KYCQuestionnairesBean kycQuestionnairesBean : kYCQuestionnairesList) {
+			new SaveRequestValidator(kycQuestionnairesBean);
+		}
+
+		AltairResponse altairResponse = null;
+		altairResponse = sendInformationAltair(document, typeDocument, penumpe);
+		request.getParty().setPartyId(altairResponse.getData().getDatosBasicos().getNumper());
+		request.getParty().getPerson().getDocuments().get(0)
+				.setDocumentNumber(altairResponse.getData().getDatosBasicos().getNumeroIdentificacion());
+		request.getParty().getPerson().getDocuments().get(0)
+				.setDocumentTypeCode(altairResponse.getData().getDatosBasicos().getTipoIdentificacion());
+
+		if (penumpe == null) {
+			penumpe = request.getParty().getPartyId();
+		} else {
+			document = request.getParty().getPerson().getDocuments().get(0).getDocumentNumber();
+			typeDocument = request.getParty().getPerson().getDocuments().get(0).getDocumentTypeCode();
+		}
+		FNIVELRIESGOV2Response fNIVELRIESGOV2Response = null;
+
+		FNIVELRIESGOV2 riskLevelRequest = new FNIVELRIESGOV2();
+		riskLevelRequest.setNumIde(altairResponse.getData().getDatosBasicos().getNumeroIdentificacion());
+		riskLevelRequest.setSisGeoNT(altairResponse.getData().getDatosBasicos().getNacionalidad());
+		riskLevelRequest.setSisGeo(altairResponse.getData().getDatosBasicos().getCiudad());
+		riskLevelRequest.setEdad(calculateAge(
+				LocalDate.parse(altairResponse.getData().getDatosBasicos().getFechaNacimiento()), LocalDate.now()));
+		riskLevelRequest.setGenero(altairResponse.getData().getDatosBasicos().getSexo().equals("M") ? "F" : "M");
+		riskLevelRequest.setSisGeoTx(" ");
+		riskLevelRequest.setCalificacion(" ");
+		boolean tinRequiredEU = false;
+		String tinEU = null;
+		boolean tinRequiredCRS = false;
+		String tinCRS = null;
+		String codeCRS = null;
+
+		boolean declaration = false;
+
+		List<Questions> questions = request.getKnowYourCustomerQuestionnaires().get(0).getQuestions();
+
+		for (Questions questionsResult : questions) {
+
+			Questions questionResultVigia = new Questions();
+			questionResultVigia = questionRepository.getQuestion(questionsResult.getQuestionId());
+			if (questionResultVigia != null && questionResultVigia.getVigia() != null) {
+
+
+				switch (questionResultVigia.getVigia()) {
+					case "Actividad":
+						String activity = questionRepository
+								.getAnswerCode(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+						riskLevelRequest
+								.setActividad(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+						switch (riskLevelRequest.getActividad()) {
+							case "4b833e7e-bf7a-48bc-a247-7fca30222418": // empleado
+								riskLevelRequest.setOriFon("SAL");
+								riskLevelRequest.setCIIU("0010");
+								riskLevelRequest.setProfesion("00010");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("EMP");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+
+								break;
+							case "ead4572d-e1fa-4886-8110-385ff27cd39e": // independiente
+								riskLevelRequest.setOriFon("AIN");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("IND");
+
+								break;
+							case "b3db406b-312b-442b-ad9d-afb022b6b05f": // rentista de capital
+								riskLevelRequest.setOriFon("ARR");
+								riskLevelRequest.setCIIU("0090");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("REN");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+								break;
+
+							case "2175953a-d564-45e8-812a-261d1b5eb656": // pensionado
+								riskLevelRequest.setOriFon("PEN");
+								riskLevelRequest.setCIIU("0020");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("PEN");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+								break;
+
+							case "d8cd8bbe-ecde-4b67-bc54-eb9ac762e1a9": // no
+								riskLevelRequest.setOriFon("DOH");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+								variablesRiesgos.setOcupacion("IND");
+
+								break;
+							case "6aa00d6b-c063-448a-987c-077eea90b11d":
+								riskLevelRequest.setOriFon("EST");
+								riskLevelRequest.setCIIU("0081");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("EST");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+								break;
+							case "0b09781e-35e0-48ad-a7b3-c11aa83d83d4":
+								riskLevelRequest.setOriFon("AMA");
+								riskLevelRequest.setCIIU("0082");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("AMA");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+
+								break;
+							case "4403844d-1dfc-47b5-8de6-67158601c1fa":
+								riskLevelRequest.setOriFon("DES");
+								riskLevelRequest.setCIIU("0082");
+								riskLevelRequest.setProfesion("00140");
+								riskLevelRequest.setActividad(activity);
+
+								variablesRiesgos.setOcupacion("DES");
+								variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+								break;
+							default:
+								throw new DesiredException(
+										"questionId: b880381e-e6ec-4c7f-9935-fc1c3f4a25fa - not valid", 404);
+						}
+						break;
+					case "CIIU":
+//						String risk = questionRepository
+//								.getCIUU(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+						String name = questionRepository
+								.getAnswerCode(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+
+//						if (risk != null
+//								&& (risk.equals("Alto") || risk.equals("Extremo") || risk.equals("PROHIBIDA"))) {
+//							if (risk.equals("PROHIBIDA")) {
+//								risk = "Alto";
+//							}
+//							fNIVELRIESGOV2Response = new FNIVELRIESGOV2Response();
+//							Resultado fNIVELRIESGOV2Result = new Resultado();
+//							fNIVELRIESGOV2Result.setNivelRiesgo(risk);
+//							fNIVELRIESGOV2Response.setFNIVELRIESGOV2Result(fNIVELRIESGOV2Result);
+//							saveKYCResponse = orderResponseVigia(fNIVELRIESGOV2Response,
+//									request.getKnowYourCustomerQuestionnaires().get(0).getQuestionnaireId());
+//
+//						}
+
+						riskLevelRequest.setCIIU(name);
+
+						variablesRiesgos.setIndustria(riskLevelRequest.getCIIU());
+						getNivelRiesgo(request, altairResponse, saveKYCResponse, variablesRiesgos);
+
+						break;
+					case "Ingresos":
+
+						String income = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						if (income.matches("^[0-9]*$") == false) {
+							throw new DesiredException(
+									"questionId: 7ba2118b-9e82-4e73-8f9f-61574ca33a13 - must be numeric", 400);
+						}
+						riskLevelRequest.setIngresos(income);
+
+						break;
+					case "Egresos":
+						String expenses = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						if (expenses.matches("^[0-9]*$") == false) {
+							throw new DesiredException(
+									"questionId: dd3c61c3-f5f6-487d-bf6a-4a3bb91a1148 - must be numeric", 400);
+						}
+						riskLevelRequest.setEgresos(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+						break;
+					case "Pasivo":
+						String pasive = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						if (pasive.matches("^[0-9]*$") == false) {
+							throw new DesiredException(
+									"questionId: 15296a49-a628-4f7a-bdb7-10988ec85d83 - must be numeric", 400);
+						}
+						riskLevelRequest.setPasivo(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+						break;
+					case "Activo":
+						String assets = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						if (assets.matches("^[0-9]*$") == false) {
+							throw new DesiredException(
+									"questionId: 9577c42b-8eff-455c-bf65-ec8bc782808e - must be numeric", 400);
+						}
+						riskLevelRequest.setActivo(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+						break;
+					case "PEP":
+						switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+							case "235386b2-4f0c-4cea-966d-c4a75ddedf75":
+								riskLevelRequest.setTipPEP("");
+								break;
+							case "f12ec33d-58d7-4b28-a79b-21b0f3aeae90":
+								riskLevelRequest.setTipPEP("001");
+								break;
+							case "21f145e0-2625-43f5-b4e6-f981669fd3ca":
+								riskLevelRequest.setTipPEP("003");
+								break;
+							case "5522c64f-5d88-47dc-bbb0-ff806892b7ce":
+								riskLevelRequest.setTipPEP("005");
+								break;
+							case "80301bf3-ef67-43f7-9776-d29497b1c985":
+								riskLevelRequest.setTipPEP("003");
+								break;
+							default:
+								throw new DesiredException(
+										"questionId: 423a210d-4295-44d6-8d66-3e02221a6212 - not valid", 400);
+						}
+						break;
+
+					case "EEUU":
+						switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+							case "e3c6bc14-3349-4fcb-bdfc-dfc45519c484":
+								break;
+							case "2035b327-7ebf-40a0-ac52-514c0f913784":
+								facta = true;
+								break;
+							case "e8141fc7-0835-4d68-b8ed-6a8ac7123490":
+								facta = true;
+								break;
+							case "f97db556-0617-47d0-b4e3-a9027200830f":
+								facta = true;
+								break;
+							default:
+								throw new DesiredException(
+										"questionId: 5b4157f3-f7ab-4468-8661-5f8eccc6f038 - not valid", 400);
+						}
+						break;
+
+					case "TINEEUU":
+						switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+							case "db2878b7-ece8-4f9f-8f6a-2f5718bd3040":
+								tinRequiredEU = true;
+								break;
+							case "2c86b759-31e8-4589-adc9-a2c293d1d37b":
+								tinRequiredEU = false;
+								break;
+							default:
+								throw new DesiredException(
+										"questionId: 9b7a6f50-c226-4f93-a341-23070c999a5d - not valid", 400);
+						}
+						break;
+					case "NUMTINEU":
+						tinEU = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						break;
+					case "TINCRF":
+						switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+							case "356ccfff-9e12-4adf-b665-facc8ee69301":
+								tinRequiredCRS = false;
+								break;
+							case "4d980eab-dff0-4739-acc4-bbfeb6c7b712":
+								tinRequiredCRS = true;
+								break;
+							default:
+								throw new DesiredException(
+										"questionId: efd07624-79ea-4bd0-8b09-fcaabd8fb468 - not valid", 400);
+
+						}
+						break;
+					case "NUMTINCRF":
+						tinCRS = questionsResult.getAnswers().get(0).getValues().get(0).toString();
+
+						break;
+					case "CODECRF":
+						codeCRS = questionRepository
+								.getAnswerCode(questionsResult.getAnswers().get(0).getValues().get(0).toString());
+
+						break;
+					case "PEP006":
+						if (riskLevelRequest.getTipPEP() != null && !riskLevelRequest.getTipPEP().equals("")) {
+							switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+								case "38bc9751-cb95-4baa-8952-86dc64e0e06e":
+									riskLevelRequest.setTipPEP("006");
+									CRS = true;
+									break;
+								case "76f55e2a-419f-4a17-9966-5f78208684a9":
+									break;
+								default:
+									throw new DesiredException(
+											"questionId: a0b5e918-f149-476e-a4aa-ab95384bc3aa - not valid", 400);
+							}
+						} else {
+							switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+								case "38bc9751-cb95-4baa-8952-86dc64e0e06e":
+									CRS = true;
+									break;
+								case "76f55e2a-419f-4a17-9966-5f78208684a9":
+									break;
+								default:
+									throw new DesiredException(
+											"questionId: a0b5e918-f149-476e-a4aa-ab95384bc3aa - not valid", 400);
+							}
+						}
+						break;
+
+					case "Declaracion":
+						switch (questionsResult.getAnswers().get(0).getValues().get(0).toString()) {
+							case "9e8103fb-f7b4-47d2-95b3-036536a15893":
+								declaration = true;
+								break;
+							case "4feb71ba-0c1b-45e9-9995-172beea13404":
+								declaration = false;
+								throw new DesiredException("Debe aceptar condiciones para continuar", 400);
+							default:
+								throw new DesiredException(
+										"questionId: 3accdaad-8a9d-4263-9597-943be9f315e4 - not valid", 400);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+
+		}
+
+
+		if (!declaration) {
+			throw new DesiredException("Debe aceptar condiciones para continuar", 400);
+		}
+
+
+		riskLevelRequest.setOtrosIngresos("0");
+		long patrimonio = Long.parseLong(riskLevelRequest.getActivo()) - Long.parseLong(riskLevelRequest.getPasivo());
+		riskLevelRequest.setPatrimonio("" + patrimonio);
+
+		String fullNameAltair = "";
+
+		if (altairResponse.getData().getDatosBasicos().getNombre() != null) {
+			if (altairResponse.getData().getDatosBasicos().getPrimerApellido() != null) {
+				if (altairResponse.getData().getDatosBasicos().getSegundoApellido() != null) {
+					fullNameAltair = altairResponse.getData().getDatosBasicos().getNombre() + " "
+							+ altairResponse.getData().getDatosBasicos().getPrimerApellido() + " "
+							+ altairResponse.getData().getDatosBasicos().getSegundoApellido();
+				} else {
+					fullNameAltair = altairResponse.getData().getDatosBasicos().getNombre() + " "
+							+ altairResponse.getData().getDatosBasicos().getPrimerApellido();
+				}
+			}
+		} else {
+			porcentageVigia = "";
+		}
+
+		FVERIFICATERCEROV3 listPEPVigia = new FVERIFICATERCEROV3();
+
+		listPEPVigia.setPeOrigen("CDTKYC");
+		listPEPVigia.setPeDatoid(riskLevelRequest.getNumIde());
+		listPEPVigia.setPePorcentaje(porcentageVigia);
+		listPEPVigia.setPeDatonombre(fullNameAltair);
+
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+				.setPrettyPrinting().create();
+		String prettyResponse = gson.toJson(altairResponse);
+
+		OneFccRequest requestOneFcc = OneFccRequest.builder().idDocument(riskLevelRequest.getNumIde())
+				.name(fullNameAltair).documentType(altairResponse.getData().getDatosBasicos().getTipoIdentificacion())
+				.doBOrEntityCreationDate(altairResponse.getData().getDatosBasicos().getFechaNacimiento())
+				.country("CO").countryType("Country of Citizenship").personType("I")
+				.firstSurname(altairResponse.getData().getDatosBasicos().getPrimerApellido())
+				.requester("CDT")
+				.build();
+
+		OneFccResponse response = sendInformationOneFccList(requestOneFcc);
+
+		if (response != null
+				&& response.getStatus().equals("KO")
+				&& riskLevelRequest.getTipPEP().equals("")) {
+
+			riskLevelRequest.setTipPEP("001");
+		}
+
+
+		if (riskLevelRequest.getActividad() == null) {
+			throw new DesiredException("La ocupaci\u00f3n es obligatoria.", 400);
+		}
+
+		if (riskLevelRequest.getCIIU() == null) {
+			throw new DesiredException("El CIUU es obligatorio.", 400);
+		}
+
+		if (riskLevelRequest.getIngresos() == null) {
+			throw new DesiredException("Los ingresos son obligatorios.", 400);
+		}
+
+		if (riskLevelRequest.getEgresos() == null) {
+			throw new DesiredException("Los egresos son obligatorios.", 400);
+		}
+
+		if (riskLevelRequest.getActivo() == null) {
+			throw new DesiredException("El activo es obligatorio.", 400);
+		}
+
+		if (riskLevelRequest.getPasivo() == null) {
+			throw new DesiredException("El pasivo es obligatorio.", 400);
+		}
+
+		if (riskLevelRequest.getTipPEP() == null) {
+			throw new DesiredException("El tipo de PEP es obligatorio.", 400);
+		}
+
+
+		if (fNIVELRIESGOV2Response == null) {
+
+			/*fNIVELRIESGOV2Response = sendInformationVigia(riskLevelRequest);
+			saveKYCResponse = orderResponseVigia(fNIVELRIESGOV2Response,
+					request.getKnowYourCustomerQuestionnaires().get(0).getQuestionnaireId());*/
+			getNivelRiesgo(request, altairResponse, saveKYCResponse, variablesRiesgos);
+		}
+
+
+		if (!riskLevelRequest.getTipPEP().equals("") || facta || CRS) {
+			setterRiskBean(saveKYCResponse, "Alto");
+		}
+
+
+		if (!riskLevelRequest.getTipPEP().equals("")) {
+			PEP = true;
+		}
+
+
+
+		printAndSave(saveKYCResponse, request, document, typeDocument, penumpe, facta, PEP,
+				CRS, riskLevelRequest.getActividad(), riskLevelRequest.getProfesion(),
+				riskLevelRequest.getCIIU(), riskLevelRequest.getIngresos(), riskLevelRequest.getEgresos(),
+				riskLevelRequest.getPasivo(), riskLevelRequest.getActivo(), riskLevelRequest.getPatrimonio(),
+				tinRequiredEU, tinEU, codeCRS, tinRequiredCRS, tinCRS);
+
+		return saveKYCResponse;
+
+	}
+
+	private void printAndSave(SaveKYCResponse saveKYCResponse, SaveKYCRequest request, String document,
+			String typeDocument, String penumpe, boolean facta, boolean PEP, boolean CRS, String activity,
+			String profession, String CIIU, String incomes, String expenses, String passives, String assets,
+			String patrimony, boolean tinRequiredEU, String tinEU, String codeCRS, boolean tinRequiredCRS,
+			String tinCRS) throws DesiredException {
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+				.setPrettyPrinting().create();
+		String prettyResponse = gson.toJson(saveKYCResponse);
+		String prettyRequest = gson.toJson(request);
+
+		logger.info("Request : " + prettyRequest.toString() + " Response: " + prettyResponse.toString());
+
+
+		try {
+			questionRepository.addForm(saveKYCResponse.getKycResolutionId(), document, typeDocument,
+					LocalDate.now().toString(), LocalDate.now().plusMonths(6).toString(), prettyRequest, prettyResponse,
+					penumpe, facta, PEP, CRS, activity, profession, CIIU, incomes, expenses, passives, assets,
+					patrimony, tinRequiredEU, tinEU, codeCRS, tinRequiredCRS, tinCRS);
+		} catch (DesiredException e) {
+			logger.error(" KYC form could duplicate registered in database with the identifier '{}' : '{}' .",
+					saveKYCResponse.getKycResolutionId(), e.getMessage());
+			throw e;
+		}
+	}
+
+	private void printAndSaveAltair(AltairResponse altairResponse, AltairRequest altairRequest)
+			throws DesiredException {
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+				.setPrettyPrinting().create();
+		String prettyResponse = gson.toJson(altairResponse);
+		String prettyRequest = gson.toJson(altairRequest);
+
+
+		logger.info("ALTAIR : Request : " + prettyRequest + " Response: " + prettyResponse);
+
+	}
+
+	private void printAndSaveVigiaList(FVERIFICATERCEROV3Response vigiaResponse, FVERIFICATERCEROV3 vigiaRequest)
+			throws DesiredException {
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+				.setPrettyPrinting().create();
+		String prettyResponse = gson.toJson(vigiaResponse);
+		String prettyRequest = gson.toJson(vigiaRequest);
+		logger.info("Vigia : Request : " + prettyRequest + " Response: " + prettyResponse);
+
+	}
+
+	private void printAndSaveVigia(FNIVELRIESGOV2Response vigiaResponse, FNIVELRIESGOV2 vigiaRequest)
+			throws DesiredException {
+		Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+				.setPrettyPrinting().create();
+		String prettyResponse = gson.toJson(vigiaResponse);
+		String prettyRequest = gson.toJson(vigiaRequest);
+
+
+		logger.info("Vigia : Request : " + prettyRequest + " Response: " + prettyResponse);
+
+	}
+
+	private SaveKYCResponse orderResponseVigia(FNIVELRIESGOV2Response fNIVELRIESGOV2Response, String questionariId) {
+		SaveKYCResponse saveKYCResponse = new SaveKYCResponse();
+
+		RiskBean riskBean = new RiskBean();
+		ScoreBean scoreBean = new ScoreBean();
+		ValidityPeriodBean validityPeriodBean = new ValidityPeriodBean();
+		scoreBean.setValidityPeriod(validityPeriodBean);
+		riskBean.setScore(scoreBean);
+		saveKYCResponse.setRisk(riskBean);
+
+		saveKYCResponse.getRisk().getScore().setCode(fNIVELRIESGOV2Response.getFNIVELRIESGOV2Result().getNivelRiesgo());
+		saveKYCResponse.setKycResolutionId(questionariId);
+		saveKYCResponse.setLocalReference(saveKYCResponse.getKycResolutionId());
+		saveKYCResponse.getRisk().getScore().getValidityPeriod().setStartDate(LocalDate.now().toString());
+		int months = Integer.parseInt(this.validMonth);
+		saveKYCResponse.getRisk().getScore().getValidityPeriod()
+				.setEndDate(LocalDate.now().plusMonths(months).toString());
+		return saveKYCResponse;
+	}
+
+	public String calculateAge(
+			LocalDate birthDate,
+			LocalDate currentDate) {
+		return Period.between(birthDate, currentDate).getYears() + "";
+	}
+
+	 public SaveKYCResponse getNivelRiesgo(SaveKYCRequest request, AltairResponse altairResponse, SaveKYCResponse saveKYCResponse, VariablesRiesgos variablesRiesgos) {
+
+
+
+
+
+		 PersonNaturalModel pn = new PersonNaturalModel();
+		 pn.setNumeroDocumento(request.getParty().getPerson().getDocuments().get(0).getDocumentNumber());
+		 pn.setTipoDocumento(request.getParty().getPerson().getDocuments().get(0).getDocumentTypeCode());
+		 pn.setNombre(altairResponse.getData().getDatosBasicos().getNombre() +" "+ altairResponse.getData().getDatosBasicos().getPrimerApellido() );
+		 pn.setPrimerNombre(altairResponse.getData().getDatosBasicos().getNombre());
+		 pn.setSegundoNombre("");
+		 pn.setPrimerApellido(altairResponse.getData().getDatosBasicos().getPrimerApellido());
+		 pn.setSegundoApellido(altairResponse.getData().getDatosBasicos().getSegundoApellido());
+		 pn.setCorreo(altairResponse.getData().getDatosBasicos().getEmail());
+		 pn.setOcupacion(variablesRiesgos.getOcupacion());
+		 pn.setIndustria(extraerUltimos(variablesRiesgos.getIndustria(), 4));
+
+		 pn.setProducto("CDT");
+		 pn.setPais(altairResponse.getData().getDatosBasicos().getPaisDireccion());
+		 pn.setCiudad(altairResponse.getData().getDatosBasicos().getCiudad());
+		 pn.setCanal("D");
+
+		 ResponseModel res = kycServiceImp.getRiesgoPN(pn);
+
+
+		 if(request.getKnowYourCustomerQuestionnaires().isEmpty()){
+			 logger.info("Lista vacia");
+		 }
+		 saveKYCResponse.setKycResolutionId(request.getKnowYourCustomerQuestionnaires().get(0).getQuestionnaireId());
+		 saveKYCResponse.setLocalReference(saveKYCResponse.getKycResolutionId());
+		 setterRiskBean(saveKYCResponse , res.getResultado());
+		 variablesRiesgos.setOcupacion("");
+		 variablesRiesgos.setIndustria("");
+
+		 return saveKYCResponse;
+	}
+
+	public void setterRiskBean (SaveKYCResponse saveKYCResponse, String nivel){
+		ValidityPeriodBean validityPeriodBean = new  ValidityPeriodBean();
+		int months = Integer.parseInt(this.validMonth);
+		validityPeriodBean.setStartDate(LocalDate.now().toString());
+		validityPeriodBean.setEndDate(LocalDate.now().plusMonths(months).toString());
+
+		ScoreBean scoreBean = new ScoreBean();
+		scoreBean.setCode(nivel);
+		scoreBean.setValidityPeriod(validityPeriodBean);
+
+		RiskBean riskBean = new RiskBean();
+		riskBean.setScore(scoreBean);
+
+		saveKYCResponse.setRisk(riskBean);
+
+
+	}
+
+	public String extraerUltimos (String texto, int value){
+		if ( texto == null || texto.length() < 4 ){
+			return texto;
+		}
+		return texto.substring(texto.length() - value);
+
+	}
+
+	public String getOcupacion(String ocu){
+
+	return 	switch (ocu){
+			case "FE", "FF", "FG", "FH", "FI", "F2", "F4" -> "IND";
+			case "FC" -> "REN";
+			case "F1", "F3" -> "EMP";
+			case "FD", "F8" -> "PEN";
+			case "FZ" -> "FZ";
+			default -> "0";
+
+		};
+
+	}
+
+private String sanitizeHeaderValue(String value) throws DesiredException {
+		if(value == null || value.isBlank()){
+			throw new DesiredException("Valor invalido o nulo", 500);
+		}
+
+		String sanitized = value.replaceAll("[\\r\\n]", "");
+
+
+	if( sanitized.isBlank()){
+		throw new DesiredException("Valor invalido o nulo", 500);
+	}
+
+
+		return sanitized;
 }
 
 
-
-package com.santander.bnc.bsn049.bncbsn049savekycservice.domain.repository;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.DesiredException;
-import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.FormKYCBean;
-
-@Repository
-@RequestMapping("/v2/know_your_customer")
-public class FormKYCRepository {
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(FormKYCRepository.class);
-
-    /**
-     * Obtiene los registros de informaci\u00F3n asociados a los diferentes
-     * t\u00E9rminos o nomenclaturas de las direcciones.
-     * 
-     * @return Listado de t\u00E9rminos o nomenclaturas de las direcdiones.
-     * @throws DesiredException
-     * @see AddressTermsBean
-     */
-    public FormKYCBean getFormPenumpe(String key) throws DesiredException {
-        FormKYCBean questionBeanList = null;
-
-        String sql = "SELECT * FROM \r\n"
-                + "(SELECT * FROM CDTKYC.KYC_FORM WHERE PENUMPE = ? ORDER BY TO_DATE( START_DATE, 'dd/mm/yyyy') DESC)\r\n"
-                + " WHERE ROWNUM = 1";
-
-        try {
-            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), key);
-
-        } catch (BadSqlGrammarException e) {
-            logger.error("KYC_FORM data was not found.", e);
-            throw new DesiredException("'party_id': not found", 404, e);
-        } catch (Exception e) {
-            logger.error("KYC_FORM data was not found.", e);
-            throw new DesiredException("KYC_FORM data not found", 404, e);
-        }
-        return questionBeanList;
-
-    }
-
-    public FormKYCBean getFormKYC(String key) throws DesiredException {
-        FormKYCBean questionBeanList = null;
-
-        String sql = "SELECT * FROM CDTKYC.KYC_FORM WHERE KEY = ?";
-
-        try {
-            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), key);
-
-        } catch (BadSqlGrammarException e) {
-            logger.error("KYC_FORM data was not found.", e);
-            throw new DesiredException("'kyc_resolution_id': not found", 404, e);
-        } catch (Exception e) {
-            logger.error("KYC_FORM data was not found.", e);
-            throw new DesiredException("KYC_FORM data not found", 404,e);
-        }
-        return questionBeanList;
-
-    }
-
-    public static class AnswerRowMapper implements RowMapper<FormKYCBean> {
-
-        public FormKYCBean mapRow(ResultSet resultSet, int row) throws SQLException {
-            FormKYCBean formKYCBean = new FormKYCBean();
-            formKYCBean.setRequest(resultSet.getString("request"));
-            formKYCBean.setResponse(resultSet.getString("response"));
-            formKYCBean.setKey(resultSet.getString("key"));
-
-            return formKYCBean;
-        }
-    }
-
 }
-
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<!-- Definition of the artifact -->
-	<groupId>com.santander.bnc.bsn049</groupId>
-	<artifactId>bnc-bsn049-savekycservice</artifactId>
-	<version>1.2.3</version>
-	<packaging>jar</packaging>
-	<!-- Information about the application -->
-	<name>bnc-bsn049-savekycservice</name>
-	<description>save-kyc-service</description>
-	<!-- Use starter parent -->
-	<parent>
-		<groupId>com.santander.darwin</groupId>
-		<artifactId>darwin-spring-boot-starter-parent</artifactId>
-		<version>6.3.5</version>
-	</parent>
-
-	<!-- Java compile version -->
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-
-
-	<dependencies>
-		<!-- Spring Boot Actuator dependency -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<!-- Servlet WebApp starter	-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<!-- OpenAPI dependency -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-		</dependency>
-		<!-- Santander Darwin libraries -->
-		<!-- Core dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-core</artifactId>
-		</dependency>
-		<!-- Logging dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-logging-kafka</artifactId>
-		</dependency>
-		<!-- Cache dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-cache-caffeine</artifactId>
-		</dependency>
-		<!-- Authentication dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-authentication</artifactId>
-		</dependency>
-		<!-- Omnichannel dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-omnichannel</artifactId>
-		</dependency>
-		<!-- Webservice dependency -->
-		<dependency>
-			<groupId>com.santander.darwin</groupId>
-			<artifactId>darwin-spring-boot-starter-webservice</artifactId>
-		</dependency>
-		<!-- End Santander Darwin libraries -->
-		<!-- JPA dependencies -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<!-- Oracle dependencies -->
-		<dependency>
-			<groupId>com.oracle.database.jdbc</groupId>
-			<artifactId>ojdbc11</artifactId>
-		</dependency>
-		<!--    Provided dependencies    -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<!-- Test Dependencies -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Junit 5 Dependencies -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Enables any legacy JUnit 3 and JUnit 4 tests you may have. Not needed for JUnit 5
-		tests. -->
-		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Spring security dependency for testing -->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- H2 dependencies -->
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Manejo de conexiones JDBC para spring boot -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jakarta.xml.bind</groupId>
-			<artifactId>jakarta.xml.bind-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.messaging.saaj</groupId>
-			<artifactId>saaj-impl</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.ws/spring-ws-core -->
-		<dependency>
-			<groupId>org.springframework.ws</groupId>
-			<artifactId>spring-ws-core</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-		<dependency>
-			<groupId>com.sun.xml.ws</groupId>
-			<artifactId>jaxws-rt</artifactId>
-			<version>2.3.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jaxb</groupId>
-			<artifactId>jaxb-runtime</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.3.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.activation/activation -->
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-xml</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.5.12</version>
-		</dependency>
-		<!-- Documentación de API's (Swagger) -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-boot-starter</artifactId>
-			<version>3.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version> <!-- or 0.11.2 for Java 8 compatibility -->
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.21.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<!-- Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-			<version>6.5.4</version>
-			<scope>compile</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<!-- Build plugins -->
-		<plugins>
-			<!-- Arsenal JPA Code Generator for Database Entities and Repositories -->
-			<plugin>
-				<groupId>com.santander.ars</groupId>
-				<artifactId>gln-back-arsenal-jpa-codegen-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<sqlScript>${project.basedir}/src/main/resources/schema.sql</sqlScript>
-					<entityPackage>
-						com.santander.bnc.bsn049.bncbsn049savekycservice.infrastructure.adapters.output.jpa.data</entityPackage>
-					<repositoryPackage>
-						com.santander.bnc.bsn049.bncbsn049savekycservice.infrastructure.adapters.output.jpa.repository</repositoryPackage>
-					<fileOverride>false</fileOverride> <!-- This property is false by default -->
-				</configuration>
-			</plugin>
-			<!-- Spring Boot Maven Plugin -->
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<!-- Maven Plugin for the encoding -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-					<propertiesEncoding>ISO-8859-1</propertiesEncoding>
-				</configuration>
-			</plugin>
-			<!-- Jacoco Maven Plugin for coverage -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>true</skipTests>
-				</configuration>
-			</plugin>
-
-		</plugins>
-		<!-- End build Plugins -->
-		<resources>
-			<resource>
-				<directory>${project.basedir}/src/main/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.yml</include>
-					<include>**/*.yaml</include>
-					<include>**/banner.txt</include>
-					<include>schema.sql</include>
-					<include>**/darwinchannels.json</include>
-				</includes>
-			</resource>
-		</resources>
-	</build>
-</project>
-
-spring.profiles.active: local
----
-
-
-darwin:
-  region: boae
-  suffix:
-  app-name: bsn049
-  logging:
-    format: GLUONLOG
-    gluon-log:
-      company: bnc
-      componentName: savekycservice
-      componentId: CHANGEIT_CMPT_ID
-      componentType: microservice
-      appId: CHANGEIT_APP_ID
-    entity: ESP
-    paas-app-version: "6.1.0"
-    kafka:
-      server: ${env.logging-server}
-  core:
-    exceptions:
-      error-format: GLUON
-  security:
-    white-list:
-      - /**
-    connectors:
-      pkm-connector:
-        pkm-endpoint:
-          - ${pkm-endpoint}
-    caffeine:
-      # disable null values in cache for performance reasons
-      allow-null-values: false
-
-spring:
-  application:
-    name: bnc-bsn049-savekycservice
-  session:
-    store-type: none
-  cache:
-    type: CAFFEINE #Activated cache caffeine by default (If you want to change the cache to JBoss DataGrid, check the documentacion in confluence)
-    caffeine:
-      spec: expireAfterWrite=10m #Specifies that each entry should be automatically removed from the cache once that duration has elapsed after the entry’s creation
-  lifecycle.timeout-per-shutdown-phase: 2m
-  datasource:
-    url: ${spring.datasource.url}
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
-    driver-class-name: oracle.jdbc.driver.OracleDriver
-    # Configuration of connection pool. Please configure it according to the needs of the microservice.
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 2
-      idle-timeout: 36000
-      max-lifetime: 1800000
-      connection-timeout: 20000
-      leak-detection-threshold: 3000
-  jpa:
-    hibernate:
-      ddl-auto: update
-
-
-logging.level:
-  com.santander.bnc.bsn049.bncbsn049savekycservice.Application: INFO
-  root: INFO
-
-management:
-  endpoint.health:
-    show-details: ALWAYS
-
-health:
-  config:
-    enabled: false
-
-springdoc:
-  swagger-ui:
-    disable-swagger-default-url: true
-    path: /swagger-ui.html
-
-server:
-  max-http-request-header-size: 128KB
-  forward-headers-strategy: framework
-  shutdown: graceful
-
-# Servicio de Motor consulta datos basicos
-engine:
-  service-name: ${engine.service-name}
-  protocol: ${kyc.vigia.protocol}
-  host: ${engine.host}
-  context: ${engine.context}
-  trust-store: 
-  trust-store-property: 
-  mqRoute: ${engine.mqRoute}
-# Servicio de vigia
-vigia:
-  service-name: ${kyc.vigia.service-name}
-  protocol: ${kyc.vigia.protocol}
-  host: ${kyc.vigia.host}
-  context: ${kyc.vigia.risk.context}
-  trust-store: 
-  trust-store-property: 
-# Servicio de vigia listas PEP
-vigiaListas:
-  service-name: engine-orchestrator
-  protocol: http
-  host: ${kyc.vigia.host}
-  context: ${kyc.vigia.listas.context}
-  trust-store: 
-  trust-store-property: 
-#Meses validos para formulario
-valid-month:  12
-porcentageVigia: 100
-#OneFcc
-urlOneFcc: ${onefcc.url}
-userOneFcc: ${onefcc.user}     
-passOneFcc: ${onefcc.pass}
-
-#Nivel de riesgo
-urlriskLevel: ${risklevel.url}
-
-

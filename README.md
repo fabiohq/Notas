@@ -1,150 +1,261 @@
-package com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.service.impl;
+package com.santander.bnc.bsn049.bncbsn049savekycservice.domain.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.test.util.ReflectionTestUtils;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.DesiredException;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.Questions;
 
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.client.service.TrxSanbaService;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp13.request.TrxBP13Request;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp13.response.TrxBP13Response;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp49.response.TrxBP49Data;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp49.response.TrxBP49DataResponse;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp49.response.TrxBP49Response;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.termdepositsettlements.request.TermDepositSettlementsRequest;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.termdepositsettlements.response.TermDepositSettlementsReponse;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.exception.error.ErrorService;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.mappers.TermDepositSettlementsMappers;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.utils.RegexUtils;
-import com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.utils.TermDepositUtils;
+@Repository
+public class QuestionRepository {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(QuestionRepository.class);
 
-class TermDepositSettlementsImplTest {
+    /**
+     * Obtiene los registros de informaci\u00F3n asociados a los diferentes
+     * t\u00E9rminos o nomenclaturas de las direcciones.
+     * 
+     * @return Listado de t\u00E9rminos o nomenclaturas de las direcdiones.
+     * @see AddressTermsBean
+     */
+    public Questions getQuestion(String id) {
+        Questions questionBeanList = null;
 
-    private TrxSanbaService trxSanbaService;
-    private TermDepositUtils termDepositUtils;
-    private RegexUtils regexUtils;
-    private ErrorService errorService;
-    private TermDepositSettlementsMappers settlementsMappers;
-    private TermDepositSettlementsImpl service;
+        String sql = "SELECT * FROM CDTKYC.QUESTION WHERE KEY = ?";
 
-    @BeforeEach
-    void setUp() {
-        trxSanbaService = mock(TrxSanbaService.class);
-        termDepositUtils = mock(TermDepositUtils.class);
-        regexUtils = mock(RegexUtils.class);
-        errorService = mock(ErrorService.class);
-        settlementsMappers = mock(TermDepositSettlementsMappers.class);
+        try {
+            questionBeanList = jdbcTemplate.queryForObject(sql, new QuestionRowMapper(), id);
+        } catch (DataAccessException e) {
+            logger.error("Data was not recorded. Error executing query", e);
+            return questionBeanList;
+        } catch (Exception e) {
+            logger.error("Data was not recorded.", e);
+            return questionBeanList;
+        }
+        return questionBeanList;
 
-        service = new TermDepositSettlementsImpl(
-                trxSanbaService,
-                termDepositUtils,
-                regexUtils,
-                errorService,
-                settlementsMappers
-        );
-
-        ReflectionTestUtils.setField(service, "bp49serviceRoute", "BP49_ROUTE");
-        ReflectionTestUtils.setField(service, "bp13serviceRoute", "BP13_ROUTE");
     }
 
-    @Test
-    void getDepositSettlementsShouldReturnMappedResponseWhenMovementExists() {
-        TermDepositSettlementsRequest request = validRequest();
+    public static class QuestionRowMapper implements RowMapper<Questions> {
 
-        TrxBP49Response bp49Response = bp49WithMovement(new TrxBP49Data());
-        TrxBP13Response bp13Response = new TrxBP13Response();
-        TermDepositSettlementsReponse expected = new TermDepositSettlementsReponse();
+        public Questions mapRow(ResultSet resultSet, int row) throws SQLException {
+            Questions questionBean = new Questions();
+            questionBean.setQuestionId(resultSet.getString("key"));
+            questionBean.setDescription(resultSet.getString("name"));
+            questionBean.setVigia(resultSet.getString("vigia"));
 
-        when(trxSanbaService.trxBP49(any())).thenReturn(bp49Response);
-        when(trxSanbaService.trxBP13(any())).thenReturn(bp13Response);
-        when(settlementsMappers.settlementsReponse(bp49Response, bp13Response)).thenReturn(expected);
-
-        TermDepositSettlementsReponse result = service.getDepositSettlements(request);
-
-        assertSame(expected, result);
-        verify(termDepositUtils).getSettlementsInputValidation(request);
-
-        ArgumentCaptor<com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp49.request.TrxBP49Request>
-                bp49Captor = ArgumentCaptor.forClass(
-                com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.host.bp49.request.TrxBP49Request.class);
-
-        verify(trxSanbaService).trxBP49(bp49Captor.capture());
-
-        var bp49Request = bp49Captor.getValue();
-        assertEquals("12345", bp49Request.getData().getSecuencia());
-        assertEquals("0100", bp49Request.getData().getOfic());
-        assertEquals("0065", bp49Request.getData().getEnt());
-        assertEquals("99999999991234567890", bp49Request.getData().getNumeroCertificado());
-        assertEquals("", bp49Request.getData().getBuscarPor());
-        assertEquals("", bp49Request.getData().getDocumentoCajero());
+            return questionBean;
+        }
     }
 
-    @Test
-    void getDepositSettlementsShouldReturnNullWhenFirstMovementIsNull() {
-        TermDepositSettlementsRequest request = validRequest();
+    public String getCIUU(String name) throws DesiredException {
+        String questionBeanList = null;
 
-        TrxBP49DataResponse data = new TrxBP49DataResponse();
-        ArrayList<TrxBP49Data> movements = new ArrayList<>();
-        movements.add(null);
-        data.setMovimientos(movements);
+        String sql = "SELECT RISK FROM CDTKYC.ANSWER WHERE KEY = ?";
 
-        TrxBP49Response bp49Response = new TrxBP49Response();
-        bp49Response.setData(data);
+        try {
+            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), name);
+        } catch (DataAccessException e) {
+            logger.error("Error table RISK. Error executing query", e);
+            throw new DesiredException("questionId: 2d747251-8d68-4a59-82bd-7838ec1485b3 - not valid", 404, e);
+        } catch (Exception e) {
+            logger.error("Error table RISK.", e);
+            throw new DesiredException("questionId: 2d747251-8d68-4a59-82bd-7838ec1485b3 - not valid", 404, e);
+        }
+        return questionBeanList;
 
-        when(trxSanbaService.trxBP49(any())).thenReturn(bp49Response);
-        when(trxSanbaService.trxBP13(any())).thenReturn(new TrxBP13Response());
-
-        TermDepositSettlementsReponse result = service.getDepositSettlements(request);
-
-        assertNull(result);
-        verify(settlementsMappers, never()).settlementsReponse(any(), any());
     }
 
-    @Test
-    void trxBP13callShouldBuildRequestCorrectly() {
-        TrxBP13Response expected = new TrxBP13Response();
-        when(trxSanbaService.trxBP13(any())).thenReturn(expected);
+    public static class AnswerRowMapper implements RowMapper<String> {
 
-        TrxBP13Response result = service.trxBP13call("9999999999", "12345-67890");
+        public String mapRow(ResultSet resultSet, int row) throws SQLException {
+            String risk = resultSet.getString("risk");
 
-        assertSame(expected, result);
-
-        ArgumentCaptor<TrxBP13Request> captor = ArgumentCaptor.forClass(TrxBP13Request.class);
-        verify(trxSanbaService).trxBP13(captor.capture());
-
-        TrxBP13Request request = captor.getValue();
-
-        assertEquals("0065", request.getData().getEntidad());
-        assertEquals("0100", request.getData().getOficina());
-        assertEquals("", request.getData().getCuenta());
-        assertEquals("", request.getData().getNumSecuencia());
-        assertEquals("99999999991234567890", request.getData().getNumCertificado());
-        assertNotNull(request.getCabecera());
+            return risk;
+        }
     }
 
-    private TermDepositSettlementsRequest validRequest() {
-        TermDepositSettlementsRequest request = new TermDepositSettlementsRequest();
-        request.setAuthorization("auth");
-        request.setClient_id("client");
-        request.setDeposit_id("9999999999");
-        request.setPlacement_id("12345-67890");
-        return request;
+    public String getAnswerCode(String key) throws DesiredException {
+        String questionBeanList = null;
+
+        String sql = "SELECT NAME FROM CDTKYC.ANSWER WHERE KEY = ?";
+
+
+        try {
+            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerCodeRowMapper(), key);
+        } catch (DataAccessException e) {
+           logger.error("Error getting answer code Error executing query", e);
+            throw new DesiredException("questionId: " + key, 404, e);
+        } catch (Exception e) {
+            logger.error("Error getting answer code.", e);
+            throw new DesiredException("questionId: " + key, 404, e);
+        }
+        return questionBeanList;
+
     }
 
-    private TrxBP49Response bp49WithMovement(TrxBP49Data movement) {
-        TrxBP49DataResponse data = new TrxBP49DataResponse();
-        data.setMovimientos(List.of(movement));
+    public static class AnswerCodeRowMapper implements RowMapper<String> {
 
-        TrxBP49Response response = new TrxBP49Response();
-        response.setData(data);
+        public String mapRow(ResultSet resultSet, int row) throws SQLException {
+            String name = resultSet.getString("name");
 
-        return response;
+            return name;
+        }
+    }
+
+    public void addForm(String key, String document, String documentType, String dateStart, String dateEnd,
+            String request, String response, String penumpe, boolean facta, boolean PEP, boolean CRS, String activity,
+            String profession, String cIIU, String incomes, String expenses, String passives, String assets,
+            String patrimony, boolean tinRequiredEU, String tinEU, String codeCRS, boolean tinRequiredCRS,
+            String tinCRS) throws DesiredException {
+
+        try {
+            Date date_Start = new SimpleDateFormat("yyyy-MM-dd").parse(dateStart);
+            dateStart = new SimpleDateFormat("dd/MM/yyyy").format(date_Start);
+            logger.info("date_Start: " + date_Start + "dateStart: " + dateStart);
+
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            logger.error("could not be posible parse dates '{}':'{}' .",
+                    dateStart, e);
+        }
+
+        try {
+            Date date_End = new SimpleDateFormat("yyyy-mm-dd").parse(dateEnd);
+            dateEnd = new SimpleDateFormat("dd/mm/yyyy").format(date_End);
+
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            logger.error("could not be posible parse dates '{}':'{}' .",
+                    dateEnd, e);
+        }
+
+        String sql = "INSERT INTO CDTKYC.KYC_FORM (KEY, DOCUMENT,DOCUMENT_TYPE,START_DATE,END_DATE,REQUEST,RESPONSE,PENUMPE,FATCA,PEP,CRS,ACTIVITY,"
+                + "PROFESSION,CIIU,INCOMES,EXPENSES,PASSIVES,ASSETS,PATRIMONY,TIN_EU,NUMBER_TIN_EU,CODE_CRF,TIN_CRF,NUMBER_TIN_CRF) "
+                + "VALUES(?, ?, ?, to_date(?,'dd/mm/yyyy'), to_date(?,'dd/mm/yyyy'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            jdbcTemplate.update(sql, key, document, documentType, dateStart, dateEnd, request, response, penumpe, facta,
+                    PEP, CRS, activity, profession, cIIU, incomes,
+                    expenses, passives, assets, patrimony, tinRequiredEU, tinEU, codeCRS, tinRequiredCRS, tinCRS);
+            logger.debug(
+                    "The registration KYC form '{}' was successful.",
+                    key);
+        } catch (DuplicateKeyException e) {
+            logger.error(" KYC form could duplicate registered in database with the identifier '{}': '{}'.",
+                    key, e.getMessage(), e);
+            throw new DesiredException("'knowYourCustomerQuestionnaires.questionnaireId': duplicado", 400, e);
+        } catch (Exception exception) {
+            logger.error(" KYC form could not be registered in database with the identifier '{}': '{}' .",
+                    key, exception.getMessage(), exception);
+            throw new DesiredException(
+                    "'knowYourCustomerQuestionnaires.questionnaireId': could not be registered in database with the identifier  "
+                            + key,
+                    400, exception);
+        }
     }
 }
+
+
+
+package com.santander.bnc.bsn049.bncbsn049savekycservice.domain.repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.DesiredException;
+import com.santander.bnc.bsn049.bncbsn049savekycservice.domain.bean.FormKYCBean;
+
+@Repository
+@RequestMapping("/v2/know_your_customer")
+public class FormKYCRepository {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    private static final Logger logger = LoggerFactory.getLogger(FormKYCRepository.class);
+
+    /**
+     * Obtiene los registros de informaci\u00F3n asociados a los diferentes
+     * t\u00E9rminos o nomenclaturas de las direcciones.
+     * 
+     * @return Listado de t\u00E9rminos o nomenclaturas de las direcdiones.
+     * @throws DesiredException
+     * @see AddressTermsBean
+     */
+    public FormKYCBean getFormPenumpe(String key) throws DesiredException {
+        FormKYCBean questionBeanList = null;
+
+        String sql = "SELECT * FROM \r\n"
+                + "(SELECT * FROM CDTKYC.KYC_FORM WHERE PENUMPE = ? ORDER BY TO_DATE( START_DATE, 'dd/mm/yyyy') DESC)\r\n"
+                + " WHERE ROWNUM = 1";
+
+        try {
+            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), key);
+
+        } catch (BadSqlGrammarException e) {
+            logger.error("KYC_FORM data was not found.", e);
+            throw new DesiredException("'party_id': not found", 404, e);
+        } catch (Exception e) {
+            logger.error("KYC_FORM data was not found.", e);
+            throw new DesiredException("KYC_FORM data not found", 404, e);
+        }
+        return questionBeanList;
+
+    }
+
+    public FormKYCBean getFormKYC(String key) throws DesiredException {
+        FormKYCBean questionBeanList = null;
+
+        String sql = "SELECT * FROM CDTKYC.KYC_FORM WHERE KEY = ?";
+
+        try {
+            questionBeanList = jdbcTemplate.queryForObject(sql, new AnswerRowMapper(), key);
+
+        } catch (BadSqlGrammarException e) {
+            logger.error("KYC_FORM data was not found.", e);
+            throw new DesiredException("'kyc_resolution_id': not found", 404, e);
+        } catch (Exception e) {
+            logger.error("KYC_FORM data was not found.", e);
+            throw new DesiredException("KYC_FORM data not found", 404,e);
+        }
+        return questionBeanList;
+
+    }
+
+    public static class AnswerRowMapper implements RowMapper<FormKYCBean> {
+
+        public FormKYCBean mapRow(ResultSet resultSet, int row) throws SQLException {
+            FormKYCBean formKYCBean = new FormKYCBean();
+            formKYCBean.setRequest(resultSet.getString("request"));
+            formKYCBean.setResponse(resultSet.getString("response"));
+            formKYCBean.setKey(resultSet.getString("key"));
+
+            return formKYCBean;
+        }
+    }
+
+}
+
+

@@ -1,1 +1,1 @@
-Get-AppxPackage -allusers Microsoft.WindowsStore | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppxManifest.xml"}
+https://www.sura.co/seguros/personas/movilidad/motos/digital?utm_source=google-ads&utm_medium=paid&utm_campaign=SURA_MOTOS_SEARCH_RETENTION&utm_term=seguro-moto&utm_content=aon_search_retention&gad_source=1&gad_campaignid=21549686845&gbraid=0AAAAApX3iq5lvURvV8wAdhCCzcSvPhvSb&gclid=EAIaIQobChMIoonpkcv6lAMVlJ5aBR27GjVOEAAYASAAEgLoq_D_BwE#plan-total

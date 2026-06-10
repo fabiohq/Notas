@@ -1,37 +1,3 @@
-package com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.banks;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BanksDTO {
-    private List<BanksParametersDTO> banks;
-
-    public List<BanksParametersDTO> getBanks() {
-        return banks;
-    }
-
-    public void setBanks(List<BanksParametersDTO> banks) {
-        this.banks = banks;
-    }
-
-}
-
-package com.santander.bnc.bsn049.bncbsn049mstrmdpstsettlmn.domain.banks;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class BanksParametersDTO {
     private String bankId;
     private String bankName;
 
